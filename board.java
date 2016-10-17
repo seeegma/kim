@@ -52,8 +52,8 @@ public class Board {
                 break;
         }
         // checks if the move is valid and if it's out of bounds
-        if(isFilled[x][y] && x >= this.dimx && y >= this.dimy
-           && x < 0 && y < 0) {
+        if(isFilled[x][y] || x >= this.dimx || y >= this.dimy
+           || x < 0 || y < 0) {
             return false;
         }
         
