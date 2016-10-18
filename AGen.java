@@ -109,11 +109,21 @@ public class AGen {
 	 * @param arr char[][] an array to put cars into
 	 * @return char[][] with cars added to it
 	 */
-	public static char[][] addCar(char[][] arr){//, int x, int y, int len, int hor){
-		arr[2][3] = 'A';
-		arr[2][4] = 'A';
-		arr[0][0] = 'B';
-		arr[1][0] = 'B';
+	//replace arr with internal call? replace xylenhor with Car object call maybe
+	public static char[][] addCar(char[][] arr, char let, int x, int y, int len, int hor){
+		arr[x][y] = let;
+		if (hor){ 
+			arr[x+1][y] = let; 
+			if (len > 2){ arr[x+2][y] = let; }
+		} else { 
+			arr[x][y+1] = let; 
+			if (len > 2){ arr[x][y+2] = let;  }
+		}
+		
+		
+		//arr[2][3] = 'A';
+		//arr[2][4] = 'A';
+
 		
 		return arr;
 	}
