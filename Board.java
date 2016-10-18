@@ -3,14 +3,14 @@ import java.util.HashMap;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
- * Note that the board is represented as a dimx by dimy board with the top left
+ * Note that the board is represented as a w by h board with the top left
  * corner known to be 0, 0. Increasing x and y moves to the right and down
  * respectively.
  */
 public class Board {
 // TODO: introduce coordinate class just to make stuff more clear? Will make
 // coordinate conversion from Direction easier.
-    int dimx, dimy; // dimension of the board
+    int w, h; // dimension of the board
     // marks occupied spots on the board
     private boolean[][] isFilled;
     //private HashMap<Character,Car> carList;
@@ -20,34 +20,13 @@ public class Board {
     Direction exit;
     int offset;
 
-    /**
-     * Car wrapper class. Note that the coordinates correspond to the left and
-     * upper most block of the car on the board (aka the smallest x and y
-     * coordinates). Length always "grows" to the right and down. The character
-     * is to identify which car is which.
-     */
-    private class Car {
-        private boolean horizontal;
-        private int length;
-        private int x;
-        private int y;
-        //char c; // might want to change somehow?
-
-        public Car(int x, int y, int length, boolean horiz) {
-            this.x = x;
-            this.y = y;
-            this.length = length;
-            this.horizontal = horiz;
-        }
-    }
-
     // Basic constructor
     public Board(int w, int h, Direction d, int o) {
-        this.dimx = w;
-        this.dimy = h;
+        this.w = w;
+        this.h = h;
         this.exit = d;
         this.offset = o;
-        isFilled = new boolean[dimx][dimy];
+        isFilled = new boolean[w][h];
         carList = new ArrayList<Car>();
     }
     
@@ -55,16 +34,32 @@ public class Board {
     public Board(int w, int h, Direction d, int o, ArrayList<Integer> x,
         ArrayList<Integer>  y, ArrayList<Integer> len,
         ArrayList<Boolean> horiz) {
-        this.dimx = w;
-        this.dimy = h;
+        this.w = w;
+        this.h = h;
         this.exit = d;
         this.offset = o;
-        isFilled = new boolean[dimx][dimy];
+        isFilled = new boolean[w][h];
         carList = new ArrayList<Car>();
 
         for (int i = 0; i < x.size(); i++) {
             this.addCar(x.get(i), y.get(i), len.get(i), horiz.get(i));
         }
+    }
+
+    public int getWidth() {
+        return this.w;
+    }
+
+    public int getHeight() {
+        return this.h;
+    }
+
+    public int getExitDirection() {
+        return this.exit;
+    }
+
+    public int getExitOffset() {
+        return this.o;
     }
 
     /**
@@ -80,10 +75,11 @@ public class Board {
         // update isFilled
         int dx = 0;
         int dy = 0;
-        if (horiz)
+        if (horiz) {
             dx++;
-        else
+        } else {
             dy++;
+        }
         for (int i = 0; i < length; i++) {
             isFilled[x + (dx*i)][y + (dy*i)] = true;
         }
@@ -139,10 +135,11 @@ public class Board {
         while (i <= amount && !collision) {
             tempx = x + (dx * i);
             tempy = y + (dy * i);
-            if (tempx >= this.dimx || tempx < 0 // if it's out of bounds in x
-                || tempy >= this.dimy || tempy < 0 // if it's out of bounds in y
-                || isFilled[tempx][tempy]) // if it's alreaddy filled
+            // check if it's out of bounds or is already filled
+            if (tempx >= this.w || tempx < 0 || tempy >= this.h || tempy < 0
+                || isFilled[tempx][tempy]) {
                 collision = true;
+            }
             isFilled[tempx][tempy] = true; // the square the car moved to
             // the square the car is no longer occuping
             isFilled[tempx-(dx*c.length)][tempy-(dy*c.length)] = false;
@@ -150,8 +147,9 @@ public class Board {
         }
         // decrements i if we had an early collision since i is one square ahead
         // of where the car will move to
-        if (collision) 
+        if (collision) { 
             i--;
+        }
 
         // actually moves the car
         c.x = dx * i;
@@ -164,10 +162,10 @@ public class Board {
      * For testing purposes. Prints out the innards.
      */
     private void debug() {
-        System.out.println(dimx + " " + dimy);
+        System.out.println(w + " " + h);
 
-        for(int i = 0; i < dimy; i++) {
-            for (int j = 0; j < dimx; j++) {
+        for(int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
                 if (isFilled[j][i])
                     System.out.print("1");
                 else
