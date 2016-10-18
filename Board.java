@@ -12,7 +12,7 @@ public class Board {
 // coordinate conversion from Direction easier.
     int w, h; // dimension of the board
     // marks occupied spots on the board
-    private boolean[][] isFilled;
+    private int[][] grid;
     //private HashMap<Character,Car> carList;
     private ArrayList<Car> carList;
 
@@ -27,7 +27,7 @@ public class Board {
         this.h = h;
         this.exit = d;
         this.offset = o;
-        isFilled = new boolean[w][h];
+        grid = new int[w][h];
         carList = new ArrayList<Car>();
     }
     
@@ -37,10 +37,10 @@ public class Board {
         this.h = h;
         this.exit = d;
         this.offset = o;
-        isFilled = new boolean[w][h];
+        grid = new int[w][h];
         carList = new ArrayList<Car>();
 
-        // Could just carList = c, but then would need to update isFilled...
+        // Could just carList = c, but then would need to update grid...
         for (int i = 0; i < c.size(); i++) {
             this.addCar(c.get(i));
         }
@@ -95,7 +95,7 @@ public class Board {
         carList.add(newCar);
 
 // TODO: CHECK THAT THE NEW CAR IS NOT IN ANOTHER CAR
-        // update isFilled
+        // update grid
         int dx = 0;
         int dy = 0;
         if (newCar.horizontal) {
@@ -104,7 +104,7 @@ public class Board {
             dy++;
         }
         for (int i = 0; i < newCar.length; i++) {
-            isFilled[newCar.x + (dx*i)][newCar.y + (dy*i)] = true;
+            grid[newCar.x + (dx*i)][newCar.y + (dy*i)] = true;
         }
         debug();
     }
@@ -132,51 +132,51 @@ public class Board {
 
         switch(d) {
             case UP:
-                if (c.y>0 && !isFilled[c.x][c.y-1]) {
-                    return false;
+                if (c.y>0 && grid[c.x][c.y-1]!=-1) {
+                    return true;
                 }
                 break;
             case LEFT:
-                if (c.x>0 && !isFilled[c.x-1][c.y]) {
-                    return false;
+                if (c.x>0 && grid[c.x-1][c.y]!=-1) {
+                    return true;
                 }
                 break;
             case DOWN:
-                if (c.y+c.length-1<dimy-1 && !isFilled[c.x][(c.y+c.length-1)+1]) {
-                    return false;
+                if (c.y+c.length-1<dimy-1 && grid[c.x][(c.y+c.length-1)+1]!=-1) {
+                    return true;
                 }
                 break;
             default:
-                if (c.x+c.length-1<dimx-1 && !isFilled[c.x+c.length-1+1][c.y]) {
-                    return false;
+                if (c.x+c.length-1<dimx-1 && grid[c.x+c.length-1+1][c.y]!=-1) {
+                    return true;
                 }
                 break;
 
         }
-        return true;
+        return false;
     }
 
     public void move(int carNum, Direction d) { //Assumes the move is legal. 
         Car c = carList.get(carNum);
         switch(d) {
             case UP:
-                isFilled[c.x][c.y-1]=true;
-                isFilled[c.x][c.y+c.length-1]=false;
+                grid[c.x][c.y-1]=carNum;
+                grid[c.x][c.y+c.length-1]=-1;
                 c.y-=1;
                 break;
             case LEFT:
-                isFilled[c.x-1][c.y]=true;
-                isFilled[c.x+c.length-1][c.y]=false;
+                grid[c.x-1][c.y]=carNum;
+                grid[c.x+c.length-1][c.y]=-1;
                 c.x-=1;
                 break;
             case DOWN:
-                isFilled[c.x][c.y]=false;
-                isFilled[c.x][c.y+c.length]=true;
+                grid[c.x][c.y]=-1;
+                grid[c.x][c.y+c.length]=carNum;
                 c.y+=1;
                 break;
             default:
-                isFilled[c.x][c.y]=false;
-                isFilled[c.x+c.length]=true;
+                grid[c.x][c.y]=-1;
+                grid[c.x+c.length]=carNum;
                 c.x+=1;
                 break;
         }
@@ -191,13 +191,10 @@ public class Board {
         System.out.println("Dimensions: w" + w + " h" + h);
         System.out.println();
 
-        System.out.println("isFilled:");
+        System.out.println("grid:");
         for(int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                if (isFilled[j][i])
-                    System.out.print("1 ");
-                else
-                    System.out.print("0 ");
+                System.out.println(grid[i][j]);
             }
             System.out.println();
         }
