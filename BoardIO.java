@@ -10,7 +10,7 @@ public class BoardIO {
 
 	/**
 	 * Reads in the board from the given file and returns the board.
-	 * @param filename of the text file.
+	 * @param filename filename of the text file.
 	 * @return a board object based on the information in the file.
 	 */
 	public static Board read(String filename) {
@@ -26,7 +26,7 @@ public class BoardIO {
 		// TODO: check file integrity?
 		// opens file and gets all the data
 		try {
-		    Scanner f = new Scanner(new File(filename + ".txt"));
+		    Scanner f = new Scanner(new File(filename + ".txt"), "utf-8");
 		    System.out.println("Open!");
 
 		    // First line is the board dimensions: width height
@@ -38,16 +38,12 @@ public class BoardIO {
 		    // Location is a cardinal direction (NESW)
 		    // offset is int
 		    parts = f.nextLine().split(" ");
-		    d = Direction.cardinal(parts[0]);
+		    d = Direction.ofCardinal(parts[0]);
 		    offset = Integer.parseInt(parts[1]);
 
 		    // Next lines are vehicles: x y length horiz
 		    // Horiz is a boolean
 		    // First vehicle is the VIP
-		    /*x = new ArrayList<Integer>();
-		    y = new ArrayList<Integer>();
-		    len = new ArrayList<Integer>();
-		    horiz = new ArrayList<Boolean>();*/
 		    int x, y, len;
 		    boolean horiz;
 		    while (f.hasNextLine()) {
@@ -66,10 +62,58 @@ public class BoardIO {
 		}
 
 		return new Board(width, height, d, offset, c);
-		//return null;
 	}
 
 	/**
+	 * Writes the board to a text file.
+	 * @param filename filename of the text file.
+	 * @param b the board.
+	 */
+	public static void write(String filename, Board b) {
+		try {
+			PrintWriter pw = new PrintWriter(filename + ".txt", "UTF-8");
+
+            // First line is the board dimensions: width height
+            pw.print(b.getWidth());
+            pw.print(" ");
+            pw.print(b.getHeight());
+            pw.println();
+
+            // Second line is exit: location offset
+            // Location is a cardinal direction (NESW)
+            // offset is int
+            pw.print(b.getExitDirection().toCardinal());
+            pw.print(" ");
+            pw.print(b.getExitOffset());
+            pw.println();
+
+            // Next lines are vehicles: x y length horiz
+            // Horiz is a boolean
+            // First vehicle is the VIP
+            ArrayList<Car> cars = b.getCars();
+            for (int i = 0; i < cars.size(); i++) {
+                Car c = cars.get(i);
+                pw.print(c.x);
+                pw.print(" ");
+                pw.print(c.y);
+                pw.print(" ");
+                pw.print(c.length);
+                pw.print(" ");
+                pw.print(c.horizontal);
+                pw.println();
+            }
+
+			pw.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("Can't write file!");
+           e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("Bad encoding for writing!");
+		    e.printStackTrace();
+        }
+    }
+
+    /**
 	 * For testing purposes.
 	 */
 	public static void main(String[] args) {

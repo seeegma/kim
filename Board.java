@@ -48,6 +48,7 @@ public class Board {
 
     /**
      * Getter for the width of the board.
+     * @return the width
      */
     public int getWidth() {
         return this.w;
@@ -55,6 +56,7 @@ public class Board {
 
     /**
      * Getter for the height of the board.
+     * @return the height
      */
     public int getHeight() {
         return this.h;
@@ -62,6 +64,7 @@ public class Board {
 
     /**
      * Getter for the Direction of the exit of the board.
+     * @return the Direction of the exit
      */
     public Direction getExitDirection() {
         return this.exit;
@@ -69,6 +72,7 @@ public class Board {
 
     /**
      * Getter for the offset of the exit of the board.
+     * @return the offset of the exit
      */
     public int getExitOffset() {
         return this.offset;
@@ -76,6 +80,7 @@ public class Board {
 
     /**
      * Getter for the list of cars on the board.
+     * @return an ArrayList<Car> of the cars
      */
     public ArrayList<Car> getCars() {
         return this.carList;
@@ -83,6 +88,7 @@ public class Board {
 
     /**
      * Adds a new car. Might be useful to be public fcn for testing.
+     * @param newCar a new car to be inserted
      */
     public void addCar(Car newCar) {
         // update list
@@ -105,6 +111,11 @@ public class Board {
     
     /**
      * Moves the car in the direction d by amount or until it hits another car.
+     * @param num the number associated with the car to move
+     * @param d the Direction to move in
+     * @param amount the number of squares to move
+     * @return whether the move succeeded or not. Will return true only if it
+     * moves any amount of blocks
      */
     // remember that Isaac has his own move fcn figured out. Should compare.
     // Maybe num can identify the car.
@@ -154,7 +165,6 @@ public class Board {
         while (i <= amount && !collision) {
             tempx = x + (dx * i) + xolen;
             tempy = y + (dy * i) + yolen;
-            System.out.println(tempx + " " + tempy);
             // check if it's out of bounds or is already filled
             if (tempx >= this.w || tempx < 0 || tempy >= this.h || tempy < 0
                 || isFilled[tempx][tempy]) {
@@ -170,6 +180,9 @@ public class Board {
         // of where the car will move to or if there was no collision due to the
         // extra i++ as the end of the else statement
         i--;
+        if (i == 0) {
+            return false;
+        }
 
         // actually moves the car
         c.x += dx * i;
@@ -222,7 +235,7 @@ public class Board {
         System.out.println(b.move(3, Direction.RIGHT, 1));
         System.out.println(b.move(3, Direction.UP, 1));
         System.out.println(b.move(3, Direction.DOWN, 1));
-
         b.debug();
+        BoardIO.write("test2", b);
     }
 }
