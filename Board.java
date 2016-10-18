@@ -10,16 +10,19 @@ import java.util.HashMap;
 public class Board {
 // TODO: introduce coordinate class just to make stuff more clear? Will make
 // coordinate conversion from Direction easier.
-    int w, h; // dimension of the board
-    // marks occupied spots on the board
+    private int w, h; // dimension of the board
+    // grid representation of the board. Each slot contains an integer that
+	// represents the index of the car in carList that is occupying the spot
+	// on the board. We will use -1 to represent empty spaces.
     private int[][] grid;
+	private final int EMPTY_SPOT = -1;
     //private HashMap<Character,Car> carList;
     private ArrayList<Car> carList;
 
     // temp to match context free grammar used by txt file
     // Need to incorporate this into the code somehow...
     Direction exit;
-    int offset;
+    private int offset;
 
     // Basic constructor
     public Board(int w, int h, Direction d, int o) {
@@ -86,12 +89,79 @@ public class Board {
         return this.carList;
     }
 	
-	public int[][] compress() {
-		
+	/**
+	 * Compresses this instance of the board into a node for our BFS alg.
+	 * @param parent the parent node for the new node
+	 * @return the new node with the compressed data of this instance of Board
+	 */
+	public Node compress(Node parent) {
+		return new Node(grid, parent);
 	}
 	
-	public void decompress() {
+	/**
+	 * Decompresses a node of our "graph" into this board. Assumes the Board
+	 * was used to generate this node in the first place through our BFS alg.
+	 * @param n the compressed node to decompress
+	 */
+	public void decompress(Node n) {
+		this.grid = n.grid;
 		
+		boolean[] isUpdated = new boolean[carList.size()];
+		for (int i = 0; i < isUpdated.length; i++) {
+			isUpdated[i] = false;
+		}
+		
+		int k;
+		for (int i = 0; i < grid[0].length; i++) { // assumes it's a matrix
+			for (int j = 0; j < grid.length; j++) {
+				k = grid[j][i]; // j is x, i is y
+				if(k != EMPTY_SPOT && !isUpdated[k]) {
+					carList.get(k).x = j;
+					carList.get(k).y = i;
+					isUpdated[k] = true;
+				}
+			}
+		}
+		
+		this.createGrid();
+	}
+	
+	/**
+	 * Clears the grid so that it's empty.
+	 */
+	private void clearGrid() {
+		for (int i = 0; i < grid[0].length; i++) { // assumes it's a matrix
+			for (int j = 0; j < grid.length; j++) {
+				grid[j][i] = EMPTY_SPOT;
+			}
+		}
+	}
+	
+	/**
+	 * Creates a new grid matrix using the current carList. Used when we're
+	 * decompressing nodes.
+	 */
+	private void createGrid() {
+		this.clearGrid();
+		
+		int dx, dy, tempx, tempy;
+		Car c;
+		for (int i = 0; i < carList.size(); i++) {
+			c = carList.get(i);
+			dx = 0;
+			dy = 0;
+			if (c.horizontal) {
+				dx++;
+			} else {
+				dy++;
+			}
+			
+			for (int j = 0; j < c.length; j++) {
+				tempx = c.x + (dx * j);
+				tempy = c.y + (dy * j);
+				grid[tempx][tempy] = i;
+			}
+		}
 	}
 
     /**
@@ -112,7 +182,8 @@ public class Board {
             dy++;
         }
         for (int i = 0; i < newCar.length; i++) {
-            grid[newCar.x + (dx*i)][newCar.y + (dy*i)] = true;
+			// since the newCar was added at the end of the array its index is:
+            grid[newCar.x + (dx*i)][newCar.y + (dy*i)] = carList.size()-1;
         }
         debug();
     }
