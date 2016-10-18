@@ -119,75 +119,67 @@ public class Board {
      */
     // remember that Isaac has his own move fcn figured out. Should compare.
     // Maybe num can identify the car.
-    public boolean move(int num, Direction d, int amount) {
-        // valid car
-        //Car c = carList.get(ch);
-        Car c = carList.get(num);
-        if (c == null) {
+    public boolean canMove(int carNum, Direction d) {
+        Car c = carList.get(carNum);
+        if (c==null) {
             return false;
         }
         
-        // valid move direction
-        if (d.isHorizontal()!= c.horizontal) {
+        if (d.isHorizontal()!=c.horizontal) {
             return false;
         }
         
-        // check if the moves are valid
-        int x = c.x;
-        int y = c.y;
-        int dx = 0; // the direction as a unit vector
-        int dy = 0;
-        int xolen = 0; // adds the length if we're moving right or down
-        int yolen = 0;
-        // determines which way we're using a unit vector
+
         switch(d) {
             case UP:
-                dy--;
+                if (c.y>0 && !isFilled[c.x][c.y-1]) {
+                    return false;
+                }
                 break;
             case LEFT:
-                dx--;
+                if (c.x>0 && !isFilled[c.x-1][c.y]) {
+                    return false;
+                }
                 break;
             case DOWN:
-                dy++;
-                yolen += c.length - 1;
+                if (c.y+c.length-1<dimy-1 && !isFilled[c.x][(c.y+c.length-1)+1]) {
+                    return false;
+                }
                 break;
-            case RIGHT:
-                dx++;
-                xolen += c.length - 1;
+            default:
+                if (c.x+c.length-1<dimx-1 && !isFilled[c.x+c.length-1+1][c.y]) {
+                    return false;
+                }
                 break;
-        }
-        // checks if the move is valid and if it's out of bounds
-        // also changes the isFilled board to what it will be once the car moves
-        // since we're looping through its indices anyways.
-        int tempx, tempy;
-        int i = 1;
-        boolean collision = false;
-        while (i <= amount && !collision) {
-            tempx = x + (dx * i) + xolen;
-            tempy = y + (dy * i) + yolen;
-            // check if it's out of bounds or is already filled
-            if (tempx >= this.w || tempx < 0 || tempy >= this.h || tempy < 0
-                || isFilled[tempx][tempy]) {
-                collision = true;
-            } else {
-                isFilled[tempx][tempy] = true; // the square the car moved to
-                // the square the car is no longer occuping
-                isFilled[tempx-(dx*c.length)][tempy-(dy*c.length)] = false;
-                i++;
-            }
-        }
-        // decrements i if we had an early collision since i is one square ahead
-        // of where the car will move to or if there was no collision due to the
-        // extra i++ as the end of the else statement
-        i--;
-        if (i == 0) {
-            return false;
-        }
 
-        // actually moves the car
-        c.x += dx * i;
-        c.y += dy * i;
+        }
         return true;
+    }
+
+    public void move(int carNum, Direction d) { //Assumes the move is legal. 
+        Car c = carList.get(carNum);
+        switch(d) {
+            case UP:
+                isFilled[c.x][c.y-1]=true;
+                isFilled[c.x][c.y+c.length-1]=false;
+                c.y-=1;
+                break;
+            case LEFT:
+                isFilled[c.x-1][c.y]=true;
+                isFilled[c.x+c.length-1][c.y]=false;
+                c.x-=1;
+                break;
+            case DOWN:
+                isFilled[c.x][c.y]=false;
+                isFilled[c.x][c.y+c.length]=true;
+                c.y+=1;
+                break;
+            default:
+                isFilled[c.x][c.y]=false;
+                isFilled[c.x+c.length]=true;
+                c.x+=1;
+                break;
+        }
     }
 
     /**
