@@ -85,6 +85,14 @@ public class Board {
     public ArrayList<Car> getCars() {
         return this.carList;
     }
+	
+	public int[][] compress() {
+		
+	}
+	
+	public void decompress() {
+		
+	}
 
     /**
      * Adds a new car. Might be useful to be public fcn for testing.
@@ -117,8 +125,6 @@ public class Board {
      * @return whether the move succeeded or not. Will return true only if it
      * moves any amount of blocks
      */
-    // remember that Isaac has his own move fcn figured out. Should compare.
-    // Maybe num can identify the car.
     public boolean canMove(int carNum, Direction d) {
         Car c = carList.get(carNum);
         if (c==null) {
