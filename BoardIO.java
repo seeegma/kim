@@ -13,18 +13,15 @@ public class BoardIO {
 	 * @param filename of the text file.
 	 * @return a board object based on the information in the file.
 	 */
-	public static void read(String filename) {
+	public static Board read(String filename) {
 		// Have to fix AltBoard and the file structure...
-		int width;
-	    int height;
+		int width = 0;
+	    int height = 0;
 
-	    Direction d;
-	    int offset;
+	    Direction d = null;
+	    int offset = 0;
 
-		ArrayList<Integer> x = new ArrayList<Integer>();
-	    ArrayList<Integer> y = new ArrayList<Integer>();
-	    ArrayList<Integer> len = new ArrayList<Integer>();
-		ArrayList<Boolean> horiz = new ArrayList<Boolean>();
+		ArrayList<Car> c = new ArrayList<Car>();
 
 		// TODO: check file integrity?
 		// opens file and gets all the data
@@ -51,12 +48,15 @@ public class BoardIO {
 		    y = new ArrayList<Integer>();
 		    len = new ArrayList<Integer>();
 		    horiz = new ArrayList<Boolean>();*/
+		    int x, y, len;
+		    boolean horiz;
 		    while (f.hasNextLine()) {
 		    	parts = f.nextLine().split(" ");
-		    	x.add(Integer.parseInt(parts[0]));
-		    	y.add(Integer.parseInt(parts[1]));
-		    	len.add(Integer.parseInt(parts[2]));
-		    	horiz.add(Boolean.parseBoolean(parts[3]));
+		    	x = Integer.parseInt(parts[0]);
+		    	y = Integer.parseInt(parts[1]);
+		    	len = Integer.parseInt(parts[2]);
+		    	horiz = Boolean.parseBoolean(parts[3]);
+		    	c.add(new Car(x, y, len, horiz));
 		    }
 		    
 		    f.close();
@@ -65,13 +65,7 @@ public class BoardIO {
 		    e.printStackTrace();
 		}
 
-		// put into board once we figure that out...
-		// testing now
-		for (int i = 0; i < x.size(); i++) {
-			System.out.println(x.get(i) + " " + y.get(i) + " " + len.get(i)
-				+ " " + horiz.get(i));
-		}
-
+		return new Board(width, height, d, offset, c);
 		//return null;
 	}
 
