@@ -1,3 +1,5 @@
+// Should just delete?
+
 import java.util.ArrayList;
 import java.util.Dictionary;
 
@@ -17,12 +19,17 @@ public class Board {
         char c; //may be unnecessary
     }
     
+    /**
+     *
+     */
     public boolean move(char c, Direction d) {
+        // valid car
         Car car = carList.get(c);
         if (c==null) {
             return false;
         }
         
+        // valid move direction
         if (d.isHorizontal()!=c.horizontal) {
             return false;
         }
