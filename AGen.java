@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 
 public class AGen {
 	
@@ -9,7 +11,7 @@ public class AGen {
 	final static int plen = 8;
 	final static int exitL = 2;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		
 		//creates random input grid for now
 		char[][] inputG = emptyGrid();
@@ -20,9 +22,10 @@ public class AGen {
 		//print grids individually
 		//printGrid(out);		
 		//printGrid(outputGrid(addCar(inputG)));
+		ArrayList<Car> carsTest = new ArrayList<Car>();
 		
 		//print multiple grids out at once
-		String[][] grids = {out, outputGrid(addCar(inputG))};
+		String[][] grids = {out, outputGrid(addCars(inputG, carsTest))};
 		printMG(grids);
 
 	}
@@ -110,22 +113,39 @@ public class AGen {
 	 * @return char[][] with cars added to it
 	 */
 	//replace arr with internal call? replace xylenhor with Car object call maybe
-	public static char[][] addCar(char[][] arr, char let, int x, int y, int len, int hor){
-		arr[x][y] = let;
+	public static char[][] addCar(char[][] arr, int index, int x, int y, int len, boolean hor){
+		char ind = (char)index;
+		arr[x][y] = ind;
 		if (hor){ 
-			arr[x+1][y] = let; 
-			if (len > 2){ arr[x+2][y] = let; }
+			arr[x+1][y] = ind; 
+			if (len > 2){ arr[x+2][y] = ind; }
 		} else { 
-			arr[x][y+1] = let; 
-			if (len > 2){ arr[x][y+2] = let;  }
-		}
-		
+			arr[x][y+1] = ind; 
+			if (len > 2){ arr[x][y+2] = ind;  }
+		}		
 		
 		//arr[2][3] = 'A';
 		//arr[2][4] = 'A';
 
 		
 		return arr;
+	}
+	
+	
+	/**
+	 * Adds multiple cars given an ArrayList<Car> (could be just one car)
+	 * @param arr
+	 * @param cars
+	 * @return char[][] of cars
+	 */
+	public static char[][] addCars(char[][] arr, ArrayList<Car> cars){
+		for (int i = 0; i< cars.size(); i++){
+			Car car = cars.get(i);
+			addCar(arr, i, car.x, car.y, car.length, car.horizontal);
+		}	
+		
+		return arr;
+		
 	}
 
 }
