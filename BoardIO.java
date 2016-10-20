@@ -61,13 +61,14 @@ public class BoardIO {
 		    e.printStackTrace();
 		}
 
-		return new Board(width, height, d, offset, c);
+		return new Board(width, height, c);
 	}
 
 	/**
 	 * Writes the board to a text file.
 	 * @param filename filename of the text file.
 	 * @param b the board.
+	 * @todo deal with the deletion of exit direction and offset, which are redundant.
 	 */
 	public static void write(String filename, Board b) {
 		try {
@@ -82,9 +83,9 @@ public class BoardIO {
             // Second line is exit: location offset
             // Location is a cardinal direction (NESW)
             // offset is int
-            pw.print(b.getExitDirection().toCardinal());
+            //pw.print(b.getExitDirection().toCardinal()); 
             pw.print(" ");
-            pw.print(b.getExitOffset());
+            //pw.print(b.getExitOffset());
             pw.println();
 
             // Next lines are vehicles: x y length horiz

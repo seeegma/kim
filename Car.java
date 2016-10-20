@@ -17,4 +17,8 @@ public class Car {
         this.length = length;
         this.horizontal = horiz;
     }
+
+    public Car copy() {
+        return (new Car(this.x, this.y, this.length, this.horizontal));
+    }
 }

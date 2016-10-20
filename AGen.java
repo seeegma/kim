@@ -14,7 +14,7 @@ public class AGen {
 	public static void main(String[] args) {		
 		
 		//creates random input grid for now
-		char[][] inputG = emptyGrid();
+		int[][] inputG = emptyGrid();
 		
 		//makes 2D grid into printable format
 		String[] out = outputGrid(inputG);
@@ -25,9 +25,12 @@ public class AGen {
 		ArrayList<Car> carsTest = new ArrayList<Car>();
 		
 		//print multiple grids out at once
-		String[][] grids = {out, outputGrid(addCars(inputG, carsTest))};
-		printMG(grids);
+		//int[][] grids = {out, outputGrid(addCars(inputG, carsTest))};
+		//printMG(grids);
 
+	}
+
+	public AGen() {
 	}
 	
 	/**
@@ -59,7 +62,7 @@ public class AGen {
 	 * @return String[] of grid
 	 */
 	
-	public static String[] outputGrid(char[][] inputG){
+	public static String[] outputGrid(int[][] inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
 		fin[0] = " vvvvvvvvvvvvv";
@@ -82,10 +85,10 @@ public class AGen {
 	 * @return String in visual format
 	 */
 	
-	public static String extLine(char[] line){
+	public static String extLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
-			t = t + Character.toString(line[i]) + " ";
+			t = t + Integer.toString(line[i]) + " ";
 		}
 		t = t + "|";
 		
@@ -96,8 +99,8 @@ public class AGen {
 	/** creates empty char[][] 6x6 currently
 	 * @return empty char[len][hei]
 	 */
-	public static char[][] emptyGrid(){
-		char[][] arr = new char[len][hei];
+	public static int[][] emptyGrid(){
+		int[][] arr = new int[len][hei];
 		for(int i=0;i<len;i++){
 			for (int j=0;j<hei;j++){
 				arr[i][j] = '_';
@@ -113,8 +116,8 @@ public class AGen {
 	 * @return char[][] with cars added to it
 	 */
 	//replace arr with internal call? replace xylenhor with Car object call maybe
-	public static char[][] addCar(char[][] arr, int index, int x, int y, int len, boolean hor){
-		char ind = (char)index;
+	public static int[][] addCar(int[][] arr, int index, int x, int y, int len, boolean hor){
+		int ind = (int)index;
 		arr[x][y] = ind;
 		if (hor){ 
 			arr[x+1][y] = ind; 
@@ -138,7 +141,7 @@ public class AGen {
 	 * @param cars
 	 * @return char[][] of cars
 	 */
-	public static char[][] addCars(char[][] arr, ArrayList<Car> cars){
+	public static int[][] addCars(int[][] arr, ArrayList<Car> cars){
 		for (int i = 0; i< cars.size(); i++){
 			Car car = cars.get(i);
 			addCar(arr, i, car.x, car.y, car.length, car.horizontal);

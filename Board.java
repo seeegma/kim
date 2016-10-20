@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Collections;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -37,6 +38,11 @@ public class Board {
         this.w = w;
         this.h = h;
         grid = new int[w][h];
+        for (int i=0;i<w;i++) {
+            for (int j=0;j<h;j++){
+                grid[i][j]=-1;
+            }
+        }
         carList = new ArrayList<Car>();
 
         // Could just carList = c, but then would need to update grid...
@@ -54,7 +60,7 @@ public class Board {
 
 
     public boolean isSolved() {
-        return (carList[0].x==w-carList[0].length);
+        return (carList.get(0).x==w-carList.get(0).length);
     }
 
     /**
@@ -75,14 +81,6 @@ public class Board {
 
 
     /**
-     * Getter for the offset of the exit of the board.
-     * @return the offset of the exit
-     */
-    public int getExitOffset() {
-        return this.offset;
-    }
-
-    /**
      * Getter for the list of cars on the board.
      * @return an ArrayList<Car> of the cars
      */
@@ -98,7 +96,7 @@ public class Board {
      * @return whether the boards are equal. 
      */
     public boolean equals(Board b) {
-        return deepEquals(this.grid, b.grid);
+        return Arrays.deepEquals(this.grid, b.grid);
     }
 
     /**
@@ -108,7 +106,7 @@ public class Board {
      * @return whether the boards are equal. 
      */
     public boolean equals(int[][] g) {
-        return deepEquals(this.grid, g);
+        return Arrays.deepEquals(this.grid, g);
     }
 	
     /**
@@ -123,7 +121,7 @@ public class Board {
         }
         int[][] newGrid = new int[this.w][this.h];
         for (int i=0;i<w;i++) {
-            newGrid[w]=this.grid.clone();
+            newGrid[i]=this.grid[i].clone();
         }
         return (new Board(this.w, this.h, newGrid, newCarList));
     }
@@ -224,7 +222,6 @@ public class Board {
 			// since the newCar was added at the end of the array its index is:
             grid[newCar.x + (dx*i)][newCar.y + (dy*i)] = carList.size()-1;
         }
-        debug();
     }
     
     /**
@@ -258,12 +255,12 @@ public class Board {
                 }
                 break;
             case DOWN:
-                if (c.y+c.length-1<dimy-1 && grid[c.x][(c.y+c.length-1)+1]!=-1) {
+                if (c.y+c.length-1<h-1 && grid[c.x][(c.y+c.length-1)+1]!=-1) {
                     return true;
                 }
                 break;
             default:
-                if (c.x+c.length-1<dimx-1 && grid[c.x+c.length-1+1][c.y]!=-1) {
+                if (c.x+c.length-1<w-1 && grid[c.x+c.length-1+1][c.y]!=-1) {
                     return true;
                 }
                 break;
@@ -292,7 +289,7 @@ public class Board {
                 break;
             default:
                 grid[c.x][c.y]=-1;
-                grid[c.x+c.length]=carNum;
+                grid[c.x+c.length][c.y]=carNum;
                 c.x+=1;
                 break;
         }
@@ -300,10 +297,12 @@ public class Board {
 
     public ArrayList<Board> getNeighbors() {
         ArrayList<Board> neighbors = new ArrayList<Board>();
-        for (int i=0;i<this.carList.length();i++) {
+        for (int i=0;i<this.carList.size();i++) {
             for (Direction d : Direction.values()) { 
                 if (canMove(i,d)) {
-                    neighbors.add(this.copy().move(i,d));
+                    Board neighbor = this.copy();
+                    neighbor.move(i,d);
+                    neighbors.add(neighbor);
                 }
             }
         }
@@ -315,13 +314,15 @@ public class Board {
     public ArrayList<Board> solve() {
         LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
         ArrayList<NodeBoard> visited = new ArrayList<NodeBoard>();
-        queue.offer(new Node(this,null));
-        Node solvedState;
+        queue.offer(new NodeBoard(this,null));
+        NodeBoard solvedState = new NodeBoard(this,null);
+        boolean solutionFound = false;
         while (!queue.isEmpty()) {
             NodeBoard current = queue.poll();
             visited.add(current);
             if (current.board.isSolved()) {
                 solvedState=current;
+                solutionFound = true;
                 break;
             }
             for (Board b : current.board.getNeighbors()) { 
@@ -333,11 +334,11 @@ public class Board {
                     }
                 }
                 if (isNew) {
-                    queue.offer(new Node(b,current));
+                    queue.offer(new NodeBoard(b,current));
                 }
             }
         }
-        if (solvedState==null) {
+        if (!solutionFound) {
             return null;
         }
         else {
@@ -353,7 +354,7 @@ public class Board {
         }
     }
 
-    }
+    
     /**
      * @Exclude
      * For testing purposes. Prints out the innards.
@@ -389,14 +390,29 @@ public class Board {
         Car c = new Car(0, 0, 2, true);
         b.addCar(c);*/
 
-        Board b = BoardIO.read("test");
-        b.debug();
-        System.out.println(b.move(0, Direction.UP, 1));
-        System.out.println(b.move(0, Direction.RIGHT, 1));
-        System.out.println(b.move(3, Direction.RIGHT, 1));
-        System.out.println(b.move(3, Direction.UP, 1));
-        System.out.println(b.move(3, Direction.DOWN, 1));
-        b.debug();
-        BoardIO.write("test2", b);
+        // Board b = BoardIO.read("test");
+        // b.debug();
+        // System.out.println(b.move(0, Direction.UP, 1));
+        // System.out.println(b.move(0, Direction.RIGHT, 1));
+        // System.out.println(b.move(3, Direction.RIGHT, 1));
+        // System.out.println(b.move(3, Direction.UP, 1));
+        // System.out.println(b.move(3, Direction.DOWN, 1));
+        // b.debug();
+        // BoardIO.write("test2", b);
+
+        AGen agen = new AGen();
+        Car car0 = new Car(0,2,2,true);
+        Car car1 = new Car(0,3,3,true);
+        Car car2 = new Car(4,0,2,true);
+        Car car3 = new Car(2,0,3,false);
+        Car car4 = new Car(5,3,3,false);
+        ArrayList<Car> cList= new ArrayList<Car>(5);
+        cList.add(car0);
+        cList.add(car1);
+        cList.add(car2);
+        cList.add(car3);
+        cList.add(car4);
+        Board board = new Board(6,6,cList);
+        agen.printGrid(agen.outputGrid(board.grid));
     }
 }
