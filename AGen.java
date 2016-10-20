@@ -88,7 +88,12 @@ public class AGen {
 	public static String extLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
-			t = t + Integer.toString(line[i]) + " ";
+			if (line[i]==-1) {
+				t = t + "  ";
+			}
+			else { 
+				t = t + Integer.toString(line[i]) + " ";
+			}
 		}
 		t = t + "|";
 		
