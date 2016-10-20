@@ -1,0 +1,14 @@
+6 6
+2 2 2 true
+0 1 2 false
+1 4 2 false
+2 3 2 false
+3 0 2 false
+4 0 3 false
+5 0 3 false
+0 0 3 true
+1 1 2 true
+0 3 2 true
+4 4 2 true
+2 5 2 true
+4 5 2 true

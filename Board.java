@@ -326,8 +326,8 @@ public class Board {
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
             NodeBoard current = queue.poll();
-            System.out.println(current.numMoves);
-            System.out.println(current.board.grid.hash());
+            /*System.out.println(current.numMoves);
+            System.out.println(current.board.grid.hash());*/
             visited.add(current.board.grid.hash());
             if (current.board.isSolved()) {
                 solvedState=current;
@@ -393,23 +393,12 @@ public class Board {
      * For testing purposes.
      */
     public static void main(String[] args) {
-        /*Board b = new Board(6, 6, Direction.RIGHT, 2);
+        /*
+        Board b = new Board(6, 6, Direction.RIGHT, 2);
         Car c = new Car(0, 0, 2, true);
         b.addCar(c);*/
 
-        // Board b = BoardIO.read("test");
-        // b.debug();
-        // System.out.println(b.move(0, Direction.UP, 1));
-        // System.out.println(b.move(0, Direction.RIGHT, 1));
-        // System.out.println(b.move(3, Direction.RIGHT, 1));
-        // System.out.println(b.move(3, Direction.UP, 1));
-        // System.out.println(b.move(3, Direction.DOWN, 1));
-        // b.debug();
-        // BoardIO.write("test2", b);
-
-        AGen agen = new AGen();
-
-
+        /*
         Car car0 = new Car(0,2,2,true);
         Car car1 = new Car(0,3,3,true);
         Car car2 = new Car(4,0,2,true);
@@ -421,7 +410,7 @@ public class Board {
         cList.add(car2);
         cList.add(car3);
         cList.add(car4);
-        Board board = new Board(6,6,cList);
+        Board board = new Board(6,6,cList);*/
 
         // Car car0 = new Car(0,2,2,true);
         // ArrayList<Car> cList = new ArrayList<Car>(1);
@@ -431,8 +420,12 @@ public class Board {
 
         // board.move(2,Direction.LEFT);
         //agen.printGrid(agen.outputGrid(board.grid));
-        for (Board b: board.solve()) {
-            agen.printGrid(agen.outputGrid(b.grid));
+
+        Board board = BoardIO.read("93moves");
+        //AGen.printGrid(AGen.outputGrid(board.grid));
+
+        for (Board b : board.solve()) {
+            AGen.printGrid(AGen.outputGrid(b.grid));
         }
     }
 }

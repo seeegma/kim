@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 
-public class AGen {
+public final class AGen {
 	
 	final static int len = 6;
 	final static int hei = 6;
@@ -30,9 +30,6 @@ public class AGen {
 
 	}
 
-	public AGen() {
-	}
-	
 	/**
 	 * Prints multiple grids w/ move counter
 	 * @param grids

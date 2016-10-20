@@ -27,7 +27,7 @@ public class BoardIO {
 		// opens file and gets all the data
 		try {
 		    Scanner f = new Scanner(new File(filename + ".txt"), "utf-8");
-		    System.out.println("Open!");
+		    //System.out.println("Open!");
 
 		    // First line is the board dimensions: width height
 		    String parts[] = f.nextLine().split(" ");
@@ -37,9 +37,10 @@ public class BoardIO {
 		    // Second line is exit: location offset
 		    // Location is a cardinal direction (NESW)
 		    // offset is int
+            /*
 		    parts = f.nextLine().split(" ");
 		    d = Direction.ofCardinal(parts[0]);
-		    offset = Integer.parseInt(parts[1]);
+		    offset = Integer.parseInt(parts[1]);*/
 
 		    // Next lines are vehicles: x y length horiz
 		    // Horiz is a boolean
@@ -83,10 +84,11 @@ public class BoardIO {
             // Second line is exit: location offset
             // Location is a cardinal direction (NESW)
             // offset is int
-            //pw.print(b.getExitDirection().toCardinal()); 
+            /*
+            pw.print(b.getExitDirection().toCardinal()); 
             pw.print(" ");
-            //pw.print(b.getExitOffset());
-            pw.println();
+            pw.print(b.getExitOffset());
+            pw.println();*/
 
             // Next lines are vehicles: x y length horiz
             // Horiz is a boolean
