@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -21,25 +23,19 @@ public class Board {
 
     // temp to match context free grammar used by txt file
     // Need to incorporate this into the code somehow...
-    Direction exit;
-    private int offset;
 
     // Basic constructor
-    public Board(int w, int h, Direction d, int o) {
+    public Board(int w, int h) {
         this.w = w;
         this.h = h;
-        this.exit = d;
-        this.offset = o;
         grid = new int[w][h];
         carList = new ArrayList<Car>();
     }
     
     // Overloaded for importing from file
-    public Board(int w, int h, Direction d, int o, ArrayList<Car> c) {
+    public Board(int w, int h, ArrayList<Car> c) {
         this.w = w;
         this.h = h;
-        this.exit = d;
-        this.offset = o;
         grid = new int[w][h];
         carList = new ArrayList<Car>();
 
@@ -47,6 +43,18 @@ public class Board {
         for (int i = 0; i < c.size(); i++) {
             this.addCar(c.get(i));
         }
+    }
+
+    public Board(int w, int h, int[][] grid,ArrayList<Car> c) {
+        this.w = w;
+        this.h = h;
+        grid = grid;
+        carList = c;
+    }
+
+
+    public boolean isSolved() {
+        return (carList[0].x==w-carList[0].length);
     }
 
     /**
@@ -65,13 +73,6 @@ public class Board {
         return this.h;
     }
 
-    /**
-     * Getter for the Direction of the exit of the board.
-     * @return the Direction of the exit
-     */
-    public Direction getExitDirection() {
-        return this.exit;
-    }
 
     /**
      * Getter for the offset of the exit of the board.
@@ -89,7 +90,45 @@ public class Board {
         return this.carList;
     }
 	
-	/**
+
+    /**
+     * Checks if two boards are equal.
+     * Assumes the two boards come from the same graph, i.e. are manipulations of each other. 
+     * @param the other board
+     * @return whether the boards are equal. 
+     */
+    public boolean equals(Board b) {
+        return deepEquals(this.grid, b.grid);
+    }
+
+    /**
+     * Checks if two grids are equal.
+     * Assumes the two boards come from the same graph, i.e. are manipulations of each other. 
+     * @param the other grid
+     * @return whether the boards are equal. 
+     */
+    public boolean equals(int[][] g) {
+        return deepEquals(this.grid, g);
+    }
+	
+    /**
+     * Copies a board and returns the new board.
+     * @param the board to be copied.
+     * @return the new board
+     */
+    public Board copy() {
+        ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
+        for (Car car: this.carList) {
+            newCarList.add(car.copy());
+        }
+        int[][] newGrid = new int[this.w][this.h];
+        for (int i=0;i<w;i++) {
+            newGrid[w]=this.grid.clone();
+        }
+        return (new Board(this.w, this.h, newGrid, newCarList));
+    }
+
+    /**
 	 * Compresses this instance of the board into a node for our BFS alg.
 	 * @param parent the parent node for the new node
 	 * @return the new node with the compressed data of this instance of Board
@@ -259,6 +298,62 @@ public class Board {
         }
     }
 
+    public ArrayList<Board> getNeighbors() {
+        ArrayList<Board> neighbors = new ArrayList<Board>();
+        for (int i=0;i<this.carList.length();i++) {
+            for (Direction d : Direction.values()) { 
+                if (canMove(i,d)) {
+                    neighbors.add(this.copy().move(i,d));
+                }
+            }
+        }
+        return neighbors;
+    }
+
+
+        
+    public ArrayList<Board> solve() {
+        LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
+        ArrayList<NodeBoard> visited = new ArrayList<NodeBoard>();
+        queue.offer(new Node(this,null));
+        Node solvedState;
+        while (!queue.isEmpty()) {
+            NodeBoard current = queue.poll();
+            visited.add(current);
+            if (current.board.isSolved()) {
+                solvedState=current;
+                break;
+            }
+            for (Board b : current.board.getNeighbors()) { 
+                boolean isNew = true;
+                for (NodeBoard node : visited) {
+                    if (b.equals(node.board)) {
+                        isNew = false;
+                        break;
+                    }
+                }
+                if (isNew) {
+                    queue.offer(new Node(b,current));
+                }
+            }
+        }
+        if (solvedState==null) {
+            return null;
+        }
+        else {
+            ArrayList<Board> path = new ArrayList<Board>();
+            NodeBoard current = solvedState;
+            path.add(current.board);
+            while (current.parent!=null) {
+                current=current.parent;
+                path.add(current.board);
+            }
+            Collections.reverse(path);
+            return path;
+        }
+    }
+
+    }
     /**
      * @Exclude
      * For testing purposes. Prints out the innards.
