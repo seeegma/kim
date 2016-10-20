@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -319,14 +320,15 @@ public class Board {
         
     public ArrayList<Board> solve() {
         LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
-        HashSet<NodeBoard> visited = new HashSet<NodeBoard>();
+        HashSet<Integer> visited = new HashSet<Integer>();
         queue.offer(new NodeBoard(this,null,0));
         NodeBoard solvedState = new NodeBoard(this,null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
             NodeBoard current = queue.poll();
             System.out.println(current.numMoves);
-            visited.add(current);
+            System.out.println(current.board.grid.hash());
+            visited.add(current.board.grid.hash());
             if (current.board.isSolved()) {
                 solvedState=current;
                 solutionFound = true;
@@ -334,15 +336,8 @@ public class Board {
             }
             for (Board b : current.board.getNeighbors()) { 
                 boolean isNew = true;
-                // for (NodeBoard node : visited) {
-                //     if (b.equals(node.board)) {
-                //         isNew = false;
-                //         break;
-                //     }
-                // }
-                if (visited.contains(b)) {
+                if (visited.contains(b.grid.hash())) {
                     isNew = false;
-                    break;
                 }
                 if (isNew) {
                     queue.offer(new NodeBoard(b,current,current.numMoves+1));
@@ -350,6 +345,7 @@ public class Board {
             }
         }
         if (!solutionFound) {
+            System.out.println("No solution found");
             return null;
         }
         else {
