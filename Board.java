@@ -84,6 +84,14 @@ public class Board {
     public ArrayList<Car> getCars() {
         return this.carList;
     }
+
+    /**
+     * Getter for the grid.
+     * @return the grid
+     */
+    public Grid getGrid() {
+        return this.grid;
+    }
 	
 
     /**
@@ -302,6 +310,11 @@ public class Board {
         }
     }
 
+    /**
+     * Gets all the neighboring positions of the current positon.
+     * @return a list of the Boards that are 1 move away from the current
+     * board's position
+     */
     public ArrayList<Board> getNeighbors() {
         ArrayList<Board> neighbors = new ArrayList<Board>();
         for (int i=0;i<this.carList.size();i++) {
@@ -316,8 +329,10 @@ public class Board {
         return neighbors;
     }
 
-
-        
+    /**
+     * Solves the Rush Hour position.
+     * @return a list of Boards that represent the path to the solution.
+     */
     public ArrayList<Board> solve() {
         LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
         HashSet<Integer> visited = new HashSet<Integer>();
@@ -344,6 +359,7 @@ public class Board {
                 }
             }
         }
+
         if (!solutionFound) {
             System.out.println("No solution found");
             return null;
@@ -398,7 +414,6 @@ public class Board {
         Car c = new Car(0, 0, 2, true);
         b.addCar(c);*/
 
-        /*
         Car car0 = new Car(0,2,2,true);
         Car car1 = new Car(0,3,3,true);
         Car car2 = new Car(4,0,2,true);
@@ -410,7 +425,7 @@ public class Board {
         cList.add(car2);
         cList.add(car3);
         cList.add(car4);
-        Board board = new Board(6,6,cList);*/
+        Board board = new Board(6,6,cList);
 
         // Car car0 = new Car(0,2,2,true);
         // ArrayList<Car> cList = new ArrayList<Car>(1);
@@ -421,10 +436,16 @@ public class Board {
         // board.move(2,Direction.LEFT);
         //agen.printGrid(agen.outputGrid(board.grid));
 
-        Board board = BoardIO.read("93moves");
+        //Board board = BoardIO.read("93moves");
         //AGen.printGrid(AGen.outputGrid(board.grid));
 
+        /*
         for (Board b : board.solve()) {
+            AGen.printGrid(AGen.outputGrid(b.grid));
+        }*/
+
+        
+        for (Board b : AltSolver.solve(board)) {
             AGen.printGrid(AGen.outputGrid(b.grid));
         }
     }

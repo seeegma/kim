@@ -1,5 +1,9 @@
 import java.util.Arrays;
 
+/**
+ * Container class for the board grid. Mostly exists so we can retrieve from
+ * the grid using (x, y) coordinates instead of (y, x).
+ */
 public class Grid {
 	int height, width;
 	int[][] matrix;
