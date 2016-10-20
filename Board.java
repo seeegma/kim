@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -17,7 +18,7 @@ public class Board {
     // grid representation of the board. Each slot contains an integer that
 	// represents the index of the car in carList that is occupying the spot
 	// on the board. We will use -1 to represent empty spaces.
-    private int[][] grid;
+    private Grid grid;
 	private final int EMPTY_SPOT = -1;
     //private HashMap<Character,Car> carList;
     private ArrayList<Car> carList;
@@ -29,7 +30,7 @@ public class Board {
     public Board(int w, int h) {
         this.w = w;
         this.h = h;
-        grid = new int[w][h];
+        grid = new Grid(w,h);
         carList = new ArrayList<Car>();
     }
     
@@ -37,12 +38,7 @@ public class Board {
     public Board(int w, int h, ArrayList<Car> c) {
         this.w = w;
         this.h = h;
-        grid = new int[w][h];
-        for (int i=0;i<w;i++) {
-            for (int j=0;j<h;j++){
-                grid[i][j]=-1;
-            }
-        }
+        grid = new Grid(w,h);
         carList = new ArrayList<Car>();
 
         // Could just carList = c, but then would need to update grid...
@@ -51,11 +47,11 @@ public class Board {
         }
     }
 
-    public Board(int w, int h, int[][] grid,ArrayList<Car> c) {
+    public Board(int w, int h, Grid grid,ArrayList<Car> c) {
         this.w = w;
         this.h = h;
-        grid = grid;
-        carList = c;
+        this.grid = grid;
+        this.carList = c;
     }
 
 
@@ -95,8 +91,14 @@ public class Board {
      * @param the other board
      * @return whether the boards are equal. 
      */
-    public boolean equals(Board b) {
-        return Arrays.deepEquals(this.grid, b.grid);
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Board)) {
+            return false;
+        }
+        Board b = (Board) obj;
+
+        return this.grid.equals(b.grid);
     }
 
     /**
@@ -105,8 +107,8 @@ public class Board {
      * @param the other grid
      * @return whether the boards are equal. 
      */
-    public boolean equals(int[][] g) {
-        return Arrays.deepEquals(this.grid, g);
+    public boolean equals(Grid g) {
+        return this.grid.equals(g);
     }
 	
     /**
@@ -119,11 +121,7 @@ public class Board {
         for (Car car: this.carList) {
             newCarList.add(car.copy());
         }
-        int[][] newGrid = new int[this.w][this.h];
-        for (int i=0;i<w;i++) {
-            newGrid[i]=this.grid[i].clone();
-        }
-        return (new Board(this.w, this.h, newGrid, newCarList));
+        return (new Board(this.w, this.h, this.grid.copy(), newCarList));
     }
 
     /**
@@ -149,9 +147,9 @@ public class Board {
 		}
 		
 		int k;
-		for (int i = 0; i < grid[0].length; i++) { // assumes it's a matrix
-			for (int j = 0; j < grid.length; j++) {
-				k = grid[j][i]; // j is x, i is y
+		for (int i = 0; i < grid.height; i++) { // assumes it's a matrix
+			for (int j = 0; j < grid.width; j++) {
+				k = grid.get(j,i); // j is x, i is y
 				if(k != EMPTY_SPOT && !isUpdated[k]) {
 					carList.get(k).x = j;
 					carList.get(k).y = i;
@@ -163,13 +161,18 @@ public class Board {
 		this.createGrid();
 	}
 	
+    @Override
+    public int hashCode() {
+        return this.grid.hash();
+    }
+
 	/**
 	 * Clears the grid so that it's empty.
 	 */
 	private void clearGrid() {
-		for (int i = 0; i < grid[0].length; i++) { // assumes it's a matrix
-			for (int j = 0; j < grid.length; j++) {
-				grid[j][i] = EMPTY_SPOT;
+		for (int i = 0; i < grid.height; i++) { // assumes it's a matrix
+			for (int j = 0; j < grid.width; j++) {
+				grid.set(j,i,EMPTY_SPOT);
 			}
 		}
 	}
@@ -196,7 +199,7 @@ public class Board {
 			for (int j = 0; j < c.length; j++) {
 				tempx = c.x + (dx * j);
 				tempy = c.y + (dy * j);
-				grid[tempx][tempy] = i;
+				grid.set(tempx,tempy,i);
 			}
 		}
 	}
@@ -220,7 +223,7 @@ public class Board {
         }
         for (int i = 0; i < newCar.length; i++) {
 			// since the newCar was added at the end of the array its index is:
-            grid[newCar.x + (dx*i)][newCar.y + (dy*i)] = carList.size()-1;
+            grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
         }
     }
     
@@ -245,22 +248,22 @@ public class Board {
 
         switch(d) {
             case UP:
-                if (c.y>0 && grid[c.x][c.y-1]!=-1) {
+                if (c.y>0 && grid.get(c.x,c.y-1)==-1) {
                     return true;
                 }
                 break;
             case LEFT:
-                if (c.x>0 && grid[c.x-1][c.y]!=-1) {
+                if (c.x>0 && grid.get(c.x-1,c.y)==-1) {
                     return true;
                 }
                 break;
             case DOWN:
-                if (c.y+c.length-1<h-1 && grid[c.x][(c.y+c.length-1)+1]!=-1) {
+                if (c.y+c.length-1<h-1 && grid.get(c.x, (c.y+c.length-1)+1)==-1) {
                     return true;
                 }
                 break;
             default:
-                if (c.x+c.length-1<w-1 && grid[c.x+c.length-1+1][c.y]!=-1) {
+                if (c.x+c.length-1<w-1 && grid.get(c.x+c.length-1+1, c.y)==-1) {
                     return true;
                 }
                 break;
@@ -273,24 +276,27 @@ public class Board {
         Car c = carList.get(carNum);
         switch(d) {
             case UP:
-                grid[c.x][c.y-1]=carNum;
-                grid[c.x][c.y+c.length-1]=-1;
+                grid.set(c.x, c.y-1, carNum);
+                grid.set(c.x, c.y+c.length-1, -1);
                 c.y-=1;
                 break;
             case LEFT:
-                grid[c.x-1][c.y]=carNum;
-                grid[c.x+c.length-1][c.y]=-1;
+                grid.set(c.x-1, c.y,carNum);
+                grid.set(c.x+c.length-1, c.y,-1);
                 c.x-=1;
                 break;
             case DOWN:
-                grid[c.x][c.y]=-1;
-                grid[c.x][c.y+c.length]=carNum;
+                grid.set(c.x,c.y,-1);
+                grid.set(c.x,c.y+c.length,carNum);
                 c.y+=1;
                 break;
-            default:
-                grid[c.x][c.y]=-1;
-                grid[c.x+c.length][c.y]=carNum;
+            case RIGHT:
+                grid.set(c.x, c.y,-1);
+                grid.set(c.x+c.length,c.y,carNum);
                 c.x+=1;
+                break;
+            default:
+                System.out.println("Error encountered");
                 break;
         }
     }
@@ -313,12 +319,13 @@ public class Board {
         
     public ArrayList<Board> solve() {
         LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
-        ArrayList<NodeBoard> visited = new ArrayList<NodeBoard>();
-        queue.offer(new NodeBoard(this,null));
-        NodeBoard solvedState = new NodeBoard(this,null);
+        HashSet<NodeBoard> visited = new HashSet<NodeBoard>();
+        queue.offer(new NodeBoard(this,null,0));
+        NodeBoard solvedState = new NodeBoard(this,null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
             NodeBoard current = queue.poll();
+            System.out.println(current.numMoves);
             visited.add(current);
             if (current.board.isSolved()) {
                 solvedState=current;
@@ -327,14 +334,18 @@ public class Board {
             }
             for (Board b : current.board.getNeighbors()) { 
                 boolean isNew = true;
-                for (NodeBoard node : visited) {
-                    if (b.equals(node.board)) {
-                        isNew = false;
-                        break;
-                    }
+                // for (NodeBoard node : visited) {
+                //     if (b.equals(node.board)) {
+                //         isNew = false;
+                //         break;
+                //     }
+                // }
+                if (visited.contains(b)) {
+                    isNew = false;
+                    break;
                 }
                 if (isNew) {
-                    queue.offer(new NodeBoard(b,current));
+                    queue.offer(new NodeBoard(b,current,current.numMoves+1));
                 }
             }
         }
@@ -367,7 +378,7 @@ public class Board {
         System.out.println("grid:");
         for(int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                System.out.println(grid[i][j]);
+                System.out.println(grid.get(i,j));
             }
             System.out.println();
         }
@@ -401,6 +412,8 @@ public class Board {
         // BoardIO.write("test2", b);
 
         AGen agen = new AGen();
+
+
         Car car0 = new Car(0,2,2,true);
         Car car1 = new Car(0,3,3,true);
         Car car2 = new Car(4,0,2,true);
@@ -413,6 +426,17 @@ public class Board {
         cList.add(car3);
         cList.add(car4);
         Board board = new Board(6,6,cList);
-        agen.printGrid(agen.outputGrid(board.grid));
+
+        // Car car0 = new Car(0,2,2,true);
+        // ArrayList<Car> cList = new ArrayList<Car>(1);
+        // cList.add(car0);
+        // Board board = new Board(6,6,cList);
+
+
+        // board.move(2,Direction.LEFT);
+        //agen.printGrid(agen.outputGrid(board.grid));
+        for (Board b: board.solve()) {
+            agen.printGrid(agen.outputGrid(b.grid));
+        }
     }
 }

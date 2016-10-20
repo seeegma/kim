@@ -9,12 +9,12 @@ public class AGen {
 	final static int phei = 9;
 	//print length
 	final static int plen = 8;
-	final static int exitL = 2;
+	final static int exitL = 3;
 
 	public static void main(String[] args) {		
 		
 		//creates random input grid for now
-		int[][] inputG = emptyGrid();
+		Grid inputG = new Grid(len,hei);
 		
 		//makes 2D grid into printable format
 		String[] out = outputGrid(inputG);
@@ -60,9 +60,10 @@ public class AGen {
 	 * outputs a string[] of 2D char array
 	 * @param inputG char[][] input grid 
 	 * @return String[] of grid
+	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
 	 */
 	
-	public static String[] outputGrid(int[][] inputG){
+	public static String[] outputGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
 		fin[0] = " vvvvvvvvvvvvv";
@@ -70,7 +71,7 @@ public class AGen {
 		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
-			fin[i+1] = extLine(inputG[i]);
+			fin[i+1] = extLine(inputG.getRow(i));
 		}
 		
 		//marking the exit path

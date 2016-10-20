@@ -4,10 +4,10 @@ import java.util.ArrayList;
  * 
  */
 public class Node {
-	public int[][] grid;
+	public Grid grid;
 	public Node parent;
 	
-	public Node (int[][] grid, Node parent) {
+	public Node (Grid grid, Node parent) {
 		this.grid = grid;
 		this.parent = parent;
 	}
