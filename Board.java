@@ -433,7 +433,7 @@ public class Board {
         //agen.printGrid(agen.outputGrid(board.grid));
 
         
-        Board board = BoardIO.read("test");
+        Board board = BoardIO.read("33moves");
         AGen.printGrid(AGen.outputGrid(board.grid));
 
         /*
