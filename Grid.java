@@ -5,19 +5,17 @@ import java.util.Arrays;
  * the grid using (x, y) coordinates instead of (y, x).
  */
 public class Grid {
-	int height, width;
+	public int height, width;
 	int[][] matrix;
+
+	private final int EMPTY_SPOT = -1;
 
 
 	public Grid(int width, int height) {
 		this.height = height;
 		this.width = width;
 		this.matrix = new int[height][width];
-		for (int i=0;i<height;i++) {
-			for (int j=0;j<width;j++) {
-				this.matrix[i][j]=-1;
-			}
-		}
+		this.clear();
 	}
 
 	public Grid(int width, int height, int[][] matrix) {
@@ -46,6 +44,17 @@ public class Grid {
 			col[i]= this.matrix[i][x];
 		}
 		return col;
+	}
+
+	/**
+	 * Clears the grid so that it's empty.
+	 */
+	public void clear() {
+		for (int i = 0; i < this.height; i++) { // assumes it's a matrix
+			for (int j = 0; j < this.width; j++) {
+				this.set(j,i,EMPTY_SPOT);
+			}
+		}
 	}
 
 

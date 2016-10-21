@@ -133,14 +133,15 @@ public class Board {
         return (new Board(this.w, this.h, this.grid.copy(), newCarList));
     }
 
+    /*
     /**
 	 * Compresses this instance of the board into a node for our BFS alg.
 	 * @param parent the parent node for the new node
 	 * @return the new node with the compressed data of this instance of Board
-	 */
+	 /
 	public Node compress(Node parent) {
 		return new Node(grid, parent);
-	}
+	}*/
 	
 	/**
 	 * Decompresses a node of our "graph" into this board. Assumes the Board
@@ -174,24 +175,13 @@ public class Board {
     public int hashCode() {
         return this.grid.hash();
     }
-
-	/**
-	 * Clears the grid so that it's empty.
-	 */
-	private void clearGrid() {
-		for (int i = 0; i < grid.height; i++) { // assumes it's a matrix
-			for (int j = 0; j < grid.width; j++) {
-				grid.set(j,i,EMPTY_SPOT);
-			}
-		}
-	}
 	
 	/**
 	 * Creates a new grid matrix using the current carList. Used when we're
 	 * decompressing nodes.
 	 */
 	private void createGrid() {
-		this.clearGrid();
+		grid.clear();
 		
 		int dx, dy, tempx, tempy;
 		Car c;
@@ -336,11 +326,16 @@ public class Board {
     public ArrayList<Board> solve() {
         LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
         HashSet<Integer> visited = new HashSet<Integer>();
+        int count = 0;
         queue.offer(new NodeBoard(this,null,0));
         NodeBoard solvedState = new NodeBoard(this,null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
             NodeBoard current = queue.poll();
+            if (current.numMoves > count) {
+                System.out.println(count);
+                count++;
+            }
             /*System.out.println(current.numMoves);
             System.out.println(current.board.grid.hash());*/
             visited.add(current.board.grid.hash());
@@ -414,6 +409,7 @@ public class Board {
         Car c = new Car(0, 0, 2, true);
         b.addCar(c);*/
 
+        /*
         Car car0 = new Car(0,2,2,true);
         Car car1 = new Car(0,3,3,true);
         Car car2 = new Car(4,0,2,true);
@@ -425,7 +421,7 @@ public class Board {
         cList.add(car2);
         cList.add(car3);
         cList.add(car4);
-        Board board = new Board(6,6,cList);
+        Board board = new Board(6,6,cList);*/
 
         // Car car0 = new Car(0,2,2,true);
         // ArrayList<Car> cList = new ArrayList<Car>(1);
@@ -436,17 +432,19 @@ public class Board {
         // board.move(2,Direction.LEFT);
         //agen.printGrid(agen.outputGrid(board.grid));
 
-        //Board board = BoardIO.read("93moves");
-        //AGen.printGrid(AGen.outputGrid(board.grid));
+        
+        Board board = BoardIO.read("test");
+        AGen.printGrid(AGen.outputGrid(board.grid));
 
         /*
         for (Board b : board.solve()) {
             AGen.printGrid(AGen.outputGrid(b.grid));
         }*/
 
-        
+        AltSolver.solveBoard(board);
+        /*
         for (Board b : AltSolver.solve(board)) {
             AGen.printGrid(AGen.outputGrid(b.grid));
-        }
+        }*/
     }
 }

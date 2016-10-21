@@ -16,17 +16,61 @@ public final class AltSolver {
      * @return a list of the Boards that are 1 move away from the current
      * board's position
      */
-    public static ArrayList<Board> getNeighbors(Board b) {
-        ArrayList<Car> c = b.getCars();
-        ArrayList<Board> neighbors = new ArrayList<Board>();
-        for (int i = 0;i < c.size();i++) {
-            for (Direction d : Direction.values()) { 
-                if (b.canMove(i,d)) {
-                    Board neighbor = b.copy();
-                    neighbor.move(i,d);
-                    neighbors.add(neighbor);
+    public static ArrayList<Node> getNeighbors(Board b, int moves, int prev) {
+        ArrayList<Node> neighbors = new ArrayList<Node>();
+        //ArrayList<ArrayList<Grid>> neighbors = new ArrayList<ArrayList<Grid>>();
+        // Moves each in its directions to create new positions
+        for (int i = 0; i < b.getCars().size(); i++) {
+            if (i != prev) {
+                ArrayList<Grid> lst = allPossibleMoves(b, i);
+                for (Grid g : lst) {
+                    neighbors.add(new Node(g, moves, i));
                 }
             }
+            /* 
+            for (Direction d : Direction.values()) {
+                
+                if (b.canMove(i,d)) {
+                    b.move(i, d);
+                    Grid g = b.getGrid().copy();
+                    b.move(i, d.reverse());
+                    neighbors.add(g);
+                }
+            }*/
+        }
+        return neighbors;
+    }
+
+    public static ArrayList<Grid> allPossibleMoves(Board b, int i) {
+        ArrayList<Grid> neighbors = new ArrayList<Grid>();
+        int count = 0;
+        Direction d;
+        if (b.getCars().get(i).horizontal) {
+            d = Direction.LEFT;
+        } else {
+            d = Direction.UP;
+        }
+
+        while(b.canMove(i,d)) {
+            b.move(i, d);
+            Grid g = b.getGrid().copy();
+            neighbors.add(g);
+            count++;
+        }
+        d = d.reverse();
+        for (int j = 0; j < count; j++) {
+            b.move(i, d);
+        }
+        count = 0;
+        while(b.canMove(i,d)) {
+            b.move(i, d);
+            Grid g = b.getGrid().copy();
+            neighbors.add(g);
+            count++;
+        }
+        d = d.reverse();
+        for (int j = 0; j < count; j++) {
+            b.move(i, d);
         }
         return neighbors;
     }
@@ -35,36 +79,50 @@ public final class AltSolver {
      * Solves the Rush Hour position.
      * @return a list of Boards that represent the path to the solution.
      */
-    public static ArrayList<Board> solve(Board b1) {
-        LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
+    public static void solveBoard(Board b1) {
+        LinkedList<Node> queue = new LinkedList<Node>();
         HashSet<Integer> visited = new HashSet<Integer>();
-        queue.offer(new NodeBoard(b1,null,0));
-        NodeBoard solvedState = new NodeBoard(b1,null,0);
+        Board working = b1.copy();
+        int count = 0;
+
+        // Enqueue the root of the tree, aka the current position
+        queue.offer(new Node(b1.getGrid(), 0, -1));
+        //queue.offer(new Node(b1.getGrid(),null,0));
+
+        Node solvedState = new Node(b1.getGrid().copy(), 0, -1);
+        //Node solvedState = new Node(b1.getGrid().copy(),null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
-            NodeBoard current = queue.poll();
-            visited.add(current.board.getGrid().hash());
-            if (current.board.isSolved()) {
+            // Dequeue
+            Node current = queue.poll();
+            if (current.numMoves > count) {
+                System.out.println(count);
+                count++;
+            }
+            // Saving a hash of the dequeued board to note that we visisted it
+            visited.add(current.grid.hash());
+            working.decompress(current);
+            if (working.isSolved()) {
                 solvedState=current;
                 solutionFound = true;
                 break;
             }
-            for (Board b : current.board.getNeighbors()) { 
-                boolean isNew = true;
-                if (visited.contains(b.getGrid().hash())) {
-                    isNew = false;
-                }
-                if (isNew) {
-                    queue.offer(new NodeBoard(b,current,current.numMoves+1));
+
+            // Go through all positions that are 1 move away from the current
+            for (Node n : AltSolver.getNeighbors(working, current.numMoves+1, current.prev)) { 
+                // Add to the queue if we have not visited a neighbor
+                if (!visited.contains(n.grid.hash())) {
+                    queue.offer(n);
+                    //queue.offer(new Node(g, current, current.numMoves+1));
                 }
             }
         }
         
-        if (!solutionFound) {
-            System.out.println("No solution found");
-            return null;
-        }
-        else {
+        AGen.printGrid(AGen.outputGrid(solvedState.grid));
+
+        /*
+        // figures out the path if there was a soln
+        if (solutionFound) {
             ArrayList<Board> path = new ArrayList<Board>();
             NodeBoard current = solvedState;
             path.add(current.board);
@@ -75,5 +133,7 @@ public final class AltSolver {
             Collections.reverse(path);
             return path;
         }
+        System.out.println("No solution found");
+        return null;*/
     }
 }
