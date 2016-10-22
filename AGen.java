@@ -15,7 +15,7 @@ public final class AGen {
 
 	public static void main(String[] args) {
 		
-		Board board = bIO.read("simpleB2");
+		Board board = bIO.read("33moves");
 		
 		//creates random input grid for now
 		Grid inputG = new Grid(len,hei);		
@@ -23,8 +23,8 @@ public final class AGen {
 		Grid inputG3 = new Grid(len,hei);
 		
 		addCar(inputG2, 1, board.getCars().get(0));
-		addCar(inputG3, 1, board.getCars().get(0));
-		addCar(inputG3, 2, board.getCars().get(1));
+		addCars(inputG3, board.getCars());
+
 		
 		Grid[] mInpG = {inputG, inputG2, inputG3};
 		
@@ -38,7 +38,7 @@ public final class AGen {
 		//ArrayList<Car> carsTest = new ArrayList<Car>();
 		
 		//print multiple grids out at once
-		printMG(mInpG);
+		printGrids(mInpG);
 
 	}
 
@@ -46,7 +46,7 @@ public final class AGen {
 	 * Prints multiple grids w/ move counter
 	 * @param grids
 	 */
-	public static void printMG(Grid[] grids){
+	public static void printGrids(Grid[] grids){
 		for(int i =0; i < grids.length;i++){
 			System.out.println("    Move "+i+"  ");
 			printGrid(getPrintableGrid(grids[i]));
@@ -81,7 +81,7 @@ public final class AGen {
 		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
-			fin[i+1] = extLine(inputG.getRow(i));
+			fin[i+1] = exitLine(inputG.getRow(i));
 		}
 		
 		//marking the exit path
@@ -96,7 +96,7 @@ public final class AGen {
 	 * @return String in visual format
 	 */
 	
-	public static String extLine(int[] line){
+	public static String exitLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
 			if (line[i]==-1) {
