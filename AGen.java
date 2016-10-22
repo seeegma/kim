@@ -11,22 +11,34 @@ public final class AGen {
 	final static int plen = 8;
 	final static int exitL = 3;
 
-	public static void main(String[] args) {		
+	final static BoardIO bIO = new BoardIO();
+
+	public static void main(String[] args) {
+		
+		Board board = bIO.read("33moves");
 		
 		//creates random input grid for now
-		Grid inputG = new Grid(len,hei);
+		Grid inputG = new Grid(len,hei);		
+		Grid inputG2 = new Grid(len,hei);
+		Grid inputG3 = new Grid(len,hei);
+		
+		addCar(inputG2, 1, board.getCars().get(0));
+		addCars(inputG3, board.getCars());
+
+		
+		Grid[] mInpG = {inputG, inputG2, inputG3};
 		
 		//makes 2D grid into printable format
-		String[] out = outputGrid(inputG);
+		String[] printableGrid = getPrintableGrid(inputG);
 		
 		//print grids individually
-		//printGrid(out);		
+		//printGrid(printableGrid);		
 		//printGrid(outputGrid(addCar(inputG)));
-		ArrayList<Car> carsTest = new ArrayList<Car>();
+		
+		//ArrayList<Car> carsTest = new ArrayList<Car>();
 		
 		//print multiple grids out at once
-		//int[][] grids = {out, outputGrid(addCars(inputG, carsTest))};
-		//printMG(grids);
+		printGrids(mInpG);
 
 	}
 
@@ -34,13 +46,14 @@ public final class AGen {
 	 * Prints multiple grids w/ move counter
 	 * @param grids
 	 */
-	public static void printMG(String[][] grids){
+	public static void printGrids(Grid[] grids){
 		for(int i =0; i < grids.length;i++){
 			System.out.println("    Move "+i+"  ");
-			printGrid(grids[i]);
+			printGrid(getPrintableGrid(grids[i]));
 		}
 		
 	}
+	
 	
 	/**
 	 * Prints grid
@@ -60,7 +73,7 @@ public final class AGen {
 	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
 	 */
 	
-	public static String[] outputGrid(Grid inputG){
+	public static String[] getPrintableGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
 		fin[0] = " vvvvvvvvvvvvv";
@@ -68,7 +81,7 @@ public final class AGen {
 		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
-			fin[i+1] = extLine(inputG.getRow(i));
+			fin[i+1] = exitLine(inputG.getRow(i));
 		}
 		
 		//marking the exit path
@@ -83,7 +96,7 @@ public final class AGen {
 	 * @return String in visual format
 	 */
 	
-	public static String extLine(int[] line){
+	public static String exitLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
 			if (line[i]==-1) {
@@ -115,26 +128,21 @@ public final class AGen {
 	
 	/** for now just adds cars manually by user
 	 * code for testing out visual
-	 * @param arr char[][] an array to put cars into
+	 * @param grid char[][] an array to put cars into
 	 * @return char[][] with cars added to it
 	 */
 	//replace arr with internal call? replace xylenhor with Car object call maybe
-	public static int[][] addCar(int[][] arr, int index, int x, int y, int len, boolean hor){
-		int ind = (int)index;
-		arr[x][y] = ind;
-		if (hor){ 
-			arr[x+1][y] = ind; 
-			if (len > 2){ arr[x+2][y] = ind; }
+	public static Grid addCar(Grid grid, int index, Car car){
+		grid.set(car.x, car.y, index);
+		if (car.horizontal){ 
+			grid.set(car.x+1, car.y, index);
+			if (car.length > 2){ grid.set(car.x+2, car.y, index); }
 		} else { 
-			arr[x][y+1] = ind; 
-			if (len > 2){ arr[x][y+2] = ind;  }
+			grid.set(car.x, car.y+1, index); 
+			if (car.length > 2){ grid.set(car.x, car.y+2, index);  }
 		}		
 		
-		//arr[2][3] = 'A';
-		//arr[2][4] = 'A';
-
-		
-		return arr;
+		return grid;
 	}
 	
 	
@@ -144,13 +152,12 @@ public final class AGen {
 	 * @param cars
 	 * @return char[][] of cars
 	 */
-	public static int[][] addCars(int[][] arr, ArrayList<Car> cars){
+	public static Grid addCars(Grid grid, ArrayList<Car> cars){
 		for (int i = 0; i< cars.size(); i++){
-			Car car = cars.get(i);
-			addCar(arr, i, car.x, car.y, car.length, car.horizontal);
+			addCar(grid, i, cars.get(i));
 		}	
 		
-		return arr;
+		return grid;
 		
 	}
 
