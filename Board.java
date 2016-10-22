@@ -328,6 +328,7 @@ public class Board {
         HashSet<Integer> visited = new HashSet<Integer>();
         int count = 0;
         queue.offer(new NodeBoard(this,null,0));
+        visited.add(this.grid.hash());
         NodeBoard solvedState = new NodeBoard(this,null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
@@ -336,21 +337,18 @@ public class Board {
                 System.out.println(count);
                 count++;
             }
-            /*System.out.println(current.numMoves);
-            System.out.println(current.board.grid.hash());*/
-            visited.add(current.board.grid.hash());
             if (current.board.isSolved()) {
                 solvedState=current;
                 solutionFound = true;
-                break;
+                //break;
             }
-            for (Board b : current.board.getNeighbors()) { 
-                boolean isNew = true;
-                if (visited.contains(b.grid.hash())) {
-                    isNew = false;
-                }
-                if (isNew) {
+            ArrayList<Board> neighbors = current.board.getNeighbors();
+            int numAdded = 0;
+            for (Board b : neighbors) {
+                if (!visited.contains(b.grid.hash())) {
                     queue.offer(new NodeBoard(b,current,current.numMoves+1));
+                    visited.add(b.grid.hash());
+                    numAdded++;
                 }
             }
         }
@@ -432,7 +430,7 @@ public class Board {
         // board.move(2,Direction.LEFT);
         //agen.printGrid(agen.outputGrid(board.grid));
 
-        
+
         Board board = BoardIO.read("93moves");
         AGen.printGrid(AGen.outputGrid(board.grid));
 		
