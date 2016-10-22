@@ -434,7 +434,7 @@ public class Board {
 
         
         Board board = BoardIO.read("test");
-        AGen.printGrid(AGen.outputGrid(board.grid));
+        AGen.printGrid(AGen.getPrintableGrid(board.grid));
 
         /*
         for (Board b : board.solve()) {

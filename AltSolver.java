@@ -118,7 +118,7 @@ public final class AltSolver {
             }
         }
         
-        AGen.printGrid(AGen.outputGrid(solvedState.grid));
+        AGen.printGrid(AGen.getPrintableGrid(solvedState.grid));
 
         /*
         // figures out the path if there was a soln
