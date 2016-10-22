@@ -433,18 +433,18 @@ public class Board {
         //agen.printGrid(agen.outputGrid(board.grid));
 
         
-        Board board = BoardIO.read("test");
+        Board board = BoardIO.read("93moves");
         AGen.printGrid(AGen.outputGrid(board.grid));
-
-        /*
+		
         for (Board b : board.solve()) {
             AGen.printGrid(AGen.outputGrid(b.grid));
-        }*/
+		}
 
-        AltSolver.solveBoard(board);
-        /*
-        for (Board b : AltSolver.solve(board)) {
-            AGen.printGrid(AGen.outputGrid(b.grid));
+        //AltSolver.solveBoard(board);
+        
+		/*
+        for (Grid b : AltSolver.solveBoard(board)) {
+            AGen.printGrid(AGen.outputGrid(b));
         }*/
     }
 }
