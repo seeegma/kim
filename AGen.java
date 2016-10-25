@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public final class AGen {
@@ -159,6 +160,22 @@ public final class AGen {
 		
 		return grid;
 		
+	}
+	
+	
+	/**
+	 * Symbols to use for the cars
+	 * Add anything you want to be shown
+	 * @return
+	 */
+	
+	public static ArrayList<String> symbolList(){
+		//change this to whatever you want
+		String symbols = "ABCDEFGHIJKLMNOPQ";
+		
+		ArrayList<String> symb = (ArrayList<String>) Arrays.asList(symbols.split(""));	
+		
+		return symb;
 	}
 
 }

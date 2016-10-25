@@ -5,9 +5,7 @@ import java.util.ArrayList;
 /**
  * Imports and Exports the board from and into a text file.
  */
-public class BoardIO {
-	// pretty sure there's a nice keyword for these kinds of classes
-
+public final class BoardIO {
 	/**
 	 * Reads in the board from the given file and returns the board.
 	 * @param filename filename of the text file.
