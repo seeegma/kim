@@ -16,7 +16,7 @@ public final class AltSolver {
      * @return a list of the Boards that are 1 move away from the current
      * board's position
      */
-    public static ArrayList<Node> getNeighbors(Board b, int moves, int prev) {
+    public static ArrayList<Node> getNeighbors(Board b, Node parent, int moves, int prev) {
         ArrayList<Node> neighbors = new ArrayList<Node>();
         //ArrayList<ArrayList<Grid>> neighbors = new ArrayList<ArrayList<Grid>>();
         // Moves each in its directions to create new positions
@@ -24,7 +24,7 @@ public final class AltSolver {
             if (i != prev) {
                 ArrayList<Grid> lst = allPossibleMoves(b, i);
                 for (Grid g : lst) {
-                    neighbors.add(new Node(g, moves, i));
+                    neighbors.add(new Node(g, parent, moves, i));
                 }
             }
             /* 
@@ -79,17 +79,18 @@ public final class AltSolver {
      * Solves the Rush Hour position.
      * @return a list of Boards that represent the path to the solution.
      */
-    public static void solveBoard(Board b1) {
+    public static ArrayList<Grid> solveBoard(Board b1) {
         LinkedList<Node> queue = new LinkedList<Node>();
         HashSet<Integer> visited = new HashSet<Integer>();
         Board working = b1.copy();
         int count = 0;
 
         // Enqueue the root of the tree, aka the current position
-        queue.offer(new Node(b1.getGrid(), 0, -1));
+        queue.offer(new Node(b1.getGrid(), null, 0, -1));
         //queue.offer(new Node(b1.getGrid(),null,0));
 
-        Node solvedState = new Node(b1.getGrid().copy(), 0, -1);
+        Node solvedState = new Node(b1.getGrid().copy(), null, 0, -1);
+		visited.add(working.getGrid().hash());
         //Node solvedState = new Node(b1.getGrid().copy(),null,0);
         boolean solutionFound = false;
         while (!queue.isEmpty()) {
@@ -109,31 +110,32 @@ public final class AltSolver {
             }
 
             // Go through all positions that are 1 move away from the current
-            for (Node n : AltSolver.getNeighbors(working, current.numMoves+1, current.prev)) { 
+            for (Node n : AltSolver.getNeighbors(working, current, current.numMoves+1, current.prev)) { 
                 // Add to the queue if we have not visited a neighbor
                 if (!visited.contains(n.grid.hash())) {
                     queue.offer(n);
+					visited.add(n.grid.hash());
                     //queue.offer(new Node(g, current, current.numMoves+1));
                 }
             }
         }
         
-        AGen.printGrid(AGen.outputGrid(solvedState.grid));
+        AGen.printGrid(AGen.getPrintableGrid(solvedState.grid));
 
-        /*
+        
         // figures out the path if there was a soln
         if (solutionFound) {
-            ArrayList<Board> path = new ArrayList<Board>();
-            NodeBoard current = solvedState;
-            path.add(current.board);
+            ArrayList<Grid> path = new ArrayList<Grid>();
+            Node current = solvedState;
+            path.add(current.grid);
             while (current.parent!=null) {
                 current=current.parent;
-                path.add(current.board);
+                path.add(current.grid);
             }
             Collections.reverse(path);
             return path;
         }
         System.out.println("No solution found");
-        return null;*/
+        return null;
     }
 }
