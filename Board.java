@@ -430,13 +430,6 @@ public class Board {
         // board.move(2,Direction.LEFT);
         //agen.printGrid(agen.outputGrid(board.grid));
 
-<<<<<<< HEAD
-        
-        Board board = BoardIO.read("33moves");
-        AGen.printGrid(AGen.outputGrid(board.grid));
-=======
->>>>>>> ef00bb6bf584325f92d074a13b21b30160557aa8
-
         Board board = BoardIO.read("93moves");
         AGen.printGrid(AGen.outputGrid(board.grid));
 		
