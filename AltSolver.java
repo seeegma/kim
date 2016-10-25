@@ -14,12 +14,17 @@ public final class AltSolver {
     /**
      * Gets all the neighboring positions of the current positon.
      * @return a list of the Boards that are 1 move away from the current
-     * board's position
+     *      board's position
      */
-    public static ArrayList<Node> getNeighbors(Board b, Node parent, int moves, int prev) {
+    public static ArrayList<Node> getNeighbors(Board b, Node parent, int moves,
+            int prev) {
         ArrayList<Node> neighbors = new ArrayList<Node>();
-        //ArrayList<ArrayList<Grid>> neighbors = new ArrayList<ArrayList<Grid>>();
-        // Moves each in its directions to create new positions
+
+        /* This could be improved if we check visited here since we can bypass
+        the allPossibleMoves function. */
+
+        // Goes through each car in the board and gets all possible neighbors
+        // moving that car can create
         for (int i = 0; i < b.getCars().size(); i++) {
             if (i != prev) {
                 ArrayList<Grid> lst = allPossibleMoves(b, i);
@@ -27,47 +32,54 @@ public final class AltSolver {
                     neighbors.add(new Node(g, parent, moves, i));
                 }
             }
-            /* 
-            for (Direction d : Direction.values()) {
-                
-                if (b.canMove(i,d)) {
-                    b.move(i, d);
-                    Grid g = b.getGrid().copy();
-                    b.move(i, d.reverse());
-                    neighbors.add(g);
-                }
-            }*/
         }
         return neighbors;
     }
 
+    /*
+     * Gets all possible moves of car at index i on board b in that current
+     * position.
+     * @param b the board
+     * @param i the index of the car
+     * @return an ArrayList of all possible grid positions that results from
+     *      moving that car
+     */
     public static ArrayList<Grid> allPossibleMoves(Board b, int i) {
         ArrayList<Grid> neighbors = new ArrayList<Grid>();
         int count = 0;
         Direction d;
+        // Find the starting direction
         if (b.getCars().get(i).horizontal) {
             d = Direction.LEFT;
         } else {
             d = Direction.UP;
         }
 
+        /* This isn't fully optimized due to the move function. We can make it
+        so that moving back only requires 1 "move".*/
+
+        // Creates all possible board positions moving to the starting
+        // direction
         while(b.canMove(i,d)) {
             b.move(i, d);
             Grid g = b.getGrid().copy();
             neighbors.add(g);
             count++;
         }
+        // Moves back to the original position
         d = d.reverse();
         for (int j = 0; j < count; j++) {
             b.move(i, d);
         }
         count = 0;
+        // Repeats in the reverse of the starting direction
         while(b.canMove(i,d)) {
             b.move(i, d);
             Grid g = b.getGrid().copy();
             neighbors.add(g);
             count++;
         }
+        // Resets back to the original state
         d = d.reverse();
         for (int j = 0; j < count; j++) {
             b.move(i, d);
@@ -76,8 +88,9 @@ public final class AltSolver {
     }
 
     /**
-     * Solves the Rush Hour position.
-     * @return a list of Boards that represent the path to the solution.
+     * Solves the Rush Hour position using BFS.
+     * @return a list of Boards that represent the path to the solution with
+     *      the original state as the head of the list.
      */
     public static ArrayList<Grid> solveBoard(Board b1) {
         LinkedList<Node> queue = new LinkedList<Node>();
@@ -93,6 +106,8 @@ public final class AltSolver {
 		visited.add(working.getGrid().hash());
         //Node solvedState = new Node(b1.getGrid().copy(),null,0);
         boolean solutionFound = false;
+
+        // Pretty standard BFS
         while (!queue.isEmpty()) {
             // Dequeue
             Node current = queue.poll();
@@ -110,17 +125,17 @@ public final class AltSolver {
             }
 
             // Go through all positions that are 1 move away from the current
-            for (Node n : AltSolver.getNeighbors(working, current, current.numMoves+1, current.prev)) { 
+            for (Node n : AltSolver.getNeighbors(working, current,
+                    current.numMoves+1, current.prev)) {
                 // Add to the queue if we have not visited a neighbor
                 if (!visited.contains(n.grid.hash())) {
                     queue.offer(n);
 					visited.add(n.grid.hash());
-                    //queue.offer(new Node(g, current, current.numMoves+1));
                 }
             }
         }
         
-        AGen.printGrid(AGen.getPrintableGrid(solvedState.grid));
+        //AGen.printGrid(AGen.getPrintableGrid(solvedState.grid));
 
         
         // figures out the path if there was a soln
