@@ -207,11 +207,10 @@ public class Board {
      * Adds a new car. Might be useful to be public fcn for testing.
      * @param newCar a new car to be inserted
      */
-    public void addCar(Car newCar) {
+    public boolean addCar(Car newCar) {
         // update list
-        carList.add(newCar);
-
-// TODO: CHECK THAT THE NEW CAR IS NOT IN ANOTHER CAR
+        
+        boolean canPlace = true;
         // update grid
         int dx = 0;
         int dy = 0;
@@ -220,10 +219,24 @@ public class Board {
         } else {
             dy++;
         }
+
         for (int i = 0; i < newCar.length; i++) {
 			// since the newCar was added at the end of the array its index is:
+
             grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+            if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
+                canPlace = false;
+                break;
+            }
         }
+        if (canPlace) { 
+            for (int i = 0; i < newCar.length; i++) {
+                grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+            }
+            carList.add(newCar);
+        }
+        return(canPlace);
+
     }
     
     /**
