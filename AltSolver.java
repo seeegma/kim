@@ -90,7 +90,8 @@ public final class AltSolver {
     /**
      * Solves the Rush Hour position using BFS.
      * @return a list of Boards that represent the path to the solution with
-     *      the original state as the head of the list.
+     *      the original state as the head of the list. Returns NULL if no
+     *      solution is found.
      */
     public static ArrayList<Grid> solveBoard(Board b1) {
         LinkedList<Node> queue = new LinkedList<Node>();
@@ -134,10 +135,7 @@ public final class AltSolver {
                 }
             }
         }
-        
-        //AGen.printGrid(AGen.getPrintableGrid(solvedState.grid));
-
-        
+            
         // figures out the path if there was a soln
         if (solutionFound) {
             ArrayList<Grid> path = new ArrayList<Grid>();
@@ -150,7 +148,7 @@ public final class AltSolver {
             Collections.reverse(path);
             return path;
         }
-        System.out.println("No solution found");
+        //System.out.println("No solution found");
         return null;
     }
 }
