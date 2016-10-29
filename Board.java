@@ -210,7 +210,7 @@ public class Board {
     public boolean addCar(Car newCar) {
         // update list
         
-        boolean canPlace = true;
+        boolean placeable = true;
         // update grid
         int dx = 0;
         int dy = 0;
@@ -220,15 +220,15 @@ public class Board {
             dy++;
         }
 
-        canPlace = canPlace(newCar);
+        placeable = canPlace(newCar);
         
-        if (canPlace) { 
+        if (placeable) { 
             for (int i = 0; i < newCar.length; i++) {
                 grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
             }
             carList.add(newCar);
         }
-        return(canPlace);
+        return(placeable);
 
     }
     
