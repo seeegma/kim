@@ -223,7 +223,6 @@ public class Board {
         }
 
         placeable = canPlace(newCar);
-        System.out.println(placeable);
         
         if (placeable) { 
         	carList.add(newCar);
@@ -357,8 +356,8 @@ public class Board {
 	 * @return true if a car can be placed
 	 */
 	public boolean hasEmpty(){
-		for(int y = 0;y<this.h;y++){
-			for (int x = 0; x< this.w;x++){
+		for(int y = 0;y<this.h-1;y++){
+			for (int x = 0; x< this.w-1;x++){
 				Car car1 = new Car(x,y,2,true);
 				Car car2 = new Car(x,y,2,false);
 				if(canPlace(car1) || canPlace(car2)){

@@ -151,7 +151,7 @@ public final class AltSolver {
             Collections.reverse(path);
             return path;
         }
-        System.out.println("No solution found");
+        //System.out.println("No solution found");
         return null;
     }
 }
