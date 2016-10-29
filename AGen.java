@@ -16,21 +16,21 @@ public final class AGen {
 
 	public static void main(String[] args) {
 		
-		Board board = bIO.read("33moves");
+		//Board board = bIO.read("33moves");
 		
 		//creates random input grid for now
 		Grid inputG = new Grid(len,hei);		
 		Grid inputG2 = new Grid(len,hei);
 		Grid inputG3 = new Grid(len,hei);
 		
-		addCar(inputG2, 1, board.getCars().get(0));
-		addCars(inputG3, board.getCars());
+		//addCar(inputG2, 1, board.getCars().get(0));
+		//addCars(inputG3, board.getCars());
 
 		
 		Grid[] mInpG = {inputG, inputG2, inputG3};
 		
 		//makes 2D grid into printable format
-		String[] printableGrid = getPrintableGrid(inputG);
+		//String[] printableGrid = getPrintableGrid(inputG);
 		
 		//print grids individually
 		//printGrid(printableGrid);		
@@ -39,7 +39,7 @@ public final class AGen {
 		//ArrayList<Car> carsTest = new ArrayList<Car>();
 		
 		//print multiple grids out at once
-		printGrids(mInpG);
+		//printGrids(mInpG);
 
 	}
 
@@ -47,7 +47,7 @@ public final class AGen {
 	 * Prints multiple grids w/ move counter
 	 * @param grids
 	 */
-	public static void printGrids(Grid[] grids){
+	public void printGrids(Grid[] grids){
 		for(int i =0; i < grids.length;i++){
 			System.out.println("    Move "+i+"  ");
 			printGrid(grids[i]);
@@ -60,7 +60,7 @@ public final class AGen {
 	 * Prints grid
 	 * @param out
 	 */
-	public static void printGrid(Grid grid){
+	public void printGrid(Grid grid){
 		String[] pGrid = getPrintableGrid(grid);
 		for (int i=0; i < phei; i++){
 			System.out.println(pGrid[i]);
@@ -75,7 +75,7 @@ public final class AGen {
 	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
 	 */
 	
-	public static String[] getPrintableGrid(Grid inputG){
+	public String[] getPrintableGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
 		fin[0] = " vvvvvvvvvvvvv";
@@ -83,7 +83,7 @@ public final class AGen {
 		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
-			fin[i+1] = exitLine(inputG.getRow(i));
+			fin[i+1] = extractLine(inputG.getRow(i));
 		}
 		
 		//marking the exit path
@@ -98,14 +98,14 @@ public final class AGen {
 	 * @return String in visual format
 	 */
 	
-	public static String exitLine(int[] line){
+	public String extractLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
 			if (line[i]==-1) {
 				t = t + "  ";
 			}
 			else { 
-				t = t + Integer.toString(line[i]) + " ";
+				t = t + symbolList().get(line[i]) + " ";
 			}
 		}
 		t = t + "|";
@@ -117,7 +117,7 @@ public final class AGen {
 	/** creates empty char[][] 6x6 currently
 	 * @return empty char[len][hei]
 	 */
-	public static int[][] emptyGrid(){
+	public int[][] emptyGrid(){
 		int[][] arr = new int[len][hei];
 		for(int i=0;i<len;i++){
 			for (int j=0;j<hei;j++){
@@ -134,7 +134,7 @@ public final class AGen {
 	 * @return char[][] with cars added to it
 	 */
 	//replace arr with internal call? replace xylenhor with Car object call maybe
-	public static Grid addCar(Grid grid, int index, Car car){
+	public Grid addCar(Grid grid, int index, Car car){
 		grid.set(car.x, car.y, index);
 		if (car.horizontal){ 
 			grid.set(car.x+1, car.y, index);
@@ -154,7 +154,7 @@ public final class AGen {
 	 * @param cars
 	 * @return char[][] of cars
 	 */
-	public static Grid addCars(Grid grid, ArrayList<Car> cars){
+	public Grid addCars(Grid grid, ArrayList<Car> cars){
 		for (int i = 0; i< cars.size(); i++){
 			addCar(grid, i, cars.get(i));
 		}	
@@ -170,11 +170,15 @@ public final class AGen {
 	 * @return
 	 */
 	
-	public static ArrayList<String> symbolList(){
+	public ArrayList<String> symbolList(){
 		//change this to whatever you want
-		String symbols = "ABCDEFGHIJKLMNOPQ";
+		String symbols = "ABCDEFGHIJKLMNOPQRST";
+		String[] symbs = symbols.split("");
+		ArrayList<String> symb = new ArrayList<String>();
 		
-		ArrayList<String> symb = (ArrayList<String>) Arrays.asList(symbols.split(""));	
+		for(int i = 0; i < symbs.length;i++){
+			symb.add(symbs[i]);
+		}	
 		
 		return symb;
 	}

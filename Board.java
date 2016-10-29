@@ -225,9 +225,9 @@ public class Board {
         
         if (placeable) { 
             for (int i = 0; i < newCar.length; i++) {
-                grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+                this.grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
             }
-            carList.add(newCar);
+            this.carList.add(newCar);
         }
         return(placeable);
 
@@ -352,11 +352,11 @@ public class Board {
 	 * @return true if a car can be placed
 	 */
 	public boolean hasEmpty(){
-		for(int y = 0;y<this.hashCode();y++){
+		for(int y = 0;y<this.h;y++){
 			for (int x = 0; x< this.w;x++){
 				Car car1 = new Car(x,y,2,true);
 				Car car2 = new Car(x,y,2,false);
-				if(this.addCar(car1) || this.addCar(car2)){
+				if(canPlace(car1) || canPlace(car2)){
 					return true;
 				}
 			}
@@ -484,10 +484,11 @@ public class Board {
 		//agen.printGrid(agen.outputGrid(board.grid));
 
 		Board board = BoardIO.read("93moves");
-		AGen.printGrid(AGen.getPrintableGrid(board.grid));
+		AGen aGen = new AGen();
+		aGen.printGrid(board.grid);
 
 		for (Board b : board.solve()) {
-			AGen.printGrid(AGen.getPrintableGrid(b.grid));
+			aGen.printGrid(b.grid);
 		}
 
 		//AltSolver.solveBoard(board);
