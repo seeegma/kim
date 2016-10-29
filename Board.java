@@ -226,10 +226,12 @@ public class Board {
         System.out.println(placeable);
         
         if (placeable) { 
+        	carList.add(newCar);
             for (int i = 0; i < newCar.length; i++) {
                 grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+
             }
-            carList.add(newCar);
+            
         }
         return(placeable);
 
