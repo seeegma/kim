@@ -13,11 +13,13 @@ import java.util.Set;
 public final class AltSolver {
     /**
      * Gets all the neighboring positions of the current positon.
+     * @param b the board to manipulate
+     * @param parent the parent node
+     * @param moves 
      * @return a list of the Boards that are 1 move away from the current
      *      board's position
      */
-    public static ArrayList<Node> getNeighbors(Board b, Node parent, int moves,
-            int prev) {
+    public static ArrayList<Node> getNeighbors(Board b, Node parent) {
         ArrayList<Node> neighbors = new ArrayList<Node>();
 
         /* This could be improved if we check visited here since we can bypass
@@ -29,14 +31,15 @@ public final class AltSolver {
             if (i != prev) {
                 ArrayList<Grid> lst = allPossibleMoves(b, i);
                 for (Grid g : lst) {
-                    neighbors.add(new Node(g, parent, moves, i));
+                    neighbors.add(new Node(g, parent, parent.numMoves+1,
+                        parent.prev));
                 }
             }
         }
         return neighbors;
     }
 
-    /*
+    /**
      * Gets all possible moves of car at index i on board b in that current
      * position.
      * @param b the board
@@ -126,8 +129,7 @@ public final class AltSolver {
             }
 
             // Go through all positions that are 1 move away from the current
-            for (Node n : AltSolver.getNeighbors(working, current,
-                    current.numMoves+1, current.prev)) {
+            for (Node n : AltSolver.getNeighbors(working, current)) {
                 // Add to the queue if we have not visited a neighbor
                 if (!visited.contains(n.grid.hash())) {
                     queue.offer(n);

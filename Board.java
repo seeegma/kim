@@ -313,43 +313,6 @@ public class Board {
     }
 
     /**
-     * Moves the car at index carNum in direction d by amount. Assumes it is
-     * legal. Only use right now is to revert multiple move calls (see above) by
-     * AltSolver to move the car back to its original position.
-     * @param num the number associated with the car to move
-     * @param d the Direction to move in
-     * @param amount the squares to move
-     */
-    public void revert(int carNum, Direction d, int amount) {
-        Car c = carList.get(carNum);
-        switch(d) {
-            case UP:
-                grid.set(c.x, c.y-1, carNum);
-                grid.set(c.x, c.y+c.length-1, -1);
-                c.y-=1;
-                break;
-            case LEFT:
-                grid.set(c.x-1, c.y,carNum);
-                grid.set(c.x+c.length-1, c.y,-1);
-                c.x-=1;
-                break;
-            case DOWN:
-                grid.set(c.x,c.y,-1);
-                grid.set(c.x,c.y+c.length,carNum);
-                c.y+=1;
-                break;
-            case RIGHT:
-                grid.set(c.x, c.y,-1);
-                grid.set(c.x+c.length,c.y,carNum);
-                c.x+=1;
-                break;
-            default:
-                System.out.println("Error encountered");
-                break;
-        }
-    }
-
-    /**
      * Gets all the neighboring positions of the current positon.
      * @return a list of the Boards that are 1 move away from the current
      * board's position
