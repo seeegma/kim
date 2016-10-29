@@ -50,7 +50,7 @@ public final class AGen {
 	public static void printGrids(Grid[] grids){
 		for(int i =0; i < grids.length;i++){
 			System.out.println("    Move "+i+"  ");
-			printGrid(getPrintableGrid(grids[i]));
+			printGrid(grids[i]);
 		}
 		
 	}
@@ -60,9 +60,10 @@ public final class AGen {
 	 * Prints grid
 	 * @param out
 	 */
-	public static void printGrid(String[] out){
+	public static void printGrid(Grid grid){
+		String[] pGrid = getPrintableGrid(grid);
 		for (int i=0; i < phei; i++){
-			System.out.println(out[i]);
+			System.out.println(pGrid[i]);
 		}
 		
 	}
