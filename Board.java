@@ -438,7 +438,7 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				System.out.println(grid.get(i,j));
+				System.out.print(String.format("%1$4s", grid.get(i,j)));
 			}
 			System.out.println();
 		}
@@ -486,18 +486,18 @@ public class Board {
 		//agen.printGrid(agen.outputGrid(board.grid));
 
 		Board board = BoardIO.read("93moves");
-		AGen.printGrid(AGen.getPrintableGrid(board.grid));
-
+		board.debug();
+		/*
 		for (Board b : board.solve()) {
 			AGen.printGrid(AGen.getPrintableGrid(b.grid));
-		}
+		}*/
 
 		//AltSolver.solveBoard(board);
 
-		/*
         for (Grid b : AltSolver.solveBoard(board)) {
-            AGen.printGrid(AGen.outputGrid(b));
-        }*/
+            board.decompress(new Node(b, null, 0, 0));
+            board.debug();
+        }
 	}
 
 }
