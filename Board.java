@@ -203,56 +203,56 @@ public class Board {
 		}
 	}
 
-	/**
-	 * Adds a new car. Might be useful to be public fcn for testing.
-	 * @param newCar a new car to be inserted
-	 */
-	public boolean addCar(Car newCar) {
-		// update list
 
-		boolean canPlace = true;
-		// update grid
-		int dx = 0;
-		int dy = 0;
-		if (newCar.horizontal) {
-			dx++;
-		} else {
-			dy++;
-		}
+    /**
+     * Adds a new car. Might be useful to be public fcn for testing.
+     * @param newCar a new car to be inserted
+     */
+    public boolean addCar(Car newCar) {
+        // update list
+        
+        boolean placeable = true;
+        // update grid
+        int dx = 0;
+        int dy = 0;
+        if (newCar.horizontal) {
+            dx++;
+        } else {
+            dy++;
+        }
 
-		canPlace = canPlace(newCar);
+        placeable = canPlace(newCar);
+        
+        if (placeable) { 
+            for (int i = 0; i < newCar.length; i++) {
+                grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+            }
+            carList.add(newCar);
+        }
+        return(placeable);
 
-		if (canPlace) { 
-			for (int i = 0; i < newCar.length; i++) {
-				grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
-			}
-			carList.add(newCar);
-		}
-		return(canPlace);
-
-	}
-
-	public boolean canPlace(Car newCar){
-		boolean canPlace = true;
-		int dx = 0;
-		int dy = 0;
-		if (newCar.horizontal) {
-			dx++;
-		} else {
-			dy++;
-		}
-
-		for (int i = 0; i < newCar.length; i++) {
+    }
+    
+    public boolean canPlace(Car newCar){
+    	boolean canPlace = true;
+    	int dx = 0;
+    	int dy = 0;
+    	if (newCar.horizontal) {
+            dx++;
+        } else {
+            dy++;
+        }
+    	
+    	for (int i = 0; i < newCar.length; i++) {
 			// since the newCar was added at the end of the array its index is:
 
-			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
-			if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
-				canPlace = false;
-				break;
-			}
-		}
-		return canPlace;
-	}
+            if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
+                canPlace = false;
+                break;
+            }
+        }
+    	return canPlace;
+    }
 
 	/**
 	 * Moves the car in the direction d by amount or until it hits another car.
