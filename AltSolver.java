@@ -15,24 +15,19 @@ public final class AltSolver {
      * Gets all the neighboring positions of the current positon.
      * @param b the board to manipulate
      * @param parent the parent node
-     * @param moves 
      * @return a list of the Boards that are 1 move away from the current
      *      board's position
      */
     public static ArrayList<Node> getNeighbors(Board b, Node parent) {
         ArrayList<Node> neighbors = new ArrayList<Node>();
-
-        /* This could be improved if we check visited here since we can bypass
-        the allPossibleMoves function. */
-
         // Goes through each car in the board and gets all possible neighbors
         // moving that car can create
         for (int i = 0; i < b.getCars().size(); i++) {
-            if (i != prev) {
+            // So we don't move the same piece twice
+            if (i != parent.prev) {
                 ArrayList<Grid> lst = allPossibleMoves(b, i);
                 for (Grid g : lst) {
-                    neighbors.add(new Node(g, parent, parent.numMoves+1,
-                        parent.prev));
+                    neighbors.add(new Node(g, parent, parent.numMoves+1, i));
                 }
             }
         }
@@ -58,11 +53,7 @@ public final class AltSolver {
             d = Direction.UP;
         }
 
-        /* This isn't fully optimized due to the move function. We can make it
-        so that moving back only requires 1 "move".*/
-
-        // Creates all possible board positions moving to the starting
-        // direction
+        // Creates all possible board positions moving to the starting direction
         while(b.canMove(i,d)) {
             b.move(i, d);
             Grid g = b.getGrid().copy();
@@ -70,6 +61,11 @@ public final class AltSolver {
             count++;
         }
         // Moves back to the original position
+        /* Making a method to revert this back in one method call might not be
+        worth it since that would require at max 6 grid operations (moving a
+        length 3 car to a new positon). Could have an if statement to determine
+        whether to use this or that new method, but then that'd just overhead
+        and isn't a huge improvement if at all, especially on a packed board*/
         d = d.reverse();
         for (int j = 0; j < count; j++) {
             b.move(i, d);
@@ -121,6 +117,8 @@ public final class AltSolver {
             }
             // Saving a hash of the dequeued board to note that we visisted it
             visited.add(current.grid.hash());
+
+            // decompresses the grid into the board class
             working.decompress(current);
             if (working.isSolved()) {
                 solvedState=current;

@@ -10,7 +10,8 @@ import java.util.Set;
  * Represents a position in a game of Rush Hour. Includes moving functionality.
  * Note that the board is represented as a w by h board with the top left
  * corner known to be 0, 0. Increasing x and y moves to the right and down
- * respectively.
+ * respectively. The VIP is at index 0, and the board is solved if it is
+ * flush with the East/Right edge of the board.
  */
 public class Board {
 // TODO: introduce coordinate class just to make stuff more clear? Will make
@@ -54,7 +55,6 @@ public class Board {
         this.grid = grid;
         this.carList = c;
     }
-
 
     public boolean isSolved() {
         return (carList.get(0).x==w-carList.get(0).length);
