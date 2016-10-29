@@ -96,7 +96,7 @@ public final class AltSolver {
         LinkedList<Node> queue = new LinkedList<Node>();
         HashSet<Integer> visited = new HashSet<Integer>();
         Board working = b1.copy();
-        int count = 0;
+        //int count = 0;
 
         // Enqueue the root of the tree, aka the current position
         queue.offer(new Node(b1.getGrid(), null, 0, -1));
@@ -111,29 +111,32 @@ public final class AltSolver {
         while (!queue.isEmpty()) {
             // Dequeue
             Node current = queue.poll();
-            if (current.numMoves > count) {
+            /*if (current.numMoves > count) {
                 System.out.println(count);
                 count++;
-            }
-            // Saving a hash of the dequeued board to note that we visisted it
-            visited.add(current.grid.hash());
+            }*/
 
-            // decompresses the grid into the board class
-            working.decompress(current);
-            if (working.isSolved()) {
-                solvedState=current;
-                solutionFound = true;
-                break;
-            }
+            //if (!visited.contains(current.grid.hash())) {
+                // Marks that we visited the node
+                visited.add(current.grid.hash());
 
-            // Go through all positions that are 1 move away from the current
-            for (Node n : AltSolver.getNeighbors(working, current)) {
-                // Add to the queue if we have not visited a neighbor
-                if (!visited.contains(n.grid.hash())) {
-                    queue.offer(n);
-					visited.add(n.grid.hash());
+                // decompresses the grid into the board class
+                working.decompress(current);
+                if (working.isSolved()) {
+                    solvedState=current;
+                    solutionFound = true;
+                    break;
                 }
-            }
+
+                // Go through all positions that can be reached from current
+                for (Node n : AltSolver.getNeighbors(working, current)) {
+                    // Add to the queue if we have not visited a neighbor
+                    if (!visited.contains(n.grid.hash())) {
+                        queue.offer(n);
+                        visited.add(n.grid.hash());
+                    }
+                }
+            //}
         }
             
         // figures out the path if there was a soln
@@ -148,7 +151,7 @@ public final class AltSolver {
             Collections.reverse(path);
             return path;
         }
-        //System.out.println("No solution found");
+        System.out.println("No solution found");
         return null;
     }
 }

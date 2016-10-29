@@ -50,7 +50,7 @@ public final class BoardIO {
 		    	x = Integer.parseInt(parts[0]);
 		    	y = Integer.parseInt(parts[1]);
 		    	len = Integer.parseInt(parts[2]);
-		    	if (parts[3] == "T") {
+		    	if (parts[3].equals("T")) {
 					horiz = true;
 				} else {
 					horiz = false;
