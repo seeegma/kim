@@ -220,15 +220,8 @@ public class Board {
             dy++;
         }
 
-        for (int i = 0; i < newCar.length; i++) {
-			// since the newCar was added at the end of the array its index is:
-
-            grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
-            if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
-                canPlace = false;
-                break;
-            }
-        }
+        canPlace = canPlace(newCar);
+        
         if (canPlace) { 
             for (int i = 0; i < newCar.length; i++) {
                 grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
@@ -237,6 +230,28 @@ public class Board {
         }
         return(canPlace);
 
+    }
+    
+    public boolean canPlace(Car newCar){
+    	boolean canPlace = true;
+    	int dx = 0;
+    	int dy = 0;
+    	if (newCar.horizontal) {
+            dx++;
+        } else {
+            dy++;
+        }
+    	
+    	for (int i = 0; i < newCar.length; i++) {
+			// since the newCar was added at the end of the array its index is:
+
+            grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+            if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
+                canPlace = false;
+                break;
+            }
+        }
+    	return canPlace;
     }
     
     /**
@@ -330,6 +345,24 @@ public class Board {
             }
         }
         return neighbors;
+    }
+    
+    /**
+     * Checks if there is a place to put a car in the grid
+     * @return true if a car can be placed
+     */
+    public boolean hasEmpty(){
+    	for(int y = 0;y<this.hashCode();y++){
+    		for (int x = 0; x< this.w;x++){
+    			Car car1 = new Car(x,y,2,true);
+    			Car car2 = new Car(x,y,2,false);
+    			if(this.addCar(car1) || this.addCar(car2)){
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	return false;
     }
 
     /**
@@ -444,10 +477,10 @@ public class Board {
         //agen.printGrid(agen.outputGrid(board.grid));
 
         Board board = BoardIO.read("93moves");
-        AGen.printGrid(AGen.outputGrid(board.grid));
+        AGen.printGrid(AGen.getPrintableGrid(board.grid));
 		
         for (Board b : board.solve()) {
-            AGen.printGrid(AGen.outputGrid(b.grid));
+            AGen.printGrid(AGen.getPrintableGrid(b.grid));
 		}
 
         //AltSolver.solveBoard(board);
