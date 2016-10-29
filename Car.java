@@ -10,6 +10,10 @@ public class Car {
     public int y;
     //char c; // might want to change somehow?
 
+
+    public Car() {
+        
+    }
     // constructor
     public Car(int x, int y, int length, boolean horiz) {
         this.x = x;
@@ -17,6 +21,8 @@ public class Car {
         this.length = length;
         this.horizontal = horiz;
     }
+
+
 
     public Car copy() {
         return (new Car(this.x, this.y, this.length, this.horizontal));

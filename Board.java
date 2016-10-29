@@ -10,7 +10,8 @@ import java.util.Set;
  * Represents a position in a game of Rush Hour. Includes moving functionality.
  * Note that the board is represented as a w by h board with the top left
  * corner known to be 0, 0. Increasing x and y moves to the right and down
- * respectively.
+ * respectively. The VIP is at index 0, and the board is solved if it is
+ * flush with the East/Right edge of the board.
  */
 public class Board {
 	// TODO: introduce coordinate class just to make stuff more clear? Will make
@@ -222,12 +223,16 @@ public class Board {
         }
 
         placeable = canPlace(newCar);
+        System.out.println(placeable);
         
         if (placeable) { 
+        	carList.add(newCar);
             for (int i = 0; i < newCar.length; i++) {
-                this.grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+
+                grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+
             }
-            this.carList.add(newCar);
+            
         }
         return(placeable);
 
@@ -436,7 +441,7 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				System.out.println(grid.get(i,j));
+				System.out.print(String.format("%1$4s", grid.get(i,j)));
 			}
 			System.out.println();
 		}
@@ -484,18 +489,21 @@ public class Board {
 		//agen.printGrid(agen.outputGrid(board.grid));
 
 		Board board = BoardIO.read("93moves");
-		AGen aGen = new AGen();
-		aGen.printGrid(board.grid);
 
+
+		board.debug();
+		/*
 		for (Board b : board.solve()) {
-			aGen.printGrid(b.grid);
-		}
+			AGen.printGrid(AGen.getPrintableGrid(b.grid));
+		}*/
+
 
 		//AltSolver.solveBoard(board);
 
-		/*
         for (Grid b : AltSolver.solveBoard(board)) {
-            AGen.printGrid(AGen.outputGrid(b));
-        }*/
+            board.decompress(new Node(b, null, 0, 0));
+            board.debug();
+        }
 	}
+
 }
