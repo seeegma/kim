@@ -50,7 +50,11 @@ public final class BoardIO {
 		    	x = Integer.parseInt(parts[0]);
 		    	y = Integer.parseInt(parts[1]);
 		    	len = Integer.parseInt(parts[2]);
-		    	horiz = Boolean.parseBoolean(parts[3]);
+		    	if (parts[3] == "T") {
+					horiz = true;
+				} else {
+					horiz = false;
+				}
 		    	c.add(new Car(x, y, len, horiz));
 		    }
 		    
@@ -100,7 +104,11 @@ public final class BoardIO {
                 pw.print(" ");
                 pw.print(c.length);
                 pw.print(" ");
-                pw.print(c.horizontal);
+				if (c.horizontal) {
+					pw.print("T");
+				} else {
+					pw.print("F");
+				}
                 pw.println();
             }
 
