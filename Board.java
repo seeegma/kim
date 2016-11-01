@@ -332,24 +332,93 @@ public class Board {
 		}
 	}
 
+	// /**
+	//  * Gets all the neighboring positions of the current positon.
+	//  * @return a list of the Boards that are 1 move away from the current
+	//  * board's position
+	//  */
+	// public ArrayList<Board> getNeighbors() {
+	// 	ArrayList<Board> neighbors = new ArrayList<Board>();
+	// 	for (int i=0;i<this.carList.size();i++) {
+	// 		for (Direction d : Direction.values()) { 
+	// 			if (canMove(i,d)) {
+	// 				Board neighbor = this.copy();
+	// 				neighbor.move(i,d);
+	// 				neighbors.add(neighbor);
+	// 			}
+	// 		}
+	// 	}
+	// 	return neighbors;
+	// }
+
+
 	/**
-	 * Gets all the neighboring positions of the current positon.
-	 * @return a list of the Boards that are 1 move away from the current
-	 * board's position
-	 */
-	public ArrayList<Board> getNeighbors() {
-		ArrayList<Board> neighbors = new ArrayList<Board>();
-		for (int i=0;i<this.carList.size();i++) {
-			for (Direction d : Direction.values()) { 
-				if (canMove(i,d)) {
-					Board neighbor = this.copy();
-					neighbor.move(i,d);
-					neighbors.add(neighbor);
-				}
-			}
-		}
-		return neighbors;
-	}
+     * Gets all the neighboring positions of the current positon.
+     * @param b the board to manipulate
+     * @param parent the parent node
+     * @return a list of the Boards that are 1 move away from the current
+     *      board's position
+     */
+    public ArrayList<Board> getNeighbors() {
+        ArrayList<Board> neighbors = new ArrayList<Board>();
+        // Goes through each car in the board and gets all possible neighbors
+        // moving that car can create
+        for (int i = 0; i < this.getCars().size(); i++) {
+            ArrayList<Board> lst = allPossibleMoves(i);
+            for (Board b : lst) {
+                neighbors.add(b);
+            }
+        }
+        return neighbors;
+    }
+
+    /**
+     * Gets all possible moves of car at index i on board b in that current
+     * position.
+     * @param b the board
+     * @param i the index of the car
+     * @return an ArrayList of all possible grid positions that results from
+     *      moving that car
+     */
+    public ArrayList<Board> allPossibleMoves(int i) {
+        ArrayList<Board> neighbors = new ArrayList<Board>();
+        Direction d;
+        // Find the starting direction
+        if (this.getCars().get(i).horizontal) {
+            d = Direction.LEFT;
+        } else {
+            d = Direction.UP;
+        }
+
+        // Creates all possible board positions moving to the starting direction
+        Board currentState = this;
+        while(currentState.canMove(i,d)) {
+        	Board newBoard = this.copy();
+            newBoard.move(i, d);
+            neighbors.add(newBoard);
+            currentState = newBoard;
+        }
+        // Moves back to the original position
+        /* Making a method to revert this back in one method call might not be
+        worth it since that would require at max 6 grid operations (moving a
+        length 3 car to a new positon). Could have an if statement to determine
+        whether to use this or that new method, but then that'd just overhead
+        and isn't a huge improvement if at all, especially on a packed board*/
+        d = d.reverse();
+
+        currentState = this;
+        
+        // Repeats in the reverse of the starting direction
+        while(currentState.canMove(i,d)) {
+        	Board newBoard = this.copy();
+            newBoard.move(i, d);
+            neighbors.add(newBoard);
+            currentState = newBoard;
+        }
+
+        
+        return neighbors;
+    }
 
 	/**
 	 * Checks if there is a place to put a car in the grid
