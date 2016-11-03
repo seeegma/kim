@@ -509,7 +509,7 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				System.out.print(String.format("%1$4s", grid.get(i,j)));
+				System.out.print(String.format("%1$4s", grid.get(j,i)));
 			}
 			System.out.println();
 		}
@@ -567,10 +567,26 @@ public class Board {
 
 
 		//AltSolver.solveBoard(board);
-
+        
+        /*
         for (Grid b : AltSolver.solveBoard(board)) {
             board.decompress(new Node(b, null, 0, 0));
             board.debug();
+        }*/
+
+        ArrayList<Grid> soln = Solver.solveBoard(board);
+        ArrayList<Move> moves = Solver.solveBoardWithMoves(board);
+        for (int i = 0; i < soln.size(); i++) {
+            board.decompress(new Node(soln.get(i), null, 0, 0));
+            board.debug();
+            if (i < moves.size()) {
+                moves.get(i).debug();
+            }
+        }
+        MoveIO.write("MoveIOTest", moves);
+        ArrayList<Move> moves2 =  MoveIO.read("MoveIOTest");
+        for (int j = 0; j < moves2.size(); j++) {
+            moves2.get(j).debug();
         }
 	}
 
