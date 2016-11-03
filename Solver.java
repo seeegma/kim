@@ -7,10 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Holds an alternative solver to see if we can improve on it without ruining
- * the working one.
+ * Holds the solver.
  */
-public final class AltSolver {
+public final class Solver {
     // disgusting static variable to hold the solve state in case 
     private static boolean solved = false;
 
@@ -133,7 +132,7 @@ public final class AltSolver {
             }
 
             // Go through all positions that can be reached from current
-            for (Node n : AltSolver.getNeighbors(working, current)) {
+            for (Node n : Solver.getNeighbors(working, current)) {
                 // Add to the queue if we have not visited a neighbor
                 if (!visited.contains(n.grid.hash())) {
                     queue.offer(n);
@@ -202,7 +201,7 @@ public final class AltSolver {
             }
 
             // Go through all positions that can be reached from current
-            for (Node n : AltSolver.getNeighbors(working, current)) {
+            for (Node n : Solver.getNeighbors(working, current)) {
                 // Add to the queue if we have not visited a neighbor
                 if (!visited.contains(n.grid.hash())) {
                     queue.offer(n);

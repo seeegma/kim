@@ -574,8 +574,8 @@ public class Board {
             board.debug();
         }*/
 
-        ArrayList<Grid> soln = AltSolver.solveBoard(board);
-        ArrayList<Move> moves = AltSolver.solveBoardWithMoves(board);
+        ArrayList<Grid> soln = Solver.solveBoard(board);
+        ArrayList<Move> moves = Solver.solveBoardWithMoves(board);
         for (int i = 0; i < soln.size(); i++) {
             board.decompress(new Node(soln.get(i), null, 0, 0));
             board.debug();
