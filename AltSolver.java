@@ -252,7 +252,9 @@ public final class AltSolver {
             ArrayList<Move> path = new ArrayList<Move>();
             Node current = solvedState;
             while (current.parent!=null) {
-                path.add(Move.fromChildNode(current));
+                Move temp = Move.fromChildNode(current);
+                temp.time = (long)(current.numMoves - 1);
+                path.add(temp);
                 current=current.parent;
             }
             Collections.reverse(path);

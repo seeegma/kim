@@ -583,6 +583,11 @@ public class Board {
                 moves.get(i).debug();
             }
         }
+        MoveIO.write("MoveIOTest", moves);
+        ArrayList<Move> moves2 =  MoveIO.read("MoveIOTest");
+        for (int j = 0; j < moves2.size(); j++) {
+            moves2.get(j).debug();
+        }
 	}
 
 }
