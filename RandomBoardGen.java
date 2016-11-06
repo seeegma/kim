@@ -118,21 +118,24 @@ public class RandomBoardGen {
 
 	public static void main(String[] args){
 		int i = 0;
-		while(i < 1){
-			RandomBoardGen rgen = new RandomBoardGen(6,6,2);
-			rgen.generateBoard();
-			AGen aGen = new AGen();
+		AGen aGen = new AGen();
+		Random random = new Random();
+		while(i < 1000000){
+			int r = random.nextInt(3) + 10;
+			RandomBoardGen rgen = new RandomBoardGen(6,6,r);
+			rgen.generateBoard();		
 			Board board = rgen.getBoard();
 
 			ArrayList<Grid> grids = Solver.solveBoard(board);
 
-			if(grids != null && grids.size() > 0){
-				System.out.println(grids.size()); //+ " : " + bgraph.depth);
+			if(grids != null && grids.size()-1 > 30){
+				System.out.println(grids.size()-1); //+ " : " + bgraph.depth);
 				aGen.printGrid(board.getGrid());
-				BoardGraph bgraph = new BoardGraph(board);
-				System.out.println("++" + bgraph.depth);
-				
+				//BoardGraph bgraph = new BoardGraph(board);
+				//System.out.println("++" + bgraph.depth);
+				BoardIO.write(grids.size()-1+"moves"+random.nextInt(100), board);
 			}
+			
 			i++;
 		}
 		System.out.println("done");
