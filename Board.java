@@ -392,11 +392,11 @@ public class Board {
 
         // Creates all possible board positions moving to the starting direction
         Board currentState = this;
-        while(currentState.canMove(i,d)) {
-        	Board newBoard = this.copy();
+        Board newBoard = this.copy();
+        while(currentState.canMove(i,d)) {     	
             newBoard.move(i, d);
             neighbors.add(newBoard);
-            currentState = newBoard;
+            currentState = newBoard.copy();
         }
         // Moves back to the original position
         /* Making a method to revert this back in one method call might not be
@@ -407,13 +407,13 @@ public class Board {
         d = d.reverse();
 
         currentState = this;
+        newBoard = this.copy();
         
         // Repeats in the reverse of the starting direction
         while(currentState.canMove(i,d)) {
-        	Board newBoard = this.copy();
             newBoard.move(i, d);
             neighbors.add(newBoard);
-            currentState = newBoard;
+            currentState = newBoard.copy();
         }
 
         
