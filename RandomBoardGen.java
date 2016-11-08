@@ -31,7 +31,7 @@ public class RandomBoardGen {
 	}
 
 	public void addVIP(){
-		int i = random.nextInt(3);
+		int i = random.nextInt(2);
 		Car vip = new Car(i,2,2,true);
 		board.addCar(vip);
 	}
@@ -118,17 +118,19 @@ public class RandomBoardGen {
 
 	public static void main(String[] args){
 		int i = 0;
+		int r = 0;
 		AGen aGen = new AGen();
 		Random random = new Random();
-		while(i < 1000000){
-			int r = random.nextInt(3) + 10;
+		while(i < 100){
+			r = random.nextInt(3) + 11;
 			RandomBoardGen rgen = new RandomBoardGen(6,6,r);
 			rgen.generateBoard();		
 			Board board = rgen.getBoard();
 
 			ArrayList<Grid> grids = Solver.solveBoard(board);
 
-			if(grids != null && grids.size()-1 > 30){
+			if(grids != null && grids.size()-1 > 35){
+				i++;
 				System.out.println(grids.size()-1); //+ " : " + bgraph.depth);
 				aGen.printGrid(board.getGrid());
 				//BoardGraph bgraph = new BoardGraph(board);
@@ -136,7 +138,7 @@ public class RandomBoardGen {
 				BoardIO.write(grids.size()-1+"moves"+random.nextInt(100), board);
 			}
 			
-			i++;
+			//i++;
 		}
 		System.out.println("done");
 
