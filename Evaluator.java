@@ -2,7 +2,7 @@ public interface Evaluator {
     /**
      * not scaled
      */
-    public int eval(Board b);
+    public double eval(Board b);
 
     /**
      * scaled

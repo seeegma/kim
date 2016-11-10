@@ -17,7 +17,7 @@ public class IrrelevancyEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-    public int eval(Board b) {
+    public double eval(Board b) {
         // note thae booleans initialize as false
         boolean[] wasUsed = new boolean[b.getCars().size()];
         for (int i = 0; i < wasUsed.length; i++) {
@@ -31,7 +31,7 @@ public class IrrelevancyEvaluator implements Evaluator {
         }
 
         // counts all the falses in wasUsed
-        int score = 0;
+        double score = 0;
         for (int i = 0; i < wasUsed.length; i++) {
             if (!wasUsed[i]) {
                 score++;
