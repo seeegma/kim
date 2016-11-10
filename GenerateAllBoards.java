@@ -53,11 +53,14 @@ public class GenerateAllBoards {
 
 	public void bronKerbosch(HashSet<Vertex> r, HashSet<Vertex> p, HashSet<Vertex> x) {
 		//printHashSet(r);
+		//if (r.size() == 6) {
+		//	return;
+		//}
+		
 		if (r.size() == 3) {
 			counter++;
 			System.out.println(counter);
 			//printHashSet(r);
-			return;
 		}
 		HashSet<Vertex> pcheck = new HashSet<Vertex>(p);
 		for(Vertex v : p) {

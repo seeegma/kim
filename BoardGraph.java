@@ -6,6 +6,7 @@ import java.util.LinkedList;
 public class BoardGraph {
 
 
+	
 	private class Vertex {
 		public Board board;
 		public ArrayList<Vertex> neighbors;
@@ -20,11 +21,14 @@ public class BoardGraph {
 		}
 	}
 
+	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
 	public HashMap<Integer,Vertex> vertices;
+	//Maximum distance from a solved state of any board in the graph.
 	public int depth;
+
 	public int numberOfSolvedStates;
 
-
+	//Constructor from board.
 	public BoardGraph(Board startingBoard) {
 		LinkedList<Board> queue = new LinkedList<Board>();
 		HashMap<Integer,Vertex> vertexList = new HashMap<Integer,Vertex>();
@@ -81,7 +85,10 @@ public class BoardGraph {
 		this.depth = maxDepth;
 	}
 	
-
+	/**
+	 * Number of boards in this graph. 
+	 * @return size of graph
+	 */
 	public int size() {
 		return vertices.size();
 	}
