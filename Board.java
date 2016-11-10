@@ -108,6 +108,10 @@ public class Board {
 		return this.graph;
 	}
 
+	public void setGraph(BoardGraph g) {
+		this.graph = g;
+	}
+
 	/**
 	 * Checks if two boards are equal.
 	 * Assumes the two boards come from the same graph, i.e. are manipulations of each other. 
