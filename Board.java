@@ -560,7 +560,7 @@ public class Board {
 		// board.move(2,Direction.LEFT);
 		//agen.printGrid(agen.outputGrid(board.grid));
 
-		Board board = BoardIO.read("Puzzle/16moves98");
+		Board board = BoardIO.read("simplePuzzle");
 
 
 		board.debug();
@@ -579,10 +579,11 @@ public class Board {
         }*/
 
         ArrayList<Grid> soln = Solver.solveBoard(board);
+        Board temp = board.copy();
         ArrayList<Move> moves = Solver.solveBoardWithMoves(board);
         for (int i = 0; i < soln.size(); i++) {
-            board.decompress(new Node(soln.get(i), null, 0, 0));
-            board.debug();
+            temp.decompress(new Node(soln.get(i), null, 0, 0));
+            temp.debug();
             if (i < moves.size()) {
                 moves.get(i).debug();
             }
@@ -592,6 +593,8 @@ public class Board {
         for (int j = 0; j < moves2.size(); j++) {
             moves2.get(j).debug();
         }
+
+        System.out.println(new IrrelevancyEvaluator().eval(board));
 	}
 
 }

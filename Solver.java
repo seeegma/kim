@@ -172,10 +172,10 @@ public final class Solver {
         //int count = 0;
 
         // Enqueue the root of the tree, aka the current position
-        queue.offer(new Node(b1.getGrid(), null, 0, -1));
+        queue.offer(new Node(working.getGrid(), null, 0, -1));
         //queue.offer(new Node(b1.getGrid(),null,0));
 
-        Node solvedState = new Node(b1.getGrid().copy(), null, 0, -1);
+        Node solvedState = new Node(working.getGrid().copy(), null, 0, -1);
         visited.add(working.getGrid().hash());
         //Node solvedState = new Node(b1.getGrid().copy(),null,0);
         solved = false;
