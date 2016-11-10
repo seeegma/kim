@@ -101,34 +101,16 @@ public class BoardGraph {
 	}
 
 	public ArrayList<Vertex> solve(Vertex v) {
-		Vertex solvedState = null;
-		LinkedList<Vertex> queue = new LinkedList<Vertex>();
-		HashSet<Vertex> visited = new HashSet<Vertex>();
-		v.parent = null;
-		queue.offer(v);
-		visited.add(v);
-		while (!queue.isEmpty()) {
-			Vertex current = queue.poll();
-			if (current.depth == 0) {
-				solvedState = current;
-				break;
-			}
-
+		ArrayList<Vertex> path = new ArrayList<Vertex>();
+		Vertex current = v;
+		while (current.depth != 0) {
 			for (Vertex neighbor : current.neighbors) {
-				if (neighbor.depth == current.depth-1 && !visited.contains(neighbor)) {
-					neighbor.parent = current;
-					visited.add(v);
-					queue.offer(v);
+				if (neighbor.depth == current.depth -1) {
+					path.add(neighbor);
+					current = neighbor;
+					break;
 				}
 			}
-		}
-
-		ArrayList<Vertex> path = new ArrayList<Vertex>();
-		Vertex current = solvedState;
-		path.add(current);
-		while (current.parent!=null) {
-			current = current.parent;
-			path.add(current);
 		}
 		Collections.reverse(path);
 		return path;
