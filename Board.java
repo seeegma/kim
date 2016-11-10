@@ -100,7 +100,7 @@ public class Board {
 	 * Getter for graph, creates if not already existant;
 	 * @return graph
 	 */
-	public Graph getGraph() {
+	public BoardGraph getGraph() {
 		if (this.graph==null) {
 			BoardGraph graph = new BoardGraph(this);
 			this.graph = graph;

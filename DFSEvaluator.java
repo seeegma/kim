@@ -16,23 +16,26 @@ public class DFSEvaluator implements Evaluator {
      * @return the score
      */
 	public double eval(Board b) {
-		ArrayList<Vertex> stack = new ArrayList<Vertex>();
-		HashSet<Vertex> visited = new HashSet<Vertex>();
-		int count = 0;
-		stack.push(b.getGraph().getVertex(b));
-		while(!stack.isEmpty()) {
-			Vertex current = stack.pop();
-			if (current.depth == 0) {
-				break;
-			}
-			count++;
-			ArrayList<Vertex> neighbors = new ArrayList<Vertex>(current.neighbors);
-			for (Vertex neighbor : Collections.shuffle(neighbors)) {
-				if (!visited.contains(neighbor)) {
-					stack.push(neighbor);
+		int numTrials = 1000;
+		double count = 0;
+		for(int trial = 0;trial<numTrials;trial++) {
+			ArrayList<Vertex> stack = new ArrayList<Vertex>();
+			HashSet<Vertex> visited = new HashSet<Vertex>();
+			stack.push(b.getGraph().getVertex(b));
+			while(!stack.isEmpty()) {
+				Vertex current = stack.pop();
+				if (current.depth == 0) {
+					break;
+				}
+				count++;
+				ArrayList<Vertex> neighbors = new ArrayList<Vertex>(current.neighbors);
+				for (Vertex neighbor : Collections.shuffle(neighbors)) {
+					if (!visited.contains(neighbor)) {
+						stack.push(neighbor);
+					}
 				}
 			}
 		}
-		return count;
+		return count/numTrials;
 	}
 }

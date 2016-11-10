@@ -8,7 +8,7 @@ public class BoardGraph {
 
 
 	
-	private class Vertex {
+	public class Vertex {
 		public Board board;
 		public ArrayList<Vertex> neighbors;
 		public int hash;
@@ -37,11 +37,16 @@ public class BoardGraph {
 		vertexList.put(startingBoard.hashCode(), new Vertex(startingBoard, null, startingBoard.hashCode()));
 		while (!queue.isEmpty()) {
 			Board current = queue.poll();
+
+			//to be current's neighborList
 			ArrayList<Vertex> neighborList = new ArrayList<Vertex>();
+
 			for (Board neighbor : current.getNeighbors()) {
+				//If the vertex exists, add it to neighbor list
 				if (vertexList.containsKey(neighbor.hashCode())) {
 					neighborList.add(vertexList.get(neighbor.hashCode()));
 				}
+				//otherwise create it and add it.
 				else {
 					Vertex newVert = new Vertex(neighbor, null, neighbor.hashCode());
 					vertexList.put(neighbor.hashCode(), newVert);
@@ -54,14 +59,17 @@ public class BoardGraph {
 		}
 		this.vertices = vertexList;
 		this.propogateDepthsAndGraphs();
+		this.debug();
 	}
 
 	public void propogateDepthsAndGraphs() {
+		int numberOfVisitedStates = 0;
 		int maxDepth = 0;
 		int solvedStates=0;
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
 		for(Vertex vert : vertices.values()) {
+			numberOfVisitedStates++;
 			vert.board.setGraph(this);
 			if (vert.board.isSolved()) {
 				vert.depth = 0;
@@ -72,6 +80,7 @@ public class BoardGraph {
 		}
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
+			numberOfVisitedStates--;
 			for (Vertex neighbor : current.neighbors) {
 				if (!visited.contains(neighbor)) {
 					neighbor.depth = current.depth + 1;
@@ -83,6 +92,7 @@ public class BoardGraph {
 				}
 			}
 		}
+		System.out.println("should be 0: "+ numberOfVisitedStates);
 		this.numberOfSolvedStates = solvedStates;
 		this.depth = maxDepth;
 
@@ -97,7 +107,7 @@ public class BoardGraph {
 	}
 
 	public Vertex getVertex(Board b) {
-		return vertices.get(Board.hashCode());
+		return vertices.get(b.hashCode());
 	}
 
 	public ArrayList<Vertex> solve(Vertex v) {
@@ -114,6 +124,19 @@ public class BoardGraph {
 		}
 		Collections.reverse(path);
 		return path;
+	}
+
+	public void debug() {
+		for (Vertex v : this.vertices.values()) {
+			// if(v.neighbors.size()==0){
+			// 	System.out.println("vertex has no neighbors");
+			// }
+			for (Vertex w : v.neighbors) {
+				if(!w.neighbors.contains(v)) {
+					System.out.println("Error");
+				}
+			}
+		}
 	}
 
 }
