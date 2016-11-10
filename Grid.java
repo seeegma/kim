@@ -65,13 +65,21 @@ public class Grid {
 	public Grid copy() {
 		int[][] newGrid = new int[this.height][this.width];
         for (int i=0;i<height;i++) {
-            newGrid[i]=this.matrix[i].clone();
+        	for (int j=0;j<width;j++){
+            	newGrid[i][j]=this.matrix[i][j];
+            }
         }
         return (new Grid(this.width, this.height, newGrid));
 	}
 
-	public int hash() {
-		return Arrays.deepHashCode(this.matrix);
+	public long hash() {
+		long result = 1;
+		for (int i = 0; i < this.height; i++) { // assumes it's a matrix
+			for (int j = 0; j < this.width; j++) {
+				result = result*15 + this.get(j,i);
+			}
+		}
+		return result;
 	}
 
 }

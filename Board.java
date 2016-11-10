@@ -189,8 +189,7 @@ public class Board {
 		this.createGrid();
 	}
 
-	@Override
-	public int hashCode() {
+	public long hash() {
 		return this.grid.hash();
 	}
 
@@ -461,7 +460,7 @@ public class Board {
 	 */
 	public ArrayList<Board> solve() {
 		LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
-		HashSet<Integer> visited = new HashSet<Integer>();
+		HashSet<Long> visited = new HashSet<Long>();
 		int count = 0;
 		queue.offer(new NodeBoard(this,null,0));
 		visited.add(this.grid.hash());

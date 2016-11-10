@@ -11,11 +11,11 @@ public class BoardGraph {
 	public class Vertex {
 		public Board board;
 		public ArrayList<Vertex> neighbors;
-		public int hash;
+		public long hash;
 		public int depth;
 		public Vertex parent;
 
-		public Vertex(Board board, ArrayList<Vertex> neighbors, int hash) {
+		public Vertex(Board board, ArrayList<Vertex> neighbors, long hash) {
 			this.board = board;
 			this.neighbors = neighbors;
 			this.hash = hash;			
@@ -23,7 +23,7 @@ public class BoardGraph {
 	}
 
 	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
-	public HashMap<Integer,Vertex> vertices;
+	public HashMap<Long,Vertex> vertices;
 	//Maximum distance from a solved state of any board in the graph.
 	public int depth;
 
@@ -32,9 +32,9 @@ public class BoardGraph {
 	//Constructor from board.
 	public BoardGraph(Board startingBoard) {
 		LinkedList<Board> queue = new LinkedList<Board>();
-		HashMap<Integer,Vertex> vertexList = new HashMap<Integer,Vertex>();
+		HashMap<Long,Vertex> vertexList = new HashMap<Long,Vertex>();
 		queue.offer(startingBoard);
-		vertexList.put(startingBoard.hashCode(), new Vertex(startingBoard, null, startingBoard.hashCode()));
+		vertexList.put(startingBoard.hash(), new Vertex(startingBoard, null, startingBoard.hash()));
 		while (!queue.isEmpty()) {
 			Board current = queue.poll();
 
@@ -42,23 +42,23 @@ public class BoardGraph {
 			ArrayList<Vertex> neighborList = new ArrayList<Vertex>();
 			for (Board neighbor : current.getNeighbors()) {
 				//If the vertex exists, add it to neighbor list
-				if (vertexList.containsKey(neighbor.hashCode())) {
-					neighborList.add(vertexList.get(neighbor.hashCode()));
+				if (vertexList.containsKey(neighbor.hash())) {
+					neighborList.add(vertexList.get(neighbor.hash()));
 				}
 				//otherwise create it and add it.
 				else {
-					Vertex newVert = new Vertex(neighbor, null, neighbor.hashCode());
-					vertexList.put(neighbor.hashCode(), newVert);
+					Vertex newVert = new Vertex(neighbor, null, neighbor.hash());
+					vertexList.put(neighbor.hash(), newVert);
 					queue.offer(neighbor);
 					neighborList.add(newVert);
 				}
 
 			}
-			vertexList.get(current.hashCode()).neighbors = neighborList;
+			vertexList.get(current.hash()).neighbors = neighborList;
 		}
 		this.vertices = vertexList;
 		this.propogateDepthsAndGraphs();
-		this.debug();
+		//this.debug();
 	}
 
 	public void propogateDepthsAndGraphs() {
@@ -91,7 +91,6 @@ public class BoardGraph {
 				}
 			}
 		}
-		System.out.println("should be 0: "+ numberOfVisitedStates);
 		this.numberOfSolvedStates = solvedStates;
 		this.depth = maxDepth;
 
@@ -106,7 +105,7 @@ public class BoardGraph {
 	}
 
 	public Vertex getVertex(Board b) {
-		return vertices.get(b.hashCode());
+		return vertices.get(b.hash());
 	}
 
 	public ArrayList<Vertex> solve(Vertex v) {
@@ -127,16 +126,31 @@ public class BoardGraph {
 
 	public void debug() {
 		for (Vertex v : this.vertices.values()) {
-			System.out.println("**********");
+			//System.out.println("**********");
 			// if(v.neighbors.size()==0){
 			// 	System.out.println("vertex has no neighbors");
 			// }
 
 			for (Vertex w : v.neighbors) {
 				if(!w.neighbors.contains(v)) {
+					System.out.println("*******************************");
 					AGen.printGrid(v.board.getGrid());
+					System.out.println(v.hash);
+					for (Vertex x: v.neighbors){
+						AGen.printGrid(x.board.getGrid());
+						System.out.println(x.hash);
+					}
 					System.out.println("Error");
 					AGen.printGrid(w.board.getGrid());
+					System.out.println(w.hash);
+					// for (Vertex x : w.neighbors) {
+					// 	//AGen.printGrid(x.board.getGrid());
+					// 	System.out.println(x.hash);
+					// }
+					for (Board b : v.board.getNeighbors()) {
+						AGen.printGrid(b.getGrid());
+						System.out.println(b.hash());
+					}
 				}
 			}
 		}
