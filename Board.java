@@ -560,7 +560,7 @@ public class Board {
 		// board.move(2,Direction.LEFT);
 		//agen.printGrid(agen.outputGrid(board.grid));
 
-		Board board = BoardIO.read("simplePuzzle");
+		Board board = BoardIO.read("93moves");
 
 
 		board.debug();
