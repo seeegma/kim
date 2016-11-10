@@ -40,7 +40,6 @@ public class BoardGraph {
 
 			//to be current's neighborList
 			ArrayList<Vertex> neighborList = new ArrayList<Vertex>();
-
 			for (Board neighbor : current.getNeighbors()) {
 				//If the vertex exists, add it to neighbor list
 				if (vertexList.containsKey(neighbor.hashCode())) {
@@ -128,12 +127,16 @@ public class BoardGraph {
 
 	public void debug() {
 		for (Vertex v : this.vertices.values()) {
+			System.out.println("**********");
 			// if(v.neighbors.size()==0){
 			// 	System.out.println("vertex has no neighbors");
 			// }
+
 			for (Vertex w : v.neighbors) {
 				if(!w.neighbors.contains(v)) {
+					AGen.printGrid(v.board.getGrid());
 					System.out.println("Error");
+					AGen.printGrid(w.board.getGrid());
 				}
 			}
 		}

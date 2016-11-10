@@ -47,7 +47,7 @@ public final class AGen {
 	 * Prints multiple grids w/ move counter
 	 * @param grids
 	 */
-	public void printGrids(Grid[] grids){
+	public static void printGrids(Grid[] grids){
 		for(int i =0; i < grids.length;i++){
 			System.out.println("    Move "+i+"  ");
 			printGrid(grids[i]);
@@ -60,7 +60,7 @@ public final class AGen {
 	 * Prints grid
 	 * @param out
 	 */
-	public void printGrid(Grid grid){
+	public static void printGrid(Grid grid){
 		String[] pGrid = getPrintableGrid(grid);
 		for (int i=0; i < phei; i++){
 			System.out.println(pGrid[i]);
@@ -75,7 +75,7 @@ public final class AGen {
 	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
 	 */
 	
-	public String[] getPrintableGrid(Grid inputG){
+	public static String[] getPrintableGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
 		fin[0] = " vvvvvvvvvvvvv";
@@ -98,7 +98,7 @@ public final class AGen {
 	 * @return String in visual format
 	 */
 	
-	public String extractLine(int[] line){
+	public static String extractLine(int[] line){
 		String t = "| ";
 		for(int i=0;i<len;i++){
 			if (line[i]==-1) {
@@ -117,7 +117,7 @@ public final class AGen {
 	/** creates empty char[][] 6x6 currently
 	 * @return empty char[len][hei]
 	 */
-	public int[][] emptyGrid(){
+	public static int[][] emptyGrid(){
 		int[][] arr = new int[len][hei];
 		for(int i=0;i<len;i++){
 			for (int j=0;j<hei;j++){
@@ -134,7 +134,7 @@ public final class AGen {
 	 * @return char[][] with cars added to it
 	 */
 	//replace arr with internal call? replace xylenhor with Car object call maybe
-	public Grid addCar(Grid grid, int index, Car car){
+	public static Grid addCar(Grid grid, int index, Car car){
 		grid.set(car.x, car.y, index);
 		if (car.horizontal){ 
 			grid.set(car.x+1, car.y, index);
@@ -154,7 +154,7 @@ public final class AGen {
 	 * @param cars
 	 * @return char[][] of cars
 	 */
-	public Grid addCars(Grid grid, ArrayList<Car> cars){
+	public static Grid addCars(Grid grid, ArrayList<Car> cars){
 		for (int i = 0; i< cars.size(); i++){
 			addCar(grid, i, cars.get(i));
 		}	
@@ -170,7 +170,7 @@ public final class AGen {
 	 * @return
 	 */
 	
-	public ArrayList<String> symbolList(){
+	public static ArrayList<String> symbolList(){
 		//change this to whatever you want
 		String symbols = "ABCDEFGHIJKLMNOPQRST";
 		String[] symbs = symbols.split("");

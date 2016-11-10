@@ -371,8 +371,6 @@ public class Board {
 
 	/**
      * Gets all the neighboring positions of the current positon.
-     * @param b the board to manipulate
-     * @param parent the parent node
      * @return a list of the Boards that are 1 move away from the current
      *      board's position
      */
@@ -392,7 +390,6 @@ public class Board {
     /**
      * Gets all possible moves of car at index i on board b in that current
      * position.
-     * @param b the board
      * @param i the index of the car
      * @return an ArrayList of all possible grid positions that results from
      *      moving that car
@@ -408,12 +405,10 @@ public class Board {
         }
 
         // Creates all possible board positions moving to the starting direction
-        Board currentState = this;
-        Board newBoard = this.copy();
+        Board currentState = this.copy();
         while(currentState.canMove(i,d)) {     	
-            newBoard.move(i, d);
-            neighbors.add(newBoard);
-            currentState = newBoard.copy();
+            currentState.move(i, d);
+            neighbors.add(currentState.copy());
         }
         // Moves back to the original position
         /* Making a method to revert this back in one method call might not be
@@ -423,14 +418,12 @@ public class Board {
         and isn't a huge improvement if at all, especially on a packed board*/
         d = d.reverse();
 
-        currentState = this;
-        newBoard = this.copy();
+        currentState = this.copy();
         
         // Repeats in the reverse of the starting direction
-        while(currentState.canMove(i,d)) {
-            newBoard.move(i, d);
-            neighbors.add(newBoard);
-            currentState = newBoard.copy();
+        while(currentState.canMove(i,d)) {     	
+            currentState.move(i, d);
+            neighbors.add(currentState.copy());
         }
 
         
