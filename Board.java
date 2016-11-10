@@ -509,7 +509,11 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				System.out.print(String.format("%1$4s", grid.get(j,i)));
+                if (grid.get(j,i) != -1) {
+				    System.out.print(String.format("%1$4s", grid.get(j,i)));
+                } else {
+                    System.out.print(String.format("%1$4s", "_"));
+                }
 			}
 			System.out.println();
 		}
@@ -556,7 +560,7 @@ public class Board {
 		// board.move(2,Direction.LEFT);
 		//agen.printGrid(agen.outputGrid(board.grid));
 
-		Board board = BoardIO.read("93moves");
+		Board board = BoardIO.read("Puzzle/16moves98");
 
 
 		board.debug();

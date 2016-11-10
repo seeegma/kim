@@ -111,7 +111,7 @@ public final class Solver {
         boolean solutionFound = false;
 
         // Pretty standard BFS
-        while (!queue.isEmpty()) {
+        while (!queue.isEmpty() && !solutionFound) {
             // Dequeue
             Node current = queue.poll();
             /*if (current.numMoves > count) {
@@ -126,20 +126,20 @@ public final class Solver {
             // decompresses the grid into the board class
             working.decompress(current);
             if (working.isSolved()) {
-                solvedState=current;
+                solvedState = current;
                 solutionFound = true;
                 break;
-            }
-
-            // Go through all positions that can be reached from current
-            for (Node n : Solver.getNeighbors(working, current)) {
-                // Add to the queue if we have not visited a neighbor
-                if (!visited.contains(n.grid.hash())) {
-                    queue.offer(n);
-                    visited.add(n.grid.hash());
+            } else {
+                // Go through all positions that can be reached from current
+                for (Node n : Solver.getNeighbors(working, current)) {
+                    // Add to the queue if we have not visited a neighbor
+                    if (!visited.contains(n.grid.hash())) {
+                        queue.offer(n);
+                        visited.add(n.grid.hash());
+                    }
                 }
+                //}
             }
-            //}
         }
             
         // figures out the path if there was a soln
