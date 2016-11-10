@@ -25,6 +25,8 @@ public class Board {
 	//private HashMap<Character,Car> carList;
 	private ArrayList<Car> carList;
 
+	private BoardGraph graph;
+
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
 
@@ -94,6 +96,17 @@ public class Board {
 		return this.grid;
 	}
 
+	/**
+	 * Getter for graph, creates if not already existant;
+	 * @return graph
+	 */
+	public Graph getGraph() {
+		if (this.graph==null) {
+			BoardGraph graph = new BoardGraph(this);
+			this.graph = graph;
+		}
+		return this.graph;
+	}
 
 	/**
 	 * Checks if two boards are equal.
@@ -466,7 +479,7 @@ public class Board {
 			if (current.board.isSolved()) {
 				solvedState=current;
 				solutionFound = true;
-				//break;
+				break;
 			}
 			ArrayList<Board> neighbors = current.board.getNeighbors();
 			int numAdded = 0;

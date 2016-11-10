@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Collections;
 
 public class BoardGraph {
 
@@ -12,12 +13,12 @@ public class BoardGraph {
 		public ArrayList<Vertex> neighbors;
 		public int hash;
 		public int depth;
+		public Vertex parent;
 
 		public Vertex(Board board, ArrayList<Vertex> neighbors, int hash) {
 			this.board = board;
 			this.neighbors = neighbors;
-			this.hash = hash;
-
+			this.hash = hash;			
 		}
 	}
 
@@ -52,15 +53,16 @@ public class BoardGraph {
 			vertexList.get(current.hashCode()).neighbors = neighborList;
 		}
 		this.vertices = vertexList;
-		this.propogateDepths();
+		this.propogateDepthsAndGraphs();
 	}
 
-	public void propogateDepths() {
+	public void propogateDepthsAndGraphs() {
 		int maxDepth = 0;
 		int solvedStates=0;
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
 		for(Vertex vert : vertices.values()) {
+			vert.board.setGraph(this);
 			if (vert.board.isSolved()) {
 				vert.depth = 0;
 				solvedStates++;
@@ -83,6 +85,7 @@ public class BoardGraph {
 		}
 		this.numberOfSolvedStates = solvedStates;
 		this.depth = maxDepth;
+
 	}
 	
 	/**
@@ -92,4 +95,43 @@ public class BoardGraph {
 	public int size() {
 		return vertices.size();
 	}
+
+	public Vertex getVertex(Board b) {
+		return vertices.get(Board.hashCode());
+	}
+
+	public ArrayList<Vertex> solve(Vertex v) {
+		Vertex solvedState = null;
+		LinkedList<Vertex> queue = new LinkedList<Vertex>();
+		HashSet<Vertex> visited = new HashSet<Vertex>();
+		v.parent = null;
+		queue.offer(v);
+		visited.add(v);
+		while (!queue.isEmpty()) {
+			Vertex current = queue.poll();
+			if (current.depth == 0) {
+				solvedState = current;
+				break;
+			}
+
+			for (Vertex neighbor : current.neighbors) {
+				if (neighbor.depth == current.depth-1 && !visited.contains(neighbor)) {
+					neighbor.parent = current;
+					visited.add(v);
+					queue.offer(v);
+				}
+			}
+		}
+
+		ArrayList<Vertex> path = new ArrayList<Vertex>();
+		Vertex current = solvedState;
+		path.add(current);
+		while (current.parent!=null) {
+			current = current.parent;
+			path.add(current);
+		}
+		Collections.reverse(path);
+		return path;
+	}
+
 }
