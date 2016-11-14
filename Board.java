@@ -25,6 +25,8 @@ public class Board {
 	//private HashMap<Character,Car> carList;
 	private ArrayList<Car> carList;
 
+	private BoardGraph graph;
+
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
 
@@ -94,6 +96,21 @@ public class Board {
 		return this.grid;
 	}
 
+	/**
+	 * Getter for graph, creates if not already existant;
+	 * @return graph
+	 */
+	public BoardGraph getGraph() {
+		if (this.graph==null) {
+			BoardGraph graph = new BoardGraph(this);
+			this.graph = graph;
+		}
+		return this.graph;
+	}
+
+	public void setGraph(BoardGraph g) {
+		this.graph = g;
+	}
 
 	/**
 	 * Checks if two boards are equal.
@@ -172,8 +189,7 @@ public class Board {
 		this.createGrid();
 	}
 
-	@Override
-	public int hashCode() {
+	public long hash() {
 		return this.grid.hash();
 	}
 
@@ -354,8 +370,6 @@ public class Board {
 
 	/**
      * Gets all the neighboring positions of the current positon.
-     * @param b the board to manipulate
-     * @param parent the parent node
      * @return a list of the Boards that are 1 move away from the current
      *      board's position
      */
@@ -375,7 +389,6 @@ public class Board {
     /**
      * Gets all possible moves of car at index i on board b in that current
      * position.
-     * @param b the board
      * @param i the index of the car
      * @return an ArrayList of all possible grid positions that results from
      *      moving that car
@@ -391,12 +404,10 @@ public class Board {
         }
 
         // Creates all possible board positions moving to the starting direction
-        Board currentState = this;
-        Board newBoard = this.copy();
+        Board currentState = this.copy();
         while(currentState.canMove(i,d)) {     	
-            newBoard.move(i, d);
-            neighbors.add(newBoard);
-            currentState = newBoard.copy();
+            currentState.move(i, d);
+            neighbors.add(currentState.copy());
         }
         // Moves back to the original position
         /* Making a method to revert this back in one method call might not be
@@ -406,14 +417,12 @@ public class Board {
         and isn't a huge improvement if at all, especially on a packed board*/
         d = d.reverse();
 
-        currentState = this;
-        newBoard = this.copy();
+        currentState = this.copy();
         
         // Repeats in the reverse of the starting direction
-        while(currentState.canMove(i,d)) {
-            newBoard.move(i, d);
-            neighbors.add(newBoard);
-            currentState = newBoard.copy();
+        while(currentState.canMove(i,d)) {     	
+            currentState.move(i, d);
+            neighbors.add(currentState.copy());
         }
 
         
@@ -451,7 +460,7 @@ public class Board {
 	 */
 	public ArrayList<Board> solve() {
 		LinkedList<NodeBoard> queue = new LinkedList<NodeBoard>();
-		HashSet<Integer> visited = new HashSet<Integer>();
+		HashSet<Long> visited = new HashSet<Long>();
 		int count = 0;
 		queue.offer(new NodeBoard(this,null,0));
 		visited.add(this.grid.hash());
@@ -466,7 +475,7 @@ public class Board {
 			if (current.board.isSolved()) {
 				solvedState=current;
 				solutionFound = true;
-				//break;
+				break;
 			}
 			ArrayList<Board> neighbors = current.board.getNeighbors();
 			int numAdded = 0;
@@ -509,7 +518,11 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-				System.out.print(String.format("%1$4s", grid.get(j,i)));
+                if (grid.get(j,i) != -1) {
+				    System.out.print(String.format("%1$4s", grid.get(j,i)));
+                } else {
+                    System.out.print(String.format("%1$4s", "_"));
+                }
 			}
 			System.out.println();
 		}
@@ -575,10 +588,11 @@ public class Board {
         }*/
 
         ArrayList<Grid> soln = Solver.solveBoard(board);
+        Board temp = board.copy();
         ArrayList<Move> moves = Solver.solveBoardWithMoves(board);
         for (int i = 0; i < soln.size(); i++) {
-            board.decompress(new Node(soln.get(i), null, 0, 0));
-            board.debug();
+            temp.decompress(new Node(soln.get(i), null, 0, 0));
+            temp.debug();
             if (i < moves.size()) {
                 moves.get(i).debug();
             }
@@ -588,6 +602,8 @@ public class Board {
         for (int j = 0; j < moves2.size(); j++) {
             moves2.get(j).debug();
         }
+
+        System.out.println(new IrrelevancyEvaluator().eval(board));
 	}
 
 }

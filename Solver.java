@@ -20,7 +20,7 @@ public final class Solver {
      * @return a list of the Boards that are 1 move away from the current
      *      board's position
      */
-    public static ArrayList<Node> getNeighbors(Board b, Node parent) {
+    private static ArrayList<Node> getNeighbors(Board b, Node parent) {
         ArrayList<Node> neighbors = new ArrayList<Node>();
         // Goes through each car in the board and gets all possible neighbors
         // moving that car can create
@@ -44,7 +44,7 @@ public final class Solver {
      * @return an ArrayList of all possible grid positions that results from
      *      moving that car
      */
-    public static ArrayList<Grid> allPossibleMoves(Board b, int i) {
+    private static ArrayList<Grid> allPossibleMoves(Board b, int i) {
         ArrayList<Grid> neighbors = new ArrayList<Grid>();
         int count = 0;
         Direction d;
@@ -88,76 +88,6 @@ public final class Solver {
         return neighbors;
     }
 
-    // Outdated
-    /**
-     * Solves the Rush Hour position using BFS.
-     * @return a list of Boards that represent the path to the solution with
-     *      the original state as the head of the list. Returns NULL if no
-     *      solution is found.
-     */
-    private static ArrayList<Grid> solveBoardOld(Board b1) {
-        LinkedList<Node> queue = new LinkedList<Node>();
-        HashSet<Integer> visited = new HashSet<Integer>();
-        Board working = b1.copy();
-        //int count = 0;
-
-        // Enqueue the root of the tree, aka the current position
-        queue.offer(new Node(b1.getGrid(), null, 0, -1));
-        //queue.offer(new Node(b1.getGrid(),null,0));
-
-        Node solvedState = new Node(b1.getGrid().copy(), null, 0, -1);
-		visited.add(working.getGrid().hash());
-        //Node solvedState = new Node(b1.getGrid().copy(),null,0);
-        boolean solutionFound = false;
-
-        // Pretty standard BFS
-        while (!queue.isEmpty()) {
-            // Dequeue
-            Node current = queue.poll();
-            /*if (current.numMoves > count) {
-                System.out.println(count);
-                count++;
-            }*/
-
-            //if (!visited.contains(current.grid.hash())) {
-                // Marks that we visited the node
-            visited.add(current.grid.hash());
-
-            // decompresses the grid into the board class
-            working.decompress(current);
-            if (working.isSolved()) {
-                solvedState=current;
-                solutionFound = true;
-                break;
-            }
-
-            // Go through all positions that can be reached from current
-            for (Node n : Solver.getNeighbors(working, current)) {
-                // Add to the queue if we have not visited a neighbor
-                if (!visited.contains(n.grid.hash())) {
-                    queue.offer(n);
-                    visited.add(n.grid.hash());
-                }
-            }
-            //}
-        }
-            
-        // figures out the path if there was a soln
-        if (solutionFound) {
-            ArrayList<Grid> path = new ArrayList<Grid>();
-            Node current = solvedState;
-            path.add(current.grid);
-            while (current.parent!=null) {
-                current=current.parent;
-                path.add(current.grid);
-            }
-            Collections.reverse(path);
-            return path;
-        }
-        //System.out.println("No solution found");
-        return null;
-    }
-
     /**
      * Performs the BFS until it finds a solution or creates the full graph.
      * Flips the static boolean solved to true if there was a solution (rip
@@ -172,10 +102,10 @@ public final class Solver {
         //int count = 0;
 
         // Enqueue the root of the tree, aka the current position
-        queue.offer(new Node(b1.getGrid(), null, 0, -1));
+        queue.offer(new Node(working.getGrid(), null, 0, -1));
         //queue.offer(new Node(b1.getGrid(),null,0));
 
-        Node solvedState = new Node(b1.getGrid().copy(), null, 0, -1);
+        Node solvedState = new Node(working.getGrid().copy(), null, 0, -1);
         visited.add(working.getGrid().hash());
         //Node solvedState = new Node(b1.getGrid().copy(),null,0);
         solved = false;
@@ -189,9 +119,8 @@ public final class Solver {
                 count++;
             }*/
 
-            //if (!visited.contains(current.grid.hash())) {
-                // Marks that we visited the node
-            visited.add(current.grid.hash());
+            // Marks that we visited the node
+            //visited.add(current.grid.hash());
 
             // decompresses the grid into the board class
             working.decompress(current);
@@ -208,7 +137,6 @@ public final class Solver {
                     visited.add(n.grid.hash());
                 }
             }
-            //}
         }
 
         return null;
