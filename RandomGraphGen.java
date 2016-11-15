@@ -94,10 +94,50 @@ public class RandomGraphGen {
      */
     public static void main(String[] args) {
         RandomGraphGen g = new RandomGraphGen(6, 6, 12);
-        g.generateBoard(20);
+        g.generateBoard();
         System.out.println("New: " + g.depth);
         g.board.debug();
         System.out.println("Original:" + g.originalDepth);
         g.originalBoard.debug();
+
+        // testing vs Solver and BoardGraph.path()
+        /*
+        System.out.println(g.graph.solutions.size());
+        System.out.println(g.graph.vertices.size());
+        int lowest = 0;
+        boolean once = true;
+        System.out.println("New:");
+        BoardGraph.Vertex v = g.graph.getVertex(g.board);
+        for (BoardGraph.Vertex u : g.graph.solutions) {
+            int temp = g.graph.distance(v, u);
+            if (once) {
+                lowest = temp;
+                once = false;
+            }
+            if (lowest > temp) {
+                lowest = temp;
+            }
+        }
+        System.out.println("Lowest: " + lowest);
+        int solv = Solver.solveBoard(g.board).size()-1;
+        System.out.println("Solver: " + solv);
+
+        lowest = 0;
+        once = true;
+        System.out.println("Original:");
+        v = g.graph.getVertex(g.originalBoard);
+        for (BoardGraph.Vertex u : g.graph.solutions) {
+            int temp = g.graph.distance(v, u);
+            if (once) {
+                lowest = temp;
+                once = false;
+            }
+            if (lowest > temp) {
+                lowest = temp;
+            }
+        }
+        System.out.println("Lowest: " + lowest);
+        solv = Solver.solveBoard(g.originalBoard).size()-1;
+        System.out.println("Solver: " + solv);*/
     }
 }

@@ -6,8 +6,6 @@ import java.util.Collections;
 
 public class BoardGraph {
 
-
-	
 	public class Vertex {
 		public Board board;
 		public ArrayList<Vertex> neighbors;
@@ -22,6 +20,16 @@ public class BoardGraph {
 		}
 	}
 
+	public class Node {
+		public Vertex vertex;
+		public Node parent;
+
+		public Node (Vertex vertex, Node parent) {
+			this.vertex = vertex;
+			this.parent = parent;
+		}
+	}
+
 	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
 	public HashMap<Long,Vertex> vertices;
 	//Maximum distance from a solved state of any board in the graph.
@@ -30,10 +38,11 @@ public class BoardGraph {
 	public int numberOfSolvedStates;
 
 	// We can keep track of these vertices since space is not an issue.
-	// Hashmap of solution vertices on the hashcode of a board.
-	public HashMap<Long,Vertex> solutions;
-	// Hashmap of vertices with the same depth as max depth.
-	//public HashMap<Long,Vertex> farthest;
+	// Linked list of solution vertices.
+	public LinkedList<Vertex> solutions;
+	// Linked list of vertices with the same depth as max depth.
+	//public LinkedList<Vertex> farthest;
+	// Would make getFarthest unneccesary
 
 	//Constructor from board.
 	public BoardGraph(Board startingBoard) {
@@ -73,7 +82,7 @@ public class BoardGraph {
 		int solvedStates=0;
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
-		this.solutions = new HashMap<Long, Vertex>();
+		this.solutions = new LinkedList<Vertex>();
 		for(Vertex vert : vertices.values()) {
 			numberOfVisitedStates++;
 			vert.board.setGraph(this);
@@ -82,7 +91,7 @@ public class BoardGraph {
 				solvedStates++;
 				queue.offer(vert);
 				visited.add(vert);
-				solutions.put(vert.board.hash(), vert);
+				solutions.add(vert);
 			}
 		}
 		while (!queue.isEmpty()) {
@@ -140,7 +149,7 @@ public class BoardGraph {
 		Vertex current = v;
 		while (current.depth != 0) {
 			for (Vertex neighbor : current.neighbors) {
-				if (neighbor.depth == current.depth -1) {
+				if (neighbor.depth == current.depth - 1) {
 					path.add(neighbor);
 					current = neighbor;
 					break;
@@ -149,6 +158,65 @@ public class BoardGraph {
 		}
 		Collections.reverse(path);
 		return path;
+	}
+
+	/**
+	 * Returns a node of u that is a linked chain of nodes from u to v.
+	 */
+	private Node pathHelper(Vertex v, Vertex u) {
+		LinkedList<Node> queue = new LinkedList<Node>();
+		HashSet<Long> visited = new HashSet<Long>();
+		queue.offer(new Node(v, null));
+		visited.add(v.hash);
+		while (!queue.isEmpty()) {
+			Node current = queue.poll();
+			
+			if (current.vertex.hash == u.hash) {
+				return current;
+			}
+
+			for (Vertex neighbor : current.vertex.neighbors) {
+				if (!visited.contains(neighbor.hash)) {
+					queue.offer(new Node(neighbor, current));
+					visited.add(neighbor.hash);
+				}
+			}
+		}
+
+		// should never hit this
+		return null;
+	}
+
+	/**
+	 * Returns a path of vertices from vertex v to u.
+	 */
+	private ArrayList<Vertex> path(Vertex v, Vertex u) {
+		// Check if vertex u is even on the graph.
+		if (this.vertices.get(u.hash) == null) {
+			return null;
+		}
+
+		Node current = this.pathHelper(v, u);
+		if (current == null) {
+			System.out.println("Something's wrong with BoardGraph.path().");
+			return null;
+		}
+
+		ArrayList<Vertex> path = new ArrayList<Vertex>();
+		do {
+			path.add(current.vertex);
+			current = current.parent;
+		} while(current != null);
+
+		return path;
+	}
+
+	/**
+	 * Returns the distance from v to u.
+	 */
+	public int distance(Vertex v, Vertex u) {
+		// note -1 here since path does contains v
+		return this.path(v, u).size() - 1;
 	}
 
 	public void debug() {
