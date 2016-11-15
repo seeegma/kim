@@ -122,14 +122,14 @@ public class RandomBoardGen {
 		AGen aGen = new AGen();
 		Random random = new Random();
 		while(i < 20){
-			r = random.nextInt(3) + 11;
+			r = random.nextInt(3) + 8;
 			RandomBoardGen rgen = new RandomBoardGen(6,6,r);
 			rgen.generateBoard();		
 			Board board = rgen.getBoard();
 
 			ArrayList<Grid> grids = Solver.solveBoard(board);
 
-			if(grids != null && grids.size()-1 > 25){
+			if(grids != null && grids.size()-1 > 15){
 				i++;
 				System.out.println(grids.size()-1); //+ " : " + bgraph.depth);
 				//aGen.printGrid(board.getGrid());
