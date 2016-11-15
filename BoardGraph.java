@@ -29,6 +29,12 @@ public class BoardGraph {
 
 	public int numberOfSolvedStates;
 
+	// We can keep track of these vertices since space is not an issue.
+	// Hashmap of solution vertices on the hashcode of a board.
+	public HashMap<Long,Vertex> solutions;
+	// Hashmap of vertices with the same depth as max depth.
+	//public HashMap<Long,Vertex> farthest;
+
 	//Constructor from board.
 	public BoardGraph(Board startingBoard) {
 		LinkedList<Board> queue = new LinkedList<Board>();
@@ -67,6 +73,7 @@ public class BoardGraph {
 		int solvedStates=0;
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
+		this.solutions = new HashMap<Long, Vertex>();
 		for(Vertex vert : vertices.values()) {
 			numberOfVisitedStates++;
 			vert.board.setGraph(this);
@@ -75,6 +82,7 @@ public class BoardGraph {
 				solvedStates++;
 				queue.offer(vert);
 				visited.add(vert);
+				solutions.put(vert.board.hash(), vert);
 			}
 		}
 		while (!queue.isEmpty()) {
