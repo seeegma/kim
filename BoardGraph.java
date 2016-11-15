@@ -6,19 +6,8 @@ import java.util.Collections;
 
 public class BoardGraph {
 
-	public class Vertex {
-		public Board board;
-		public ArrayList<Vertex> neighbors;
-		public long hash;
-		public int depth;
-		public Vertex parent;
+	
 
-		public Vertex(Board board, ArrayList<Vertex> neighbors, long hash) {
-			this.board = board;
-			this.neighbors = neighbors;
-			this.hash = hash;			
-		}
-	}
 
 	public class Node {
 		public Vertex vertex;
@@ -31,6 +20,7 @@ public class BoardGraph {
 	}
 
 	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
+	//Requirements: easy lookup, quick iteration
 	public HashMap<Long,Vertex> vertices;
 	//Maximum distance from a solved state of any board in the graph.
 	public int depth;
@@ -141,7 +131,11 @@ public class BoardGraph {
 	}
 
 	public Vertex getVertex(Board b) {
-		return vertices.get(b.hash());
+		Vertex v = vertices.get(b.hash());
+		if (v==null) {
+			System.out.println("vertex not found");
+		}
+		return v;
 	}
 
 	public ArrayList<Vertex> solve(Vertex v) {
