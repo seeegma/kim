@@ -11,6 +11,7 @@ public class RandomGraphGen {
     private Board board;
     private Board originalBoard;
     public BoardGraph graph;
+    // useful for stats
     public int depth = 0;
     public int originalDepth = 0;
 
@@ -32,6 +33,9 @@ public class RandomGraphGen {
         this.numCars = numCars;
     }
 
+    /**
+     * Sets the originalBoard as a randomly generated solveable board.
+     */
     private void setSolvedBoard() {
         RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
         do {
@@ -42,6 +46,12 @@ public class RandomGraphGen {
         this.originalBoard = r.getBoard();
     }
 
+    /**
+     * Generates an unsolved configuration of Rush Hour. We first use
+     * setSolvedBoard to get a randomly generated solveable board, and then
+     * build a graph of all possible moves and find a configuration that is the 
+     * farthest from any solution.
+     */
     public void generateBoard() {
         this.setSolvedBoard();
         this.graph = new BoardGraph(this.originalBoard);
@@ -50,6 +60,10 @@ public class RandomGraphGen {
         this.depth = this.graph.depth;
     }
 
+    /**
+     * Sets the originalBoard as a randomly generated solveable board that
+     * requires at least minMoves to solve.
+     */
     private void setSolvedBoard(int minMoves) {
         RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
         do {
@@ -61,6 +75,12 @@ public class RandomGraphGen {
         this.originalBoard = r.getBoard();
     }
 
+    /**
+     * Generates an unsolved configuration of Rush Hour that requires at least
+     * minMoves to solve. We first use setSolvedBoard to get a board with at
+     * least minMoves, and then build a graph of all possible moves and find a
+     * configuration that is the farthest from any solution.
+     */
     public void generateBoard(int minMoves) {
         this.setSolvedBoard(minMoves);
         this.graph = new BoardGraph(this.originalBoard);
