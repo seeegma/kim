@@ -97,7 +97,7 @@ public final class Solver {
      */
     private static Node solveBoardHelper(Board b1) {
         LinkedList<Node> queue = new LinkedList<Node>();
-        HashSet<Integer> visited = new HashSet<Integer>();
+        HashSet<Long> visited = new HashSet<Long>();
         Board working = b1.copy();
         //int count = 0;
 

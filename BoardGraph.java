@@ -95,6 +95,25 @@ public class BoardGraph {
 		this.depth = maxDepth;
 
 	}
+
+	/**
+	 * Returns one of the Boards that is the farthest distance from any
+	 * solution.
+	 * @return a Board that is the farthest from any solution.
+	 */
+	public Board getFarthest() {
+		for (Vertex vert : vertices.values()) {
+			if (vert.depth == this.depth) {
+				return vert.board;
+			}
+		}
+		// should never hit this
+		return null;
+	}
+
+	public int getDepth(Board b) {
+		return vertices.get(b.hash()).depth;
+	}
 	
 	/**
 	 * Number of boards in this graph. 
