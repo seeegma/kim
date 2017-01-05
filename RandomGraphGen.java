@@ -74,6 +74,21 @@ public class RandomGraphGen {
             Solver.solveBoard(r.getBoard()).size() - 1 <= minMoves);
         this.originalBoard = r.getBoard();
     }
+    
+    /**
+     * Sets the originalBoard as a randomly generated solveable board that
+     * requires at most maxMoves to solve.
+     */
+    private void setSolvedBoardMax(int maxMoves) {
+        RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
+        do {
+            while (!r.generateBoard()) {
+                // pass
+            }
+        } while (Solver.solveBoard(r.getBoard()) == null ||
+            Solver.solveBoard(r.getBoard()).size() - 1 >= maxMoves);
+        this.originalBoard = r.getBoard();
+    }
 
     /**
      * Generates an unsolved configuration of Rush Hour that requires at least
