@@ -1,3 +1,5 @@
+import rushhour.core.*;
+
 import java.util.Random;
 import java.lang.Math;
 import java.util.ArrayList;
@@ -108,7 +110,7 @@ public class NumBoards {
 
 
 	public static void main(String[] args) {
-		AGen agen = new AGen();
+		AsciiGen agen = new AGen();
 		int numTrials=10000;
 		int numSuccesses = 100;
 		NumBoards count = new NumBoards();
