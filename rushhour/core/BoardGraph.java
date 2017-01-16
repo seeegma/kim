@@ -10,7 +10,7 @@ import java.util.Collections;
 
 public class BoardGraph {
 
-	
+
 	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
 	//Requirements: easy lookup, quick iteration
 	public HashMap<Long,Vertex> vertices;
@@ -105,9 +105,9 @@ public class BoardGraph {
 	public int getDepth(Board b) {
 		return vertices.get(b.hash()).depth;
 	}
-	
+
 	/**
-	 * Number of boards in this graph. 
+	 * Number of boards in this graph.
 	 * @return size of graph
 	 */
 	public int size() {
@@ -139,7 +139,8 @@ public class BoardGraph {
 	}
 
 	/**
-	 * Returns a node of u that is a linked chain of nodes from u to v.
+	 * Returns the vertex u which, via the parent pointer, indicates
+	 * a shortest path from v to u.
 	 */
 	private Vertex pathHelper(Vertex v, Vertex u) {
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
@@ -193,7 +194,7 @@ public class BoardGraph {
 	 * Returns the distance from v to u.
 	 */
 	public int distance(Vertex v, Vertex u) {
-		// note -1 here since path does contains v
+		// note -1 here since path contains v and u.
 		return this.path(v, u).size() - 1;
 	}
 

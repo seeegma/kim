@@ -25,6 +25,8 @@ public class Board {
 	Grid grid;
 	final int EMPTY_SPOT = -1;
 	//private HashMap<Character,Car> carList;
+	//The first car in carList should always be the VIP car, and
+	//many methods rely on the VIP having index 0.
 	ArrayList<Car> carList;
 
 	BoardGraph graph;
@@ -113,6 +115,8 @@ public class Board {
 	/**
 	 * Creates a new grid matrix using the current carList. Used when we're
 	 * decompressing nodes.
+	 * TODO: this method is likely deletable. We are not compressing boards
+	 * in the first place, so we shouldn't need a method to decompress. --IG 1/16
 	 */
 	private void createGrid() {
 		grid.clear();
@@ -139,12 +143,12 @@ public class Board {
 
 
     /**
-     * Adds a new car. Might be useful to be public fcn for testing.
+     * Adds a new car.
      * @param newCar a new car to be inserted
      */
     public boolean addCar(Car newCar) {
         // update list
-        
+
         boolean placeable = true;
         // update grid
         int dx = 0;
@@ -156,20 +160,20 @@ public class Board {
         }
 
         placeable = canPlace(newCar);
-        
-        if (placeable) { 
+
+        if (placeable) {
         	carList.add(newCar);
             for (int i = 0; i < newCar.length; i++) {
 
                 grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
 
             }
-            
+
         }
         return placeable;
 
     }
-    
+
     public boolean canPlace(Car newCar){
     	boolean canPlace = true;
     	int dx = 0;
@@ -179,7 +183,7 @@ public class Board {
         } else {
             dy++;
         }
-    	
+
     	for (int i = 0; i < newCar.length; i++) {
 			// since the newCar was added at the end of the array its index is:
 
@@ -192,6 +196,7 @@ public class Board {
     }
 
 	/**
+	 * TODO: this comment's params and returns do not match the actual method.
 	 * Moves the car in the direction d by amount or until it hits another car.
 	 * @param num the number associated with the car to move
 	 * @param d the Direction to move in
@@ -236,7 +241,7 @@ public class Board {
 		return false;
 	}
 
-	public void move(int carNum, Direction d) { //Assumes the move is legal. 
+	public void move(int carNum, Direction d) { //Assumes the move is legal.
 		Car c = carList.get(carNum);
 		switch(d) {
 			case UP:
@@ -284,22 +289,17 @@ public class Board {
 
         // Creates all possible board positions moving to the starting direction
         Board currentState = this.copy();
-        while(currentState.canMove(i,d)) {     	
+        while(currentState.canMove(i,d)) {
             currentState.move(i, d);
             neighbors.add(currentState.copy());
         }
         // Moves back to the original position
-        /* Making a method to revert this back in one method call might not be
-        worth it since that would require at max 6 grid operations (moving a
-        length 3 car to a new positon). Could have an if statement to determine
-        whether to use this or that new method, but then that'd just overhead
-        and isn't a huge improvement if at all, especially on a packed board*/
         d = d.reverse();
 
         currentState = this.copy();
-        
+
         // Repeats in the reverse of the starting direction
-        while(currentState.canMove(i,d)) {     	
+        while(currentState.canMove(i,d)) {
             currentState.move(i, d);
             neighbors.add(currentState.copy());
         }
