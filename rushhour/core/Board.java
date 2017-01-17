@@ -112,36 +112,6 @@ public class Board {
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
 	}
 
-	/**
-	 * Creates a new grid matrix using the current carList. Used when we're
-	 * decompressing nodes.
-	 * TODO: this method is likely deletable. We are not compressing boards
-	 * in the first place, so we shouldn't need a method to decompress. --IG 1/16
-	 */
-	private void createGrid() {
-		this.grid.clear();
-
-		int dx, dy, tempx, tempy;
-		Car c;
-		for (int i = 0; i < this.carList.size(); i++) {
-			c = this.carList.get(i);
-			dx = 0;
-			dy = 0;
-			if (c.horizontal) {
-				dx++;
-			} else {
-				dy++;
-			}
-
-			for (int j = 0; j < c.length; j++) {
-				tempx = c.x + (dx * j);
-				tempy = c.y + (dy * j);
-				this.grid.set(tempx,tempy,i);
-			}
-		}
-	}
-
-
     /**
      * Adds a new car.
      * @param newCar a new car to be inserted
