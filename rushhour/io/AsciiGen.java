@@ -16,11 +16,9 @@ public final class AsciiGen {
 	final static int plen = 8;
 	final static int exitL = 3;
 
-	final static BoardIO bIO = new BoardIO();
-
 	public static void main(String[] args) {
 		
-		//Board board = bIO.read("33moves");
+		Board board = BoardIO.read("33moves");
 		
 		//creates random input grid for now
 		Grid inputG = new Grid(len,hei);		
