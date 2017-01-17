@@ -2,18 +2,22 @@ package rushhour.core;
 
 import java.util.ArrayList;
 
-public class Vertex extends Board {
-	public ArrayList<Vertex> neighbors;
-	public int depth;
-	public Vertex parent;
+public class Vertex {
+
+	Board board;
+	ArrayList<Vertex> neighbors;
+	int depth;
+	Vertex parent;
 
 	public Vertex(Board board) {
-		super(board.w, board.h, board.grid, board.carList);
+		this.board = board;
+		this.parent = null;
+		this.depth = 0;
 		this.neighbors = null;
 	}
 
 	public Vertex(Board board, ArrayList<Vertex> neighbors) {
-		super(board.w, board.h, board.grid, board.carList);
+		this(board);
 		this.neighbors = neighbors;
 	}
 
@@ -29,8 +33,8 @@ public class Vertex extends Board {
         this.neighbors = new ArrayList<Vertex>();
         // Goes through each car in the board and gets all possible neighbors
         // moving that car can create
-        for (int i = 0; i < this.getCars().size(); i++) {
-            ArrayList<Board> lst = allPossibleMoves(i);
+        for (int i = 0; i < this.board.getCars().size(); i++) {
+            ArrayList<Board> lst = this.board.allPossibleMoves(i);
             for (Board b : lst) {
                 neighbors.add(new Vertex(b));
             }

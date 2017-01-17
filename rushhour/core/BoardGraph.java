@@ -36,19 +36,18 @@ public class BoardGraph {
 			ArrayList<Vertex> neighborList = new ArrayList<Vertex>();
 			for (Vertex neighbor : current.getNeighbors()) {
 				//If the vertex exists, add it to neighbor list
-				if (vertexList.containsKey(neighbor.hash())) {
-					neighborList.add(vertexList.get(neighbor.hash()));
+				if (vertexList.containsKey(neighbor.board.hash())) {
+					neighborList.add(vertexList.get(neighbor.board.hash()));
 				}
 				//otherwise create it and add it.
 				else {
-					Vertex newVert = new Vertex(neighbor);
-					vertexList.put(neighbor.hash(), newVert);
+					vertexList.put(neighbor.board.hash(), neighbor);
 					queue.offer(neighbor);
-					neighborList.add(newVert);
+					neighborList.add(neighbor);
 				}
 
 			}
-			vertexList.get(current.hash()).neighbors = neighborList;
+			vertexList.get(current.board.hash()).neighbors = neighborList;
 		}
 		this.vertices = vertexList;
 		// propogateDepthsAndGraphs
@@ -60,7 +59,7 @@ public class BoardGraph {
 		this.solutions = new LinkedList<Vertex>();
 		for(Vertex vert : vertices.values()) {
 			numberOfVisitedStates++;
-			if (vert.isSolved()) {
+			if (vert.board.isSolved()) {
 				vert.depth = 0;
 				solvedStates++;
 				queue.offer(vert);
@@ -95,7 +94,7 @@ public class BoardGraph {
 	public Board getFarthest() {
 		for (Vertex vert : vertices.values()) {
 			if (vert.depth == this.depth) {
-				return vert;
+				return vert.board;
 			}
 		}
 		// should never hit this
@@ -171,7 +170,7 @@ public class BoardGraph {
 	 */
 	private ArrayList<Vertex> path(Vertex v, Vertex u) {
 		// Check if vertex u is even on the graph.
-		if (this.vertices.get(u.hash()) == null) {
+		if (this.vertices.get(u.board.hash()) == null) {
 			return null;
 		}
 
@@ -208,18 +207,18 @@ public class BoardGraph {
 			for (Vertex w : v.neighbors) {
 				if(!w.neighbors.contains(v)) {
 					System.out.println("*******************************");
-					AsciiGen.printGrid(v.getGrid());
-					System.out.println(v.hash());
+					AsciiGen.printGrid(v.board.getGrid());
+					System.out.println(v.board.hash());
 					for (Vertex x: v.neighbors){
-						AsciiGen.printGrid(x.getGrid());
-						System.out.println(x.hash());
+						AsciiGen.printGrid(x.board.getGrid());
+						System.out.println(x.board.hash());
 					}
 					System.out.println("Error");
-					AsciiGen.printGrid(w.getGrid());
-					System.out.println(w.hash());
-					for (Board b : v.getNeighbors()) {
-						AsciiGen.printGrid(b.getGrid());
-						System.out.println(b.hash());
+					AsciiGen.printGrid(w.board.getGrid());
+					System.out.println(w.board.hash());
+					for (Vertex b : v.getNeighbors()) {
+						AsciiGen.printGrid(b.board.getGrid());
+						System.out.println(b.board.hash());
 					}
 				}
 			}

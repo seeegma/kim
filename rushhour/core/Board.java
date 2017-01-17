@@ -18,18 +18,18 @@ import java.util.Set;
 public class Board {
 	// TODO: introduce coordinate class just to make stuff more clear? Will make
 	// coordinate conversion from Direction easier.
-	int w, h; // dimension of the board
+	private int w, h; // dimension of the board
 	// grid representation of the board. Each slot contains an integer that
 	// represents the index of the car in carList that is occupying the spot
 	// on the board. We will use -1 to represent empty spaces.
-	Grid grid;
-	final int EMPTY_SPOT = -1;
+	private Grid grid;
+	private final int EMPTY_SPOT = -1;
 	//private HashMap<Character,Car> carList;
 	//The first car in carList should always be the VIP car, and
 	//many methods rely on the VIP having index 0.
-	ArrayList<Car> carList;
+	private ArrayList<Car> carList;
 
-	BoardGraph graph;
+	private BoardGraph graph;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -38,16 +38,16 @@ public class Board {
 	public Board(int w, int h) {
 		this.w = w;
 		this.h = h;
-		grid = new Grid(w,h);
-		carList = new ArrayList<Car>();
+		this.grid = new Grid(w,h);
+		this.carList = new ArrayList<Car>();
 	}
 
 	// Overloaded for importing from file
 	public Board(int w, int h, ArrayList<Car> c) {
 		this.w = w;
 		this.h = h;
-		grid = new Grid(w,h);
-		carList = new ArrayList<Car>();
+		this.grid = new Grid(w,h);
+		this.carList = new ArrayList<Car>();
 
 		// Could just carList = c, but then would need to update grid...
 		for (int i = 0; i < c.size(); i++) {
@@ -64,7 +64,7 @@ public class Board {
 
 
 	public boolean isSolved() {
-		return (carList.get(0).x==w-carList.get(0).length);
+		return carList.get(0).x == w-carList.get(0).length;
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class Board {
 	 */
 	public Board copy() {
 		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
-		for (Car car: this.carList) {
+		for (Car car : this.carList) {
 			newCarList.add(car.copy());
 		}
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
@@ -119,12 +119,12 @@ public class Board {
 	 * in the first place, so we shouldn't need a method to decompress. --IG 1/16
 	 */
 	private void createGrid() {
-		grid.clear();
+		this.grid.clear();
 
 		int dx, dy, tempx, tempy;
 		Car c;
-		for (int i = 0; i < carList.size(); i++) {
-			c = carList.get(i);
+		for (int i = 0; i < this.carList.size(); i++) {
+			c = this.carList.get(i);
 			dx = 0;
 			dy = 0;
 			if (c.horizontal) {
@@ -136,7 +136,7 @@ public class Board {
 			for (int j = 0; j < c.length; j++) {
 				tempx = c.x + (dx * j);
 				tempy = c.y + (dy * j);
-				grid.set(tempx,tempy,i);
+				this.grid.set(tempx,tempy,i);
 			}
 		}
 	}
