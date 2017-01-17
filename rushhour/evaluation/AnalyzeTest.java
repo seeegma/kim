@@ -14,7 +14,9 @@ public class AnalyzeTest {
         "1479235711466 0 2";
         TimeAnalyzer time = new TimeAnalyzer();
         UndoAnalyzer undo = new UndoAnalyzer();
+        MoveTimeAnalyzer movetime = new MoveTimeAnalyzer();
         System.out.println(time.analyze(log));
         System.out.println(undo.analyze(log));
+        System.out.println(movetime.analyze(log));
     }
 }
