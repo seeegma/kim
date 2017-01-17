@@ -1,23 +1,23 @@
-package rushhour.evaluation;
+package rushhour.analysis;
 
-public class UndoAnalyzer implements Analyzer {
+public class ResetAnalyzer implements Analyzer {
 
     /**
      * Analyzes a log based on the number of resets
      * @param log the log to analyze
-     * @return the number of undos in a log
+     * @return the number of resets in the log
      */
     @Override
     public double analyze(String log) {
         String[] lines = log.split("\n");
-        int undos = 0;
+        int resets = 0;
 
         for (String l : lines) {
             String[] vars = l.split(" ");
-            if (vars.length > 1 && vars[1].equals("U")) {
-                undos++;
+            if (vars.length > 1 && vars[1].equals("R")) {
+                resets++;
             }
         }
-        return undos;
+        return resets;
     }
 }

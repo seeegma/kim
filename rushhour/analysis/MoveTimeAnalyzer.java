@@ -1,4 +1,4 @@
-package rushhour.evaluation;
+package rushhour.analysis;
 
 public class MoveTimeAnalyzer implements Analyzer {
 
