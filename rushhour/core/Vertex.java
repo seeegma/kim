@@ -33,12 +33,9 @@ public class Vertex {
         this.neighbors = new ArrayList<Vertex>();
         // Goes through each car in the board and gets all possible neighbors
         // moving that car can create
-        for (int i = 0; i < this.board.getCars().size(); i++) {
-            ArrayList<Board> lst = this.board.allPossibleMoves(i);
-            for (Board b : lst) {
-                neighbors.add(new Vertex(b));
-            }
-        }
+		for (Board b : this.board.allPossibleMoves()) {
+			neighbors.add(new Vertex(b));
+		}
         return neighbors;
     }
 

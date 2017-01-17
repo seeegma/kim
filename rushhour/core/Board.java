@@ -277,34 +277,36 @@ public class Board {
      * @return an ArrayList of all possible grid positions that results from
      *      moving that car
      */
-    public ArrayList<Board> allPossibleMoves(int i) {
+    public ArrayList<Board> allPossibleMoves() {
         ArrayList<Board> neighbors = new ArrayList<Board>();
-        Direction d;
-        // Find the starting direction
-        if (this.getCars().get(i).horizontal) {
-            d = Direction.LEFT;
-        } else {
-            d = Direction.UP;
-        }
+		for(int i = 0; i<this.getCars().size(); i++) {
+			Direction d;
+			// Find the starting direction
+			if (this.getCars().get(i).horizontal) {
+				d = Direction.LEFT;
+			} else {
+				d = Direction.UP;
+			}
 
-        // Creates all possible board positions moving to the starting direction
-        Board currentState = this.copy();
-        while(currentState.canMove(i,d)) {
-            currentState.move(i, d);
-            neighbors.add(currentState.copy());
-        }
-        // Moves back to the original position
-        d = d.reverse();
+			// Creates all possible board positions moving to the starting direction
+			Board currentState = this.copy();
+			while(currentState.canMove(i,d)) {
+				currentState.move(i, d);
+				neighbors.add(currentState.copy());
+			}
+			// Moves back to the original position
+			d = d.reverse();
 
-        currentState = this.copy();
+			currentState = this.copy();
 
-        // Repeats in the reverse of the starting direction
-        while(currentState.canMove(i,d)) {
-            currentState.move(i, d);
-            neighbors.add(currentState.copy());
-        }
-        return neighbors;
-    }
+			// Repeats in the reverse of the starting direction
+			while(currentState.canMove(i,d)) {
+				currentState.move(i, d);
+				neighbors.add(currentState.copy());
+			}
+		}
+		return neighbors;
+	}
 
 	/**
 	 * Checks if there is a place to put a car in the grid
@@ -329,6 +331,10 @@ public class Board {
 	 */
 	public void clear(){
 		this.grid.clear();
+	}
+
+	public boolean equals(Board other) {
+		return this.grid.equals(other.getGrid());
 	}
 
 	/**
