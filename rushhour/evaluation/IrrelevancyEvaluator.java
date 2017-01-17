@@ -48,4 +48,7 @@ public class IrrelevancyEvaluator implements Evaluator {
     // #<{(|public int getScore(Board b) {
     //     return eval(b);
     // }|)}>#
+    public double eval(Board b) {
+        return 0;
+    }
 }
