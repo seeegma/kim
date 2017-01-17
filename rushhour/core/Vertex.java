@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public class Vertex {
 
-	Board board;
-	ArrayList<Vertex> neighbors;
-	int depth;
-	Vertex parent;
+	public Board board;
+	public ArrayList<Vertex> neighbors;
+	public int depth;
+	public Vertex parent;
 
 	public Vertex(Board board) {
 		this.board = board;
