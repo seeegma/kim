@@ -8,12 +8,10 @@ public class ResetAnalyzer implements Analyzer {
      * @return the number of resets in the log
      */
     @Override
-    public double analyze(String log) {
-        String[] lines = log.split("\n");
+    public double analyze(String[][] log) {
         int resets = 0;
 
-        for (String l : lines) {
-            String[] vars = l.split(" ");
+        for (String[] vars : log) {
             if (vars.length > 1 && vars[1].equals("R")) {
                 resets++;
             }

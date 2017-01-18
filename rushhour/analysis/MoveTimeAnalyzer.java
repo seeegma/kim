@@ -8,9 +8,8 @@ public class MoveTimeAnalyzer implements Analyzer {
      * @return the average time taken per move
      */
     @Override
-    public double analyze(String log) {
-        String[] lines = log.split("\n");
+    public double analyze(String[][] log) {
         double time = new TimeAnalyzer().analyze(log);
-        return time/lines.length;
+        return time/log.length;
     }
 }

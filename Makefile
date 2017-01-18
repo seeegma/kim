@@ -1,4 +1,4 @@
-all: core io evaluation generation
+all: core io evaluation analysis generation
 
 core:
 	javac rushhour/core/*.java
@@ -8,6 +8,9 @@ io:
 
 evaluation:
 	javac rushhour/evaluation/*.java
+
+analysis:
+	javac rushhour/analysis/*.java
 
 generation:
 	javac rushhour/generation/*.java

@@ -1,4 +1,4 @@
-package rushhour.evaluation;
+package rushhour.analysis;
 
 // Tester class for analyzers
 public class AnalyzeTest {
@@ -12,11 +12,16 @@ public class AnalyzeTest {
         "1479235710870 U\n" +
         "1479235710900 R\n" +
         "1479235711466 0 2";
+        String[] lines = log.split("\n");
+        String[][] logArr = new String[lines.length][];
+        for (int i=0; i<lines.length; i++) {
+            logArr[i] = lines[i].split(" ");
+        }
         TimeAnalyzer time = new TimeAnalyzer();
         UndoAnalyzer undo = new UndoAnalyzer();
         MoveTimeAnalyzer movetime = new MoveTimeAnalyzer();
-        System.out.println(time.analyze(log));
-        System.out.println(undo.analyze(log));
-        System.out.println(movetime.analyze(log));
+        System.out.println(time.analyze(logArr));
+        System.out.println(undo.analyze(logArr));
+        System.out.println(movetime.analyze(logArr));
     }
 }
