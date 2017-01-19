@@ -1,30 +1,36 @@
 package rushhour.core;
 
-import rushhour.io.AsciiGen;
-
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Collections;
 
 public class BoardGraph {
 
+	static class Vertex {
+		public Board board;
+		public HashMap<Move,Vertex> neighbors;
+		public int depth;
+		public Vertex parent;
+		public Vertex(Board board) {
+			this.board = board;
+			this.parent = null;
+			this.depth = 0;
+			this.neighbors = null;
+		}
+	}
 
-	//Hashmap of (hashOfBoard : vertex). This is the vertex list, as a hashmap for easy lookup.
-	//Requirements: easy lookup, quick iteration
-	public HashMap<Long,Vertex> vertices;
-	//Maximum distance from a solved state of any board in the graph.
-	public int depth;
+	HashMap<Long,Vertex> vertices;
 
-	public int numberOfSolvedStates;
+	int depth; //Maximum distance from a solved state of any board in the graph.
 
-	// We can keep track of these vertices since space is not an issue.
+	int numberOfSolvedStates;
+
 	// Linked list of solution vertices.
-	public LinkedList<Vertex> solutions;
+	LinkedList<Vertex> solutions;
 
-	// Constructor from board.
 	public BoardGraph(Board startingBoard) {
 		Vertex startingVertex = new Vertex(startingBoard);
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
@@ -47,15 +53,16 @@ public class BoardGraph {
 				else {
 					Vertex neighborVertex = new Vertex(neighborBoard);
 					this.vertices.put(neighborBoard.hash(), neighborVertex);
+					current.neighbors.put(move, neighborVertex);
 					queue.offer(neighborVertex);
 				}
 
 			}
 		}
-		// propogate Depth values And Graph pointers
+		// propogate depth values and graph pointers
 		int numberOfVisitedStates = 0;
 		int maxDepth = 0;
-		int solvedStates=0;
+		int solvedStates = 0;
 		queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
 		this.solutions = new LinkedList<Vertex>();
@@ -87,9 +94,7 @@ public class BoardGraph {
 		}
 		this.numberOfSolvedStates = solvedStates;
 		this.depth = maxDepth;
-
 	}
-
 
 	public Vertex getVertex(Board b) {
 		Vertex v = vertices.get(b.hash());
@@ -125,84 +130,22 @@ public class BoardGraph {
 		return vertices.size();
 	}
 
-	public ArrayList<Vertex> solve(Vertex v) {
-		ArrayList<Vertex> path = new ArrayList<Vertex>();
+	public List<Move> pathToNearestSolution(Board b) {
+		Vertex v = this.getVertex(b);
+		List<Move> moves = new ArrayList<Move>();
 		Vertex current = v;
 		while (current.depth != 0) {
-			Set<Move> moves = current.neighbors.keySet();
-			for (Move move : moves) {
+			Set<Move> neighborMoves = current.neighbors.keySet();
+			for (Move move : neighborMoves) {
 				Vertex neighbor = current.neighbors.get(move);
 				if (neighbor.depth == current.depth - 1) {
-					path.add(neighbor);
+					moves.add(move);
 					current = neighbor;
 					break;
 				}
 			}
 		}
-		Collections.reverse(path);
-		return path;
-	}
-
-	/**
-	 * Returns the vertex u which, via the parent pointer, indicates
-	 * a shortest path from v to u.
-	 */
-	private Vertex pathHelper(Vertex v, Vertex u) {
-		LinkedList<Vertex> queue = new LinkedList<Vertex>();
-		HashSet<Vertex> visited = new HashSet<Vertex>();
-		v.parent = null;
-		queue.offer(v);
-		visited.add(v);
-		while (!queue.isEmpty()) {
-			Vertex current = queue.poll();
-			if (current == u) {
-				return current;
-			}
-			Set<Move> moves = current.neighbors.keySet();
-			for (Move move : moves) {
-				Vertex neighbor = current.neighbors.get(move);
-				if (!visited.contains(neighbor)) {
-					neighbor.parent = current;
-					queue.offer(neighbor);
-					visited.add(neighbor);
-				}
-			}
-		}
-
-		// should never hit this
-		return null;
-	}
-
-	/**
-	 * Returns a path of vertices from vertex v to u.
-	 */
-	private ArrayList<Vertex> path(Vertex v, Vertex u) {
-		// Check if vertex u is even on the graph.
-		if (this.vertices.get(u.board.hash()) == null) {
-			return null;
-		}
-
-		Vertex current = this.pathHelper(v, u);
-		if (current == null) {
-			System.out.println("Something's wrong with BoardGraph.path().");
-			return null;
-		}
-
-		ArrayList<Vertex> path = new ArrayList<Vertex>();
-		do {
-			path.add(current);
-			current = current.parent;
-		} while(current != null);
-
-		return path;
-	}
-
-	/**
-	 * Returns the distance from v to u.
-	 */
-	public int distance(Vertex v, Vertex u) {
-		// note -1 here since path contains v and u.
-		return this.path(v, u).size() - 1;
+		return moves;
 	}
 
 }
