@@ -4,6 +4,7 @@ import rushhour.io.AsciiGen;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
@@ -23,33 +24,34 @@ public class BoardGraph {
 	// Linked list of solution vertices.
 	public LinkedList<Vertex> solutions;
 
-	//Constructor from board.
+	// Constructor from board.
 	public BoardGraph(Board startingBoard) {
+		Vertex startingVertex = new Vertex(startingBoard);
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
-		HashMap<Long,Vertex> vertexList = new HashMap<Long,Vertex>();
-		queue.offer(new Vertex(startingBoard));
-		vertexList.put(startingBoard.hash(), new Vertex(startingBoard));
+		this.vertices = new HashMap<Long,Vertex>();
+		queue.offer(startingVertex);
+		this.vertices.put(startingBoard.hash(), startingVertex);
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
-
-			//to be current's neighborList
-			ArrayList<Vertex> neighborList = new ArrayList<Vertex>();
-			for (Vertex neighbor : current.getNeighbors()) {
-				//If the vertex exists, add it to neighbor list
-				if (vertexList.containsKey(neighbor.board.hash())) {
-					neighborList.add(vertexList.get(neighbor.board.hash()));
+			current.neighbors = new HashMap<Move,Vertex>();
+			// fill in neighbors with vertices already in the graph
+			HashMap<Move,Board> currentPossibleMoves = current.board.allPossibleMoves();
+			Set<Move> moves = currentPossibleMoves.keySet();
+			for (Move move : moves) {
+				Board neighborBoard = currentPossibleMoves.get(move);
+				// If the vertex exists in the graph, replace current's instance with the graph's
+				if (this.vertices.containsKey(neighborBoard.hash())) {
+					current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
 				}
-				//otherwise create it and add it.
+				// otherwise add current's instance to the graph
 				else {
-					vertexList.put(neighbor.board.hash(), neighbor);
-					queue.offer(neighbor);
-					neighborList.add(neighbor);
+					Vertex neighborVertex = new Vertex(neighborBoard);
+					this.vertices.put(neighborBoard.hash(), neighborVertex);
+					queue.offer(neighborVertex);
 				}
 
 			}
-			current.neighbors = neighborList;
 		}
-		this.vertices = vertexList;
 		// propogate Depth values And Graph pointers
 		int numberOfVisitedStates = 0;
 		int maxDepth = 0;
@@ -70,7 +72,9 @@ public class BoardGraph {
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			numberOfVisitedStates--;
-			for (Vertex neighbor : current.neighbors) {
+			Set<Move> moves = current.neighbors.keySet();
+			for (Move move : moves) {
+				Vertex neighbor = current.neighbors.get(move);
 				if (!visited.contains(neighbor)) {
 					neighbor.depth = current.depth + 1;
 					if (maxDepth<neighbor.depth) {
@@ -125,7 +129,9 @@ public class BoardGraph {
 		ArrayList<Vertex> path = new ArrayList<Vertex>();
 		Vertex current = v;
 		while (current.depth != 0) {
-			for (Vertex neighbor : current.neighbors) {
+			Set<Move> moves = current.neighbors.keySet();
+			for (Move move : moves) {
+				Vertex neighbor = current.neighbors.get(move);
 				if (neighbor.depth == current.depth - 1) {
 					path.add(neighbor);
 					current = neighbor;
@@ -152,7 +158,9 @@ public class BoardGraph {
 			if (current == u) {
 				return current;
 			}
-			for (Vertex neighbor : current.getNeighbors()) {
+			Set<Move> moves = current.neighbors.keySet();
+			for (Move move : moves) {
+				Vertex neighbor = current.neighbors.get(move);
 				if (!visited.contains(neighbor)) {
 					neighbor.parent = current;
 					queue.offer(neighbor);
@@ -195,34 +203,6 @@ public class BoardGraph {
 	public int distance(Vertex v, Vertex u) {
 		// note -1 here since path contains v and u.
 		return this.path(v, u).size() - 1;
-	}
-
-	public void debug() {
-		for (Vertex v : this.vertices.values()) {
-			//System.out.println("**********");
-			// if(v.neighbors.size()==0){
-			// 	System.out.println("vertex has no neighbors");
-			// }
-
-			for (Vertex w : v.neighbors) {
-				if(!w.neighbors.contains(v)) {
-					System.out.println("*******************************");
-					AsciiGen.printGrid(v.board.getGrid());
-					System.out.println(v.board.hash());
-					for (Vertex x: v.neighbors){
-						AsciiGen.printGrid(x.board.getGrid());
-						System.out.println(x.board.hash());
-					}
-					System.out.println("Error");
-					AsciiGen.printGrid(w.board.getGrid());
-					System.out.println(w.board.hash());
-					for (Vertex b : v.getNeighbors()) {
-						AsciiGen.printGrid(b.board.getGrid());
-						System.out.println(b.board.hash());
-					}
-				}
-			}
-		}
 	}
 
 }

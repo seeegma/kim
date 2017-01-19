@@ -1,5 +1,7 @@
 package rushhour.core;
 
+import rushhour.io.AsciiGen;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -112,160 +114,167 @@ public class Board {
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
 	}
 
-    /**
-     * Adds a new car.
-     * @param newCar a new car to be inserted
-     */
-    public boolean addCar(Car newCar) {
-				if(!canAddCar(newCar)) {
-						return false;
-				}
-        int dx = 0;
-        int dy = 0;
-        if (newCar.horizontal) {
-            dx++;
-        } else {
-            dy++;
-        }
-      	carList.add(newCar);
-        for (int i = 0; i < newCar.length; i++) {
-            grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
-        }
-        return true;
-    }
-
-    public boolean canAddCar(Car newCar){
-    	boolean canPlace = true;
-    	int dx = 0;
-    	int dy = 0;
-    	if (newCar.horizontal) {
-            dx++;
-        } else {
-            dy++;
-        }
-
-    	for (int i = 0; i < newCar.length; i++) {
-			// since the newCar was added at the end of the array its index is:
-
-            if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
-                canPlace = false;
-                break;
-            }
-        }
-    	return canPlace;
-    }
-
-
-
-		public boolean slide(int carNum, Direction d) {
-			if(!canSlide(carNum,d)){
-				return false;
-			}
-			Car c = carList.get(carNum);
-			switch(d) {
-				case UP:
-					grid.set(c.x, c.y-1, carNum);
-					grid.set(c.x, c.y+c.length-1, -1);
-					c.y-=1;
-					break;
-				case LEFT:
-					grid.set(c.x-1, c.y,carNum);
-					grid.set(c.x+c.length-1, c.y,-1);
-					c.x-=1;
-					break;
-				case DOWN:
-					grid.set(c.x,c.y,-1);
-					grid.set(c.x,c.y+c.length,carNum);
-					c.y+=1;
-					break;
-				case RIGHT:
-					grid.set(c.x, c.y,-1);
-					grid.set(c.x+c.length,c.y,carNum);
-					c.x+=1;
-					break;
-				default:
-					System.out.println("Error encountered");
-					break;
-			}
-			return true;
-		}
-
 	/**
-	 * @param num the number associated with the car to move
-	 * @param d the Direction to move in
-	 * @return whether the move succeeded or not. Will return true only if it
-	 * moves any amount of blocks
+	 * Adds a new car.
+	 * @param newCar a new car to be inserted
 	 */
-	public boolean canSlide(int carNum, Direction d) {
-		Car c = carList.get(carNum);
-		if (c==null) {
+	public boolean addCar(Car newCar) {
+		if(!canAddCar(newCar)) {
 			return false;
 		}
-
-		if (d.isHorizontal()!=c.horizontal) {
-			return false;
+		int dx = 0;
+		int dy = 0;
+		if (newCar.horizontal) {
+			dx++;
+		} else {
+			dy++;
 		}
-
-
-		switch(d) {
-			case UP:
-					if (c.y>0 && grid.get(c.x,c.y-1)==-1) {
-						return true;
-					}
-					break;
-			case LEFT:
-					if (c.x>0 && grid.get(c.x-1,c.y)==-1) {
-						return true;
-					}
-					break;
-			case DOWN:
-					if (c.y+c.length-1<h-1 && grid.get(c.x, (c.y+c.length-1)+1)==-1) {
-						return true;
-					}
-					break;
-			default:
-					if (c.x+c.length-1<w-1 && grid.get(c.x+c.length-1+1, c.y)==-1) {
-						return true;
-					}
-					break;
-
+		carList.add(newCar);
+		for (int i = 0; i < newCar.length; i++) {
+			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
 		}
-		return false;
+		return true;
 	}
 
+	public boolean canAddCar(Car newCar){
+		boolean canPlace = true;
+		int dx = 0;
+		int dy = 0;
+		if (newCar.horizontal) {
+			dx++;
+		} else {
+			dy++;
+		}
 
-
-    /**
-     * Gets all possible moves of car at index i on board b in that current
-     * position.
-     * @param i the index of the car
-     * @return an ArrayList of all possible grid positions that results from
-     *      moving that car
-     */
-    public ArrayList<Board> allPossibleMoves() {
-        ArrayList<Board> neighbors = new ArrayList<Board>();
-		for(int i = 0; i<this.getCars().size(); i++) {
-			Direction d;
-			// Find the starting direction
-			if (this.getCars().get(i).horizontal) {
-				d = Direction.LEFT;
-			} else {
-				d = Direction.UP;
+		for (int i = 0; i < newCar.length; i++) {
+			// since the newCar was added at the end of the array its index is:
+			if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
+				canPlace = false;
+				break;
 			}
+		}
+		return canPlace;
+	}
+
+	public boolean canMove(int vehicleIndex, int vector) {
+		Car c = this.carList.get(vehicleIndex);
+		if(vector == 0) {
+			return true;
+		}
+		if(c.horizontal) {
+			if(vector > 0) {
+				for(int testX = c.x+c.length; testX < c.x+c.length+vector; testX++) {
+					if(testX >= this.grid.width || this.grid.get(testX, c.y) != -1) {
+						return false;
+					}
+				}
+			} else {
+				for(int testX = c.x-1; testX > c.x + vector-1; testX--) {
+					if(testX < 0 || this.grid.get(testX, c.y) != -1) {
+						return false;
+					}
+				}
+			}
+		} else {
+			if(vector > 0) {
+				for(int testY = c.y+c.length; testY < c.y+c.length+vector; testY++) {
+					if(testY >= this.grid.height || this.grid.get(c.x, testY) != -1) {
+						return false;
+					}
+				}
+			} else {
+				for(int testY = c.y-1; testY > c.y+vector-1; testY--) {
+					if(testY < 0 || this.grid.get(c.x, testY) != -1) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean move(int carNum, int vector) {
+		if(!this.canMove(carNum, vector)){
+			return false;
+		}
+		Car c = this.carList.get(carNum);
+		if(c.horizontal) {
+			if(vector > 0) {
+				// un-place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x + i, c.y, -1);
+				}
+				c.x += vector;
+				// place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x + i, c.y, carNum);
+				}
+			} else {
+				// un-place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x + i, c.y, -1);
+				}
+				c.x += vector;
+				// place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x + i, c.y, carNum);
+				}
+			}
+		} else {
+			if(vector > 0) {
+				// un-place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x, c.y + i, -1);
+				}
+				c.y += vector;
+				// place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x, c.y + i, carNum);
+				}
+			} else {
+				// un-place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x, c.y + i, -1);
+				}
+				c.y += vector;
+				// place car
+				for(int i=0; i<c.length; i++) {
+					this.grid.set(c.x, c.y + i, carNum);
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Gets all possible moves of car at index i on board b in that current
+	 * position.
+	 * @param i the index of the car
+	 * @return an ArrayList of all possible grid positions that results from
+	 *      moving that car
+	 */
+	public HashMap<Move,Board> allPossibleMoves() {
+		HashMap<Move,Board> moves = new HashMap<Move,Board>();
+		for(int vehicleIndex = 0; vehicleIndex<this.getCars().size(); vehicleIndex++) {
+			Direction direction;
+			int vector;
 			// Creates all possible board positions moving to the starting direction
 			Board currentState = this.copy();
-			while(currentState.slide(i,d)) {
-				neighbors.add(currentState.copy());
+			vector = -1;
+			while(currentState.move(vehicleIndex, -1)) {
+				moves.put(new Move(vehicleIndex, vector), currentState.copy());
+				vector--;
 			}
-			d = d.reverse();
 			// Moves back to the original position
 			currentState = this.copy();
 			// Repeats in the reverse of the starting direction
-			while(currentState.slide(i,d)) {
-				neighbors.add(currentState.copy());
+			vector = 1;
+			while(currentState.move(vehicleIndex, 1)) {
+				moves.put(new Move(vehicleIndex, vector), currentState.copy());
+				vector++;
 			}
 		}
-		return neighbors;
+		return moves;
 	}
 
 	/**
@@ -309,11 +318,11 @@ public class Board {
 		System.out.println("grid:");
 		for(int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++) {
-                if (grid.get(j,i) != -1) {
-				    System.out.print(String.format("%1$4s", grid.get(j,i)));
-                } else {
-                    System.out.print(String.format("%1$4s", "_"));
-                }
+				if (grid.get(j,i) != -1) {
+					System.out.print(String.format("%1$4s", grid.get(j,i)));
+				} else {
+					System.out.print(String.format("%1$4s", "_"));
+				}
 			}
 			System.out.println();
 		}

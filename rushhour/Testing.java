@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class Testing {
 	public static void main(String[] args) {
 		Board b = BoardIO.read(args[0]);
-		Evaluator e = new AverageBranchingFactorOnPathToSolutionEvaluator();
-		System.out.println(e.eval(b));
+		BoardGraph g = new BoardGraph(b);
 	}
 }

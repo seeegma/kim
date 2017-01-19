@@ -1,11 +1,11 @@
 package rushhour.core;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Vertex {
 
 	public Board board;
-	public ArrayList<Vertex> neighbors;
+	public HashMap<Move,Vertex> neighbors;
 	public int depth;
 	public Vertex parent;
 
@@ -15,29 +15,5 @@ public class Vertex {
 		this.depth = 0;
 		this.neighbors = null;
 	}
-
-	public Vertex(Board board, ArrayList<Vertex> neighbors) {
-		this(board);
-		this.neighbors = neighbors;
-	}
-
-	/**
-     * Gets all the neighboring positions of the current positon.
-     * @return a list of the Boards that are 1 move away from the current
-     *      board's position
-     */
-    public ArrayList<Vertex> getNeighbors() {
-		if(this.neighbors != null) {
-			return this.neighbors;
-		}
-        this.neighbors = new ArrayList<Vertex>();
-        // Goes through each car in the board and gets all possible neighbors
-        // moving that car can create
-		for (Board b : this.board.allPossibleMoves()) {
-			neighbors.add(new Vertex(b));
-		}
-        return neighbors;
-    }
-
 
 }
