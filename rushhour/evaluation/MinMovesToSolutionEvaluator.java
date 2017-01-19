@@ -2,14 +2,12 @@ package rushhour.evaluation;
 
 import rushhour.core.*;
 
-
-
 /**
  * This evaluator finds the minimum number of moves
  * to a solution. 
  */
 
-public class DistanceToSolutionEvaluator implements Evaluator {
+public class MinMovesToSolutionEvaluator implements Evaluator {
 
 	/**
      * Returns the score using this evaluation method.
@@ -17,8 +15,7 @@ public class DistanceToSolutionEvaluator implements Evaluator {
      * @return the score
      */
 	public double eval(Board b) {
-		return (new BoardGraph(b)).getVertex(b).depth;
+		return (new BoardGraph(b)).getDepth(b);
 	}
-
 	
 }

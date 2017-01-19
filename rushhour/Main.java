@@ -23,6 +23,10 @@ public class Main {
 					System.out.println(m);
 				}
 			} else if(operation.equals("evaluate")) {
+				Board b = BoardIO.read(filename);
+				Evaluator e;
+				e = new MinSlidesToSolutionEvaluator();
+				System.out.println(e.eval(b));
 			} else if(operation.equals("analyze")) {
 			}
 		}

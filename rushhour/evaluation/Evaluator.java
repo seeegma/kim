@@ -1,15 +1,9 @@
 package rushhour.evaluation;
 
-import rushhour.core.*;
+import rushhour.core.Board;
 
 public interface Evaluator {
-    /**
-     * not scaled
-     */
+
     public double eval(Board b);
 
-    /**
-     * scaled
-     */
-    //public int getScore(Board b);
 }
