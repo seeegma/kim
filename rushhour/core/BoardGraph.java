@@ -106,6 +106,7 @@ public class BoardGraph {
 				return vert.board;
 			}
 		}
+		return null;
 	}
 
 	public int getDepth(Board b) {
