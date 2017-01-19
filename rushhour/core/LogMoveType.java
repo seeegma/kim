@@ -11,6 +11,19 @@ public enum LogMoveType {
 		this.string = string;
 	}
 
+	public static LogMoveType fromChar(char c) {
+		switch(c) {
+			case 'N':
+				return NORMAL;
+			case 'U':
+				return UNDO;
+			case 'R':
+				return RESET;
+			default:
+				return null;
+		}
+	}
+
 	public String toString() {
 		return this.string;
 	}

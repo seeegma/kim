@@ -9,4 +9,10 @@ public class LogMove {
 	public LogMoveType type;
 
 	public Move move;
+
+	public LogMove(long time, LogMoveType type, Move move) {
+		this.time = time;
+		this.type = type;
+		this.move = move;
+	}
 }
