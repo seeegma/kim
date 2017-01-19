@@ -10,4 +10,8 @@ public class Move {
         this.index = index;
         this.amount = amount;
     }
+
+	public String toString() {
+		return this.index + " " + this.amount;
+	}
 }
