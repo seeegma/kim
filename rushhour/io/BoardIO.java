@@ -20,7 +20,6 @@ public final class BoardIO {
 		int width = 0;
 	    int height = 0;
 
-	    Direction d = null;
 	    int offset = 0;
 
 		ArrayList<Car> c = new ArrayList<Car>();
@@ -28,7 +27,7 @@ public final class BoardIO {
 		// TODO: check file integrity?
 		// opens file and gets all the data
 		try {
-		    Scanner f = new Scanner(new File(filename + ".txt"), "utf-8");
+		    Scanner f = new Scanner(new File(filename), "utf-8");
 		    //System.out.println("Open!");
 
 		    // First line is the board dimensions: width height

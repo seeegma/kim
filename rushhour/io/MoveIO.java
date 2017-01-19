@@ -19,29 +19,33 @@ public final class MoveIO {
      * @param filename filename of the text file.
      * @return an ArrayList of Moves.
      */
-    public static ArrayList<Move> read(String filename) {
-        ArrayList<Move> moves = null;
+    public static ArrayList<LogMove> read(String filename) {
+        ArrayList<LogMove> moves = null;
         try {
-            Scanner f = new Scanner(new File(filename + ".txt"), "utf-8");
-
-            moves = new ArrayList<Move>();
+            Scanner f = new Scanner(new File(filename), "utf-8");
+            moves = new ArrayList<LogMove>();
             String parts[];
             long time;
-            int index, amount;
+            int index = 0, amount = 0;
+			LogMoveType type;
             while (f.hasNextLine()) {
                 parts = f.nextLine().split(" ");
                 time = Long.parseLong(parts[0]);
-                index = Integer.parseInt(parts[1]);
-                amount = Integer.parseInt(parts[2]);
-                moves.add(new Move(time, index, amount));
+				char secondToken = parts[1].toCharArray()[0];
+				if(secondToken == 'U' || secondToken == 'R') {
+					type = LogMoveType.fromChar(secondToken);
+				} else {
+					type = LogMoveType.NORMAL;
+					index = Integer.parseInt(parts[1]);
+					amount = Integer.parseInt(parts[2]);
+				}
+                moves.add(new LogMove(time, type, new Move(index, amount)));
             }
-            
             f.close();
         } catch (FileNotFoundException e) {
             System.out.println("File not found!");
             e.printStackTrace();
         }
-
         return moves;
     }
 
@@ -50,20 +54,19 @@ public final class MoveIO {
      * @param filename filename of the text file.
      * @param m ArrayList of Moves
      */
-    public static void write(String filename, ArrayList<Move> m) {
+    public static void write(String filename, ArrayList<LogMove> m) {
         try {
-            PrintWriter pw = new PrintWriter(filename + ".txt", "UTF-8");
+            PrintWriter pw = new PrintWriter(filename, "UTF-8");
 
             int dx, dy;
             // TIME INDEX VECTOR
             for (int i = 0; i < m.size(); i++) {
                 pw.print(i);
                 pw.print(" ");
-                pw.print(m.get(i).index);
+                pw.print(m.get(i).move.index);
                 pw.print(" ");
-                pw.println(m.get(i).amount);
+                pw.println(m.get(i).move.amount);
             }
-
             pw.close();
         } catch (FileNotFoundException e) {
             System.out.println("Can't write file!");

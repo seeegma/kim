@@ -16,35 +16,6 @@ public final class AsciiGen {
 	final static int plen = 8;
 	final static int exitL = 3;
 
-	public static void main(String[] args) {
-		
-		Board board = BoardIO.read("33moves");
-		
-		//creates random input grid for now
-		Grid inputG = new Grid(len,hei);		
-		Grid inputG2 = new Grid(len,hei);
-		Grid inputG3 = new Grid(len,hei);
-		
-		//addCar(inputG2, 1, board.getCars().get(0));
-		//addCars(inputG3, board.getCars());
-
-		
-		Grid[] mInpG = {inputG, inputG2, inputG3};
-		
-		//makes 2D grid into printable format
-		//String[] printableGrid = getPrintableGrid(inputG);
-		
-		//print grids individually
-		//printGrid(printableGrid);		
-		//printGrid(outputGrid(addCar(inputG)));
-		
-		//ArrayList<Car> carsTest = new ArrayList<Car>();
-		
-		//print multiple grids out at once
-		//printGrids(mInpG);
-
-	}
-
 	/**
 	 * Prints multiple grids w/ move counter
 	 * @param grids
@@ -57,17 +28,11 @@ public final class AsciiGen {
 		
 	}
 	
-	
-	/**
-	 * Prints grid
-	 * @param out
-	 */
 	public static void printGrid(Grid grid){
 		String[] pGrid = getPrintableGrid(grid);
 		for (int i=0; i < phei; i++){
 			System.out.println(pGrid[i]);
 		}
-		
 	}
 	
 	/**
@@ -76,7 +41,6 @@ public final class AsciiGen {
 	 * @return String[] of grid
 	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
 	 */
-	
 	public static String[] getPrintableGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
@@ -148,29 +112,6 @@ public final class AsciiGen {
 		
 		return grid;
 	}
-	
-	
-	/**
-	 * Adds multiple cars given an ArrayList<Car> (could be just one car)
-	 * @param arr
-	 * @param cars
-	 * @return char[][] of cars
-	 */
-	public static Grid addCars(Grid grid, ArrayList<Car> cars){
-		for (int i = 0; i< cars.size(); i++){
-			addCar(grid, i, cars.get(i));
-		}	
-		
-		return grid;
-		
-	}
-	
-	
-	/**
-	 * Symbols to use for the cars
-	 * Add anything you want to be shown
-	 * @return
-	 */
 	
 	public static ArrayList<String> symbolList(){
 		//change this to whatever you want
