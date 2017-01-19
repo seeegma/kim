@@ -11,3 +11,6 @@ evaluation:
 
 generation:
 	javac rushhour/generation/*.java
+
+testing:
+	javac rushhour/Testing.java
