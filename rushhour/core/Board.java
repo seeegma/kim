@@ -117,10 +117,9 @@ public class Board {
      * @param newCar a new car to be inserted
      */
     public boolean addCar(Car newCar) {
-        // update list
-
-        boolean placeable = true;
-        // update grid
+				if(!canAddCar(newCar)) {
+						return false;
+				}
         int dx = 0;
         int dy = 0;
         if (newCar.horizontal) {
@@ -128,23 +127,14 @@ public class Board {
         } else {
             dy++;
         }
-
-        placeable = canPlace(newCar);
-
-        if (placeable) {
-        	carList.add(newCar);
-            for (int i = 0; i < newCar.length; i++) {
-
-                grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
-
-            }
-
+      	carList.add(newCar);
+        for (int i = 0; i < newCar.length; i++) {
+            grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
         }
-        return placeable;
-
+        return true;
     }
 
-    public boolean canPlace(Car newCar){
+    public boolean canAddCar(Car newCar){
     	boolean canPlace = true;
     	int dx = 0;
     	int dy = 0;
@@ -165,16 +155,48 @@ public class Board {
     	return canPlace;
     }
 
+
+
+		public boolean slide(int carNum, Direction d) {
+			if(!canSlide(carNum,d)){
+				return false;
+			}
+			Car c = carList.get(carNum);
+			switch(d) {
+				case UP:
+					grid.set(c.x, c.y-1, carNum);
+					grid.set(c.x, c.y+c.length-1, -1);
+					c.y-=1;
+					break;
+				case LEFT:
+					grid.set(c.x-1, c.y,carNum);
+					grid.set(c.x+c.length-1, c.y,-1);
+					c.x-=1;
+					break;
+				case DOWN:
+					grid.set(c.x,c.y,-1);
+					grid.set(c.x,c.y+c.length,carNum);
+					c.y+=1;
+					break;
+				case RIGHT:
+					grid.set(c.x, c.y,-1);
+					grid.set(c.x+c.length,c.y,carNum);
+					c.x+=1;
+					break;
+				default:
+					System.out.println("Error encountered");
+					break;
+			}
+			return true;
+		}
+
 	/**
-	 * TODO: this comment's params and returns do not match the actual method.
-	 * Moves the car in the direction d by amount or until it hits another car.
 	 * @param num the number associated with the car to move
 	 * @param d the Direction to move in
-	 * @param amount the number of squares to move
 	 * @return whether the move succeeded or not. Will return true only if it
 	 * moves any amount of blocks
 	 */
-	public boolean canMove(int carNum, Direction d) {
+	public boolean canSlide(int carNum, Direction d) {
 		Car c = carList.get(carNum);
 		if (c==null) {
 			return false;
@@ -211,34 +233,7 @@ public class Board {
 		return false;
 	}
 
-	public void move(int carNum, Direction d) { //Assumes the move is legal.
-		Car c = carList.get(carNum);
-		switch(d) {
-			case UP:
-				grid.set(c.x, c.y-1, carNum);
-				grid.set(c.x, c.y+c.length-1, -1);
-				c.y-=1;
-				break;
-			case LEFT:
-				grid.set(c.x-1, c.y,carNum);
-				grid.set(c.x+c.length-1, c.y,-1);
-				c.x-=1;
-				break;
-			case DOWN:
-				grid.set(c.x,c.y,-1);
-				grid.set(c.x,c.y+c.length,carNum);
-				c.y+=1;
-				break;
-			case RIGHT:
-				grid.set(c.x, c.y,-1);
-				grid.set(c.x+c.length,c.y,carNum);
-				c.x+=1;
-				break;
-			default:
-				System.out.println("Error encountered");
-				break;
-		}
-	}
+
 
     /**
      * Gets all possible moves of car at index i on board b in that current
@@ -257,21 +252,16 @@ public class Board {
 			} else {
 				d = Direction.UP;
 			}
-
 			// Creates all possible board positions moving to the starting direction
 			Board currentState = this.copy();
-			while(currentState.canMove(i,d)) {
-				currentState.move(i, d);
+			while(currentState.slide(i,d)) {
 				neighbors.add(currentState.copy());
 			}
-			// Moves back to the original position
 			d = d.reverse();
-
+			// Moves back to the original position
 			currentState = this.copy();
-
 			// Repeats in the reverse of the starting direction
-			while(currentState.canMove(i,d)) {
-				currentState.move(i, d);
+			while(currentState.slide(i,d)) {
 				neighbors.add(currentState.copy());
 			}
 		}
@@ -287,7 +277,7 @@ public class Board {
 			for (int x = 0; x< this.w-1;x++){
 				Car car1 = new Car(x,y,2,true);
 				Car car2 = new Car(x,y,2,false);
-				if(canPlace(car1) || canPlace(car2)){
+				if(canAddCar(car1) || canAddCar(car2)){
 					return true;
 				}
 			}
