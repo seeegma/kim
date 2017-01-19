@@ -78,7 +78,7 @@ public final class BoardIO {
 	 */
 	public static void write(String filename, Board b) {
 		try {
-			PrintWriter pw = new PrintWriter(filename + ".txt", "UTF-8");
+			PrintWriter pw = new PrintWriter(filename, "UTF-8");
 
             // First line is the board dimensions: width height
             pw.print(b.getWidth());
@@ -125,10 +125,4 @@ public final class BoardIO {
         }
     }
 
-    /**
-	 * For testing purposes.
-	 */
-	public static void main(String[] args) {
-		BoardIO.read("test");
-	}
 }
