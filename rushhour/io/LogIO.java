@@ -1,7 +1,8 @@
 package rushhour.io;
 
-import rushhour.analysis.AnalyzeTest;
+import rushhour.analysis.*;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -38,12 +39,15 @@ public class LogIO {
      * @param filePath the file containing all solve logs to be parsed
      * @return an arraylist of solve logs for each solve_id
      */
-    public static ArrayList<String[][]> parseAllLogFiles(String filePath) {
+    public static ArrayList<Log> parseAllLogFiles(String filePath) {
         Path path = Paths.get(filePath);
         String currentId = "";
+        String currentPuzzleId="";
+        String currentStatus="";
         String[] currentLine;
         ArrayList<String[]> currentLog = new ArrayList<>();
-        ArrayList<String[][]> logArrList = new ArrayList<>();
+
+        ArrayList<Log> logArrList = new ArrayList<>();
         String[] logLine;
 
         try (Scanner scanner = new Scanner(path, StandardCharsets.UTF_8.name())) {
@@ -55,10 +59,16 @@ public class LogIO {
                     continue;
                 if (currentId.equals("")) {
                     currentId = currentLine[0];
+                    currentPuzzleId = currentLine[4];
+                    currentStatus = currentLine[5];
                 }
                 if (!currentLine[0].equals(currentId) && !currentLog.isEmpty()) {
-                    logArrList.add(currentLog.toArray(new String[currentLog.size()][]));
+                    logArrList.add(new Log(currentId,currentPuzzleId,currentStatus,
+                            currentLog.toArray(new String[currentLog.size()][])));
+
                     currentId = currentLine[0];
+                    currentPuzzleId = currentLine[4];
+                    currentStatus = currentLine[5];
                     currentLog = new ArrayList<>();
                 }
                 logLine = currentLine[3].split(" ");
@@ -75,11 +85,48 @@ public class LogIO {
         return logArrList;
     }
 
+    public static void analyzeWriteLogs(ArrayList<Log> logs) {
+        TimeAnalyzer time = new TimeAnalyzer();
+        UndoAnalyzer undo = new UndoAnalyzer();
+        ResetAnalyzer reset = new ResetAnalyzer();
+        MoveAnalyzer move = new MoveAnalyzer();
+        MoveTimeAnalyzer movetime = new MoveTimeAnalyzer();
+
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter("out.csv");
+
+            writer.append("solve_id,puzzle_id,status,time,undo,reset,move,movetime\n");
+
+            for (Log log : logs) {
+                writer.append(log.solve_id+",");
+                writer.append(log.puzzle_id+",");
+                writer.append(log.status+",");
+
+                writer.append(time.analyze(log.logArr)+",");
+                writer.append(undo.analyze(log.logArr)+",");
+                writer.append(reset.analyze(log.logArr)+",");
+                writer.append(move.analyze(log.logArr)+",");
+                writer.append(movetime.analyze(log.logArr)+"\n");
+            }
+
+        } catch (IOException e) {
+            System.out.println("Couldn't write to out.csv");
+        } finally {
+            try {
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                System.out.println("Error closing the file writer");
+            }
+        }
+    }
+
     public static void main(String[] args) {
         String path = "analyze.csv";
-        List<String[][]> logs = parseAllLogFiles(path);
+        ArrayList<Log> logs = parseAllLogFiles(path);
         AnalyzeTest tester = new AnalyzeTest();
-        System.out.println(logs.get(0).length);
-        tester.testLog(logs.get(0));
+        tester.testLog(logs.get(0).logArr);
+        analyzeWriteLogs(logs);
     }
 }
