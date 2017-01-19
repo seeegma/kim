@@ -47,10 +47,10 @@ public class BoardGraph {
 				}
 
 			}
-			vertexList.get(current.board.hash()).neighbors = neighborList;
+			current.neighbors = neighborList;
 		}
 		this.vertices = vertexList;
-		// propogateDepthsAndGraphs
+		// propogate Depth values And Graph pointers
 		int numberOfVisitedStates = 0;
 		int maxDepth = 0;
 		int solvedStates=0;
@@ -86,6 +86,15 @@ public class BoardGraph {
 
 	}
 
+
+	public Vertex getVertex(Board b) {
+		Vertex v = vertices.get(b.hash());
+		if (v==null) {
+			System.out.println("vertex not found");
+		}
+		return v;
+	}
+
 	/**
 	 * Returns one of the Boards that is the farthest distance from any
 	 * solution.
@@ -97,12 +106,10 @@ public class BoardGraph {
 				return vert.board;
 			}
 		}
-		// should never hit this
-		return null;
 	}
 
 	public int getDepth(Board b) {
-		return vertices.get(b.hash()).depth;
+		return getVertex(b).depth;
 	}
 
 	/**
@@ -111,14 +118,6 @@ public class BoardGraph {
 	 */
 	public int size() {
 		return vertices.size();
-	}
-
-	public Vertex getVertex(Board b) {
-		Vertex v = vertices.get(b.hash());
-		if (v==null) {
-			System.out.println("vertex not found");
-		}
-		return v;
 	}
 
 	public ArrayList<Vertex> solve(Vertex v) {
