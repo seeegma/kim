@@ -3,6 +3,7 @@ package rushhour.generation;
 import rushhour.core.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Uses RandomBoardGen and BoardGraph to generate a relatively hard board.
@@ -65,36 +66,6 @@ public class RandomGraphGen {
     }
 
     /**
-     * Sets the originalBoard as a randomly generated solveable board that
-     * requires at least minMoves to solve.
-     */
-    private void setSolvedBoard(int minMoves) {
-        RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
-        do {
-            while (!r.generateBoard()) {
-                // pass
-            }
-        } while (Solver.solveBoard(r.getBoard()) == null ||
-            Solver.solveBoard(r.getBoard()).size() - 1 <= minMoves);
-        this.originalBoard = r.getBoard();
-    }
-    
-    /**
-     * Sets the originalBoard as a randomly generated solveable board that
-     * requires at most maxMoves to solve.
-     */
-    private void setSolvedBoardMax(int maxMoves) {
-        RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
-        do {
-            while (!r.generateBoard()) {
-                // pass
-            }
-        } while (Solver.solveBoard(r.getBoard()) == null ||
-            Solver.solveBoard(r.getBoard()).size() - 1 >= maxMoves);
-        this.originalBoard = r.getBoard();
-    }
-
-    /**
      * Generates an unsolved configuration of Rush Hour that requires at least
      * minMoves to solve. We first use setSolvedBoard to get a board with at
      * least minMoves, and then build a graph of all possible moves and find a
@@ -107,6 +78,41 @@ public class RandomGraphGen {
         this.board = this.graph.getFarthest();
         this.depth = this.graph.depth;
     }
+
+    /**
+     * Sets the originalBoard as a randomly generated solveable board that
+     * requires at least minMoves to solve.
+     */
+    /* OLD
+    private void setSolvedBoard(int minMoves) {
+        RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
+        do {
+            while (!r.generateBoard()) {
+                // pass
+            }
+        } while (Solver.solveBoard(r.getBoard()) == null ||
+            Solver.solveBoard(r.getBoard()).size() - 1 <= minMoves);
+        this.originalBoard = r.getBoard();
+    }*/
+
+    private void setSolvedBoard(){
+        this.originalBoard = this.randomSolvedBoard();
+    }
+
+    private Board randomSolvedBoard(int numCars) {
+        Board board = new Board(6, 6);
+        // Adds the VIP
+        board.addCar(new Car(4, 2, 2, True));
+
+        for (int i = 0; i < numCars; i++) {
+            board.addCar(this.findAcceptableCar(board));
+        }
+    }
+
+    private Car findAcceptableCar(Board board) {
+        
+    }
+    
 
     /**
      * For testing purposes.
