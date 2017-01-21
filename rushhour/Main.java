@@ -13,11 +13,11 @@ public class Main {
 			String operation = args[0];
 			String filename = args[1];
 			if(operation.equals("solve")) {
+				Board b = BoardIO.read(filename);
+				BoardGraph g = new BoardGraph();
 				// TODO: eventually make a package rushhour.solving with
 				// dedicated solving algorithms (perhaps iterative deepening)
 				// that don't require building the entire graph
-				Board b = BoardIO.read(filename);
-				BoardGraph g = new BoardGraph();
 				g.fillEquivalenceClass(b);
 				List<Move> moves = g.movesToNearestSolution(b);
 				for(Move m : moves) {

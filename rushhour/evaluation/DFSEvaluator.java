@@ -24,7 +24,7 @@ public class DFSEvaluator implements Evaluator {
      * @return the score
      */
 	public double eval(Board b, BoardGraph graph) {
-		int numTrials = 1;
+		int numTrials = 1000;
 		double count = 0;
 		for(int trial = 0;trial<numTrials;trial++) {
 			LinkedList<BoardGraph.Vertex> stack = new LinkedList<BoardGraph.Vertex>();
