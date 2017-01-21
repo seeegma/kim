@@ -5,19 +5,19 @@ public class AnalyzeTest {
 
     /**
      * Testing class for log arrays
-     * @param logArr a parsed log
+     * @param log a parsed log
      */
-    public void testLog(String[][] logArr) {
+    public void testLog(Log log) {
         TimeAnalyzer time = new TimeAnalyzer();
         UndoAnalyzer undo = new UndoAnalyzer();
         ResetAnalyzer reset = new ResetAnalyzer();
         MoveAnalyzer move = new MoveAnalyzer();
         MoveTimeAnalyzer movetime = new MoveTimeAnalyzer();
-        System.out.println(time.analyze(logArr));
-        System.out.println(undo.analyze(logArr));
-        System.out.println(reset.analyze(logArr));
-        System.out.println(move.analyze(logArr));
-        System.out.println(movetime.analyze(logArr));
+        System.out.println(time.analyze(log));
+        System.out.println(undo.analyze(log));
+        System.out.println(reset.analyze(log));
+        System.out.println(move.analyze(log));
+        System.out.println(movetime.analyze(log));
     }
 
     // Example running function
@@ -34,15 +34,16 @@ public class AnalyzeTest {
         for (int i=0; i<lines.length; i++) {
             logArr[i] = lines[i].split(" ");
         }
+        Log parsedLog = new Log("test","test","test",logArr);
         TimeAnalyzer time = new TimeAnalyzer();
         UndoAnalyzer undo = new UndoAnalyzer();
         ResetAnalyzer reset = new ResetAnalyzer();
         MoveAnalyzer move = new MoveAnalyzer();
         MoveTimeAnalyzer movetime = new MoveTimeAnalyzer();
-        System.out.println(time.analyze(logArr));
-        System.out.println(undo.analyze(logArr));
-        System.out.println(reset.analyze(logArr));
-        System.out.println(move.analyze(logArr));
-        System.out.println(movetime.analyze(logArr));
+        System.out.println(time.analyze(parsedLog));
+        System.out.println(undo.analyze(parsedLog));
+        System.out.println(reset.analyze(parsedLog));
+        System.out.println(move.analyze(parsedLog));
+        System.out.println(movetime.analyze(parsedLog));
     }
 }

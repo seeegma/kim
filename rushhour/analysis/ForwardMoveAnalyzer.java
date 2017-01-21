@@ -10,7 +10,7 @@ public class ForwardMoveAnalyzer implements Analyzer {
      * @return the number of moves in the log
      */
     @Override
-    public double analyze(String[][] log) {
-        Board =
+    public double analyze(Log log) {
+        return 0;
     }
 }

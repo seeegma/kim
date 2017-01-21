@@ -8,11 +8,11 @@ public class ResetAnalyzer implements Analyzer {
      * @return the number of resets in the log
      */
     @Override
-    public double analyze(String[][] log) {
+    public double analyze(Log log) {
         int resets = 0;
 
-        for (String[] vars : log) {
-            if (vars.length > 1 && vars[1].equals("R")) {
+        for (LogMove mv : log.moveList) {
+            if (mv.type == LogMoveType.RESET) {
                 resets++;
             }
         }

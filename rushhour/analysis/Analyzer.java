@@ -4,7 +4,7 @@ public interface Analyzer {
     /**
      * not scaled
      */
-    double analyze(String[][] log);
+    double analyze(Log log);
 
     /**
      * scaled

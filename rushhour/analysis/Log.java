@@ -1,18 +1,18 @@
 package rushhour.analysis;
-import java.util.List;
+import java.util.ArrayList;
 import rushhour.core.Move;
 
 public class Log {
     public String solve_id;
     public String puzzle_id;
     public String status;
-    public LogMove[] logArr;
+    public ArrayList<LogMove> moveList;
 
     public Log(String solve_id, String puzzle_id, String status, String[][] logArr) {
         this.solve_id = solve_id;
         this.puzzle_id = puzzle_id;
         this.status = status;
-        List<LogMove> log = new List<LogMove>();
+        ArrayList<LogMove> log = new ArrayList<LogMove>();
         for (String[] s : logArr) {
             LogMove lm = new LogMove();
             lm.time = Long.parseLong(s[0]);
@@ -28,6 +28,6 @@ public class Log {
             }
             log.add(lm);
         }
-        this.logArr = log.toArray(new LogMove[log.size()]);
+        this.moveList = log;
     }
 }

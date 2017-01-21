@@ -1,7 +1,7 @@
 package rushhour.io;
 
 import rushhour.core.*;
-
+import rushhour.analysis.*;
 import java.util.Scanner;
 import java.io.*;
 import java.util.ArrayList;

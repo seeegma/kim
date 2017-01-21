@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class LogIO {
-    
+
     /**
      * Converter method
      * @param filePath the file path of the log
@@ -103,11 +103,11 @@ public class LogIO {
                 writer.append(log.puzzle_id+",");
                 writer.append(log.status+",");
 
-                writer.append(time.analyze(log.logArr)+",");
-                writer.append(undo.analyze(log.logArr)+",");
-                writer.append(reset.analyze(log.logArr)+",");
-                writer.append(move.analyze(log.logArr)+",");
-                writer.append(movetime.analyze(log.logArr)+"\n");
+                writer.append(time.analyze(log)+",");
+                writer.append(undo.analyze(log)+",");
+                writer.append(reset.analyze(log)+",");
+                writer.append(move.analyze(log)+",");
+                writer.append(movetime.analyze(log)+"\n");
             }
 
         } catch (IOException e) {
@@ -126,7 +126,7 @@ public class LogIO {
         String path = "analyze.csv";
         ArrayList<Log> logs = parseAllLogFiles(path);
         AnalyzeTest tester = new AnalyzeTest();
-        tester.testLog(logs.get(0).logArr);
+        tester.testLog(logs.get(0));
         analyzeWriteLogs(logs);
     }
 }

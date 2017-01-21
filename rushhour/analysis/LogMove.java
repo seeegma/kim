@@ -1,5 +1,5 @@
-package rushhour.core;
-
+package rushhour.analysis;
+import rushhour.core.Move;
 /*
 * Class that represents a move on the board.
 */
@@ -9,6 +9,9 @@ public class LogMove {
     public LogMoveType type;
 
     public Move move;
+
+    public LogMove(){  
+    }
 
     public LogMove(long time, LogMoveType type, Move move) {
 	      this.time = time;

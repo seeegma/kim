@@ -8,11 +8,11 @@ public class UndoAnalyzer implements Analyzer {
      * @return the number of undos in a log
      */
     @Override
-    public double analyze(String[][] log) {
+    public double analyze(Log log) {
         int undos = 0;
 
-        for (String[] vars : log) {
-            if (vars.length > 1 && vars[1].equals("U")) {
+        for (LogMove mv : log.moveList) {
+            if (mv.type == LogMoveType.UNDO) {
                 undos++;
             }
         }
