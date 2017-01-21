@@ -1,9 +1,11 @@
 package rushhour.evaluation;
 
-import rushhour.core.Board;
+import rushhour.core.*;
 
 public interface Evaluator {
 
-    public double eval(Board b);
+	public String description();
+
+    public double eval(Board b, BoardGraph g);
 
 }

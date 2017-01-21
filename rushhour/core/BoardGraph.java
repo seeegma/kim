@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 public class BoardGraph {
 
-	static class Vertex {
+	public static class Vertex {
 		public Board board;
 		public HashMap<Move,Vertex> neighbors;
 		public int depth;
@@ -31,12 +31,22 @@ public class BoardGraph {
 	// Linked list of solution vertices.
 	LinkedList<Vertex> solutions;
 
-	public BoardGraph(Board startingBoard) {
-		Vertex startingVertex = new Vertex(startingBoard);
-		LinkedList<Vertex> queue = new LinkedList<Vertex>();
+	public BoardGraph() {
 		this.vertices = new HashMap<Long,Vertex>();
-		queue.offer(startingVertex);
+		this.numberOfSolvedStates = 0;
+		this.solutions = null;
+	}
+
+	public void fillEquivalenceClass(Board startingBoard) {
+		Vertex startingVertex;
+		if(this.getVertex(startingBoard) != null) {
+			startingVertex = this.getVertex(startingBoard);
+		} else {
+			startingVertex = new Vertex(startingBoard);
+		}
 		this.vertices.put(startingBoard.hash(), startingVertex);
+		LinkedList<Vertex> queue = new LinkedList<Vertex>();
+		queue.offer(startingVertex);
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			current.neighbors = new HashMap<Move,Vertex>();
@@ -97,11 +107,11 @@ public class BoardGraph {
 	}
 
 	public Vertex getVertex(Board b) {
-		Vertex v = vertices.get(b.hash());
-		if (v==null) {
-			System.out.println("vertex not found");
-		}
-		return v;
+		return this.vertices.get(b.hash());
+	}
+
+	public HashMap<Long,Vertex> getVertices() {
+		return this.vertices;
 	}
 
 	/**
@@ -130,7 +140,7 @@ public class BoardGraph {
 		return vertices.size();
 	}
 
-	public List<Move> pathToNearestSolution(Board b) {
+	public List<Move> movesToNearestSolution(Board b) {
 		Vertex v = this.getVertex(b);
 		List<Move> moves = new ArrayList<Move>();
 		Vertex current = v;
@@ -146,6 +156,24 @@ public class BoardGraph {
 			}
 		}
 		return moves;
+	}
+
+	public List<Vertex> pathToNearestSolution(Board b) {
+		Vertex v = this.getVertex(b);
+		List<Vertex> path = new ArrayList<Vertex>();
+		Vertex current = v;
+		while (current.depth != 0) {
+			Set<Move> neighborMoves = current.neighbors.keySet();
+			for (Move move : neighborMoves) {
+				Vertex neighbor = current.neighbors.get(move);
+				if (neighbor.depth == current.depth - 1) {
+					path.add(neighbor);
+					current = neighbor;
+					break;
+				}
+			}
+		}
+		return path;
 	}
 
 }

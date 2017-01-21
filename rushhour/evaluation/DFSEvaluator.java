@@ -4,7 +4,9 @@ import rushhour.core.*;
 import rushhour.io.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -21,23 +23,22 @@ public class DFSEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-	public double eval(Board b) {
+	public double eval(Board b, BoardGraph graph) {
 		int numTrials = 1;
 		double count = 0;
-		BoardGraph graph = new BoardGraph(b);
 		for(int trial = 0;trial<numTrials;trial++) {
-			LinkedList<Vertex> stack = new LinkedList<Vertex>();
-			HashSet<Vertex> visited = new HashSet<Vertex>();
+			LinkedList<BoardGraph.Vertex> stack = new LinkedList<BoardGraph.Vertex>();
+			HashSet<BoardGraph.Vertex> visited = new HashSet<BoardGraph.Vertex>();
 			stack.push(graph.getVertex(b));
 			while(!stack.isEmpty()) {
-				Vertex current = stack.pop();
+				BoardGraph.Vertex current = stack.pop();
 				if (current.depth == 0) {
 					break;
 				}
 				count++;
-				ArrayList<Vertex> neighbors = new ArrayList<Vertex>(current.neighbors);
+				List<BoardGraph.Vertex> neighbors = new ArrayList<BoardGraph.Vertex>(current.neighbors.values());
 				Collections.shuffle(neighbors);
-				for (Vertex neighbor : neighbors) {
+				for (BoardGraph.Vertex neighbor : neighbors) {
 					if (!visited.contains(neighbor)) {
 						stack.push(neighbor);
 					}
@@ -46,13 +47,7 @@ public class DFSEvaluator implements Evaluator {
 		}
 		return count/numTrials;
 	}
-
-	public static void main(String[] args) {
-		Board board = BoardIO.read("Puzzle/16moves98");
-		//Board board = BoardIO.read("simplePuzzle");
-		DFSEvaluator evaler = new DFSEvaluator();
-		for (int i = 0; i<100;i++){
-		System.out.println(evaler.eval(board));
-		}
+	public String description() {
+		return "depth-first search evaluator";
 	}
 }

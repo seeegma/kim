@@ -16,15 +16,15 @@ public class MinSlidesToSolutionEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-	public double eval(Board b) {
-		BoardGraph g = new BoardGraph(b);
-		List<Move> path = g.pathToNearestSolution(b);
+	public double eval(Board b, BoardGraph g) {
+		List<Move> moves = g.movesToNearestSolution(b);
 		int slides = 0;
-		for(Move m : path) {
+		for(Move m : moves) {
 			slides += Math.abs(m.amount);
 		}
 		return (double)slides;
 	}
-
-	
+	public String description() {
+		return "minimum slides to solution";
+	}
 }

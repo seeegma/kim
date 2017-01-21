@@ -3,12 +3,14 @@ package rushhour.evaluation;
 import rushhour.core.*;
 
 public class AverageBranchingFactorEvaluator implements Evaluator {
-	public double eval(Board b) {
-		BoardGraph graph = new BoardGraph(b);
+	public double eval(Board b, BoardGraph g) {
 		int totalBranchingFactor = 0;
-		for(Vertex v : graph.vertices.values()) {
-			totalBranchingFactor += v.getNeighbors().size();
+		for(BoardGraph.Vertex v : g.getVertices().values()) {
+			totalBranchingFactor += v.neighbors.size();
 		}
-		return (double)totalBranchingFactor/graph.vertices.size();
+		return (double)totalBranchingFactor/g.getVertices().size();
+	}
+	public String description() {
+		return "average branching factor";
 	}
 }

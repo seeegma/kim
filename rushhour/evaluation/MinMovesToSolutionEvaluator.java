@@ -14,8 +14,12 @@ public class MinMovesToSolutionEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-	public double eval(Board b) {
-		return (new BoardGraph(b)).getDepth(b);
+	public double eval(Board b, BoardGraph g) {
+		return g.getDepth(b);
+	}
+
+	public String description() {
+		return "minimum moves to solution";
 	}
 	
 }
