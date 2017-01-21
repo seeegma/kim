@@ -1,4 +1,4 @@
-package rushhour.core;
+package rushhour.analysis;
 
 public enum LogMoveType {
 	NORMAL("N"),
