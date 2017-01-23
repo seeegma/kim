@@ -46,6 +46,6 @@ public class IrrelevancyEvaluator implements Evaluator {
     }
 
 	public String description() {
-		return "number of irrelevant cars";
+		return "Number of irrelevant cars";
 	}
 }
