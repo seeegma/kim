@@ -1,6 +1,7 @@
 package rushhour.analysis;
 
 import rushhour.core.*;
+import rushhour.io.BoardIO;
 
 public class ForwardMoveAnalyzer implements Analyzer {
 
@@ -11,6 +12,20 @@ public class ForwardMoveAnalyzer implements Analyzer {
      */
     @Override
     public double analyze(Log log) {
-        return 0;
+        Board board = read("rushhour/puzzles/"+log.puzzle_id+".txt");
+        BoardGraph bg = new BoardGraph();
+        bg.fillEquivalenceClass(board);
+        int numForwardMoves = 0;
+        int lastDepth = bg.getVertex(board).depth;
+        for(LogMove line : log.moveList) {
+            if(line.type = LogMoveType.NORMAL) {
+                board.move(line.move.index,line.move.amount);
+                if(bg.getVertex(board).depth == lastDepth-1) {
+                    numForwardMoves++;
+                }
+                lastDepth = bg.getVertex(board).depth;
+            }
+        }
+        return numForwardMoves;
     }
 }
