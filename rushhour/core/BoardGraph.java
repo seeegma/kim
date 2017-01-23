@@ -31,10 +31,11 @@ public class BoardGraph {
 	// Linked list of solution vertices.
 	LinkedList<Vertex> solutions;
 
-	public BoardGraph() {
+	public BoardGraph(Board startingBoard) {
 		this.vertices = new HashMap<Long,Vertex>();
 		this.numberOfSolvedStates = 0;
 		this.solutions = null;
+		this.fillEquivalenceClass(startingBoard);
 	}
 
 	public void fillEquivalenceClass(Board startingBoard) {

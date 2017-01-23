@@ -5,17 +5,6 @@ import rushhour.core.Move;
 */
 public class LogMove {
     public long time;
-
     public LogMoveType type;
-
     public Move move;
-
-    public LogMove(){  
-    }
-
-    public LogMove(long time, LogMoveType type, Move move) {
-	      this.time = time;
-	      this.type = type;
-	      this.move = move;
-    }
 }

@@ -7,8 +7,10 @@ public class MoveAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the number of moves in the log
      */
-    @Override
     public double analyze(Log log) {
         return log.moveList.size();
     }
+	public String description() {
+		return "moves";
+	}
 }

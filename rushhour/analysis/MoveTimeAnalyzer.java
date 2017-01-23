@@ -7,10 +7,12 @@ public class MoveTimeAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the average time taken per move
      */
-    @Override
     public double analyze(Log log) {
         double time = new TimeAnalyzer().analyze(log);
         double numMoves = new MoveAnalyzer().analyze(log);
         return time/numMoves;
     }
+	public String description() {
+		return "average move time";
+	}
 }

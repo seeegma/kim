@@ -10,7 +10,6 @@ public class ForwardMoveAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the number of moves in the log
      */
-    @Override
     public double analyze(Log log) {
         Board board = read("rushhour/puzzles/"+log.puzzle_id+".txt");
         BoardGraph bg = new BoardGraph();
@@ -28,4 +27,7 @@ public class ForwardMoveAnalyzer implements Analyzer {
         }
         return numForwardMoves;
     }
+	public String description() {
+		return "forward moves";
+	}
 }
