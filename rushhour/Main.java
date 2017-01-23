@@ -18,7 +18,10 @@ public class Main {
 		if(args.length > 1) {
 			String operation = args[0];
 			String puzzleFile = args[1];
-			if(operation.equals("solve")) {
+			if(operation.equals("print")) {
+				Board b = BoardIO.read(puzzleFile);
+				AsciiGen.printGrid(b.getGrid());
+			} else if(operation.equals("solve")) {
 				Board b = BoardIO.read(puzzleFile);
 				BoardGraph g = new BoardGraph(b);
 				// TODO: eventually make a package rushhour.solving with
