@@ -4,10 +4,8 @@ public interface Analyzer {
     /**
      * not scaled
      */
-    double analyze(Log log);
+    public double analyze(Log log);
 
-    /**
-     * scaled
-     */
-    //public int getScore(Board b);
+	public String description();
+
 }

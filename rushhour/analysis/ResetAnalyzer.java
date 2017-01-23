@@ -7,7 +7,6 @@ public class ResetAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the number of resets in the log
      */
-    @Override
     public double analyze(Log log) {
         int resets = 0;
 
@@ -18,4 +17,7 @@ public class ResetAnalyzer implements Analyzer {
         }
         return resets;
     }
+	public String description() {
+		return "resets";
+	}
 }

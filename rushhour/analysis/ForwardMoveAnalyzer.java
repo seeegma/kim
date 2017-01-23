@@ -9,8 +9,10 @@ public class ForwardMoveAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the number of moves in the log
      */
-    @Override
     public double analyze(Log log) {
         return 0;
     }
+	public String description() {
+		return "forward moves";
+	}
 }

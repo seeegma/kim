@@ -7,7 +7,6 @@ public class UndoAnalyzer implements Analyzer {
      * @param log the log to analyze
      * @return the number of undos in a log
      */
-    @Override
     public double analyze(Log log) {
         int undos = 0;
 
@@ -18,4 +17,7 @@ public class UndoAnalyzer implements Analyzer {
         }
         return undos;
     }
+	public String description() {
+		return "undos";
+	}
 }
