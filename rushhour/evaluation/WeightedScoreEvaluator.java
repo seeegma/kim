@@ -1,4 +1,4 @@
-package rushhour.generation;
+package rushhour.evaluation;
 
 import rushhour.core.*;
 import java.util.Random;
@@ -9,7 +9,7 @@ import java.util.HashMap;
  * Based off of:
  * https://www.researchgate.net/publication/221438347_What_Determines_Difficulty_of_Transport_Puzzles
  */
-public class WeightedScoreEvaluator {
+public class WeightedScoreEvaluator implements Evaluator {
     // TODO: maybe use lambda functions?
     double PJRP_CONSTANT = 10;
 
