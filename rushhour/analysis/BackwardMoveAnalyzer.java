@@ -3,7 +3,7 @@ package rushhour.analysis;
 import rushhour.core.*;
 import rushhour.io.BoardIO;
 
-public class ForwardMoveAnalyzer implements Analyzer {
+public class BackwardMoveAnalyzer implements Analyzer {
 
     /**
      * Analyzes a log based on the number of moves
@@ -13,20 +13,20 @@ public class ForwardMoveAnalyzer implements Analyzer {
     public double analyze(Log log) {
 		Board board = log.board.copy();
         BoardGraph bg = new BoardGraph(board);
-        int numForwardMoves = 0;
+        int numBackwardMoves = 0;
         int lastDepth = bg.getVertex(board).depth;
         for(LogMove line : log.moveList) {
             if(line.type == LogMoveType.NORMAL) {
                 board.move(line.move.index,line.move.amount);
-                if(bg.getVertex(board).depth == lastDepth-1) {
-                    numForwardMoves++;
+                if(bg.getVertex(board).depth != lastDepth-1) {
+                    numBackwardMoves++;
                 }
                 lastDepth = bg.getVertex(board).depth;
             }
         }
-        return numForwardMoves;
+        return numBackwardMoves;
     }
 	public String description() {
-		return "forward moves";
+		return "backward moves";
 	}
 }

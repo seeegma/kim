@@ -66,7 +66,7 @@ public class Main {
 				System.out.println(a.description() + ": " + a.analyze(l));
 				a = new UndoAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new ForwardMoveAnalyzer();
+				a = new BackwardMoveAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
 			}
 		} else {
