@@ -11,16 +11,17 @@ public class ForwardMoveAnalyzer implements Analyzer {
      * @return the number of moves in the log
      */
     public double analyze(Log log) {
-        BoardGraph bg = new BoardGraph(log.board);
+		Board board = log.board.copy();
+        BoardGraph bg = new BoardGraph(board);
         int numForwardMoves = 0;
-        int lastDepth = bg.getVertex(log.board).depth;
+        int lastDepth = bg.getVertex(board).depth;
         for(LogMove line : log.moveList) {
             if(line.type == LogMoveType.NORMAL) {
-                log.board.move(line.move.index,line.move.amount);
-                if(bg.getVertex(log.board).depth == lastDepth-1) {
+                board.move(line.move.index,line.move.amount);
+                if(bg.getVertex(board).depth == lastDepth-1) {
                     numForwardMoves++;
                 }
-                lastDepth = bg.getVertex(log.board).depth;
+                lastDepth = bg.getVertex(board).depth;
             }
         }
         return numForwardMoves;
