@@ -47,6 +47,8 @@ public class Main {
 				System.out.println(e.description() + ": " + e.eval(b, g));
 				e = new DFSEvaluator();
 				System.out.println(e.description() + ": " + e.eval(b, g));
+				e = new WeightedScoreEvaluator();
+				System.out.println(e.description() + ": " + e.eval(b, g));
 			} else if(operation.equals("analyze")) {
 				if(args.length < 3) {
 					usage();
@@ -67,6 +69,8 @@ public class Main {
 				a = new UndoAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
 				a = new BackwardMoveAnalyzer();
+				System.out.println(a.description() + ": " + a.analyze(l));
+				a = new MoveRatioAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
 			}
 		} else {
