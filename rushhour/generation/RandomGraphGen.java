@@ -42,13 +42,14 @@ public class RandomGraphGen {
      * Sets the originalBoard as a randomly generated solveable board.
      */
     private void setSolvedBoard() {
+        /*
         RandomBoardGen r = new RandomBoardGen(this.w, this.h, this.numCars);
         do {
             while (!r.generateBoard()) {
                 // pass
             }
         } while (Solver.solveBoard(r.getBoard()) == null);
-        this.originalBoard = r.getBoard();
+        this.originalBoard = r.getBoard();*/
     }
 
     /**
@@ -60,7 +61,7 @@ public class RandomGraphGen {
     public void generateBoard() {
         this.setSolvedBoard();
         this.graph = new BoardGraph(this.originalBoard);
-        this.originalDepth = this.graph.getDepth(this.originalBoard);
+        this.originalDepth = this.graph.depth;
         this.board = this.graph.getFarthest();
         this.depth = this.graph.depth;
     }
@@ -102,7 +103,7 @@ public class RandomGraphGen {
     private Board randomSolvedBoard(int numCars) {
         Board board = new Board(6, 6);
         // Adds the VIP
-        board.addCar(new Car(4, 2, 2, True));
+        board.addCar(new Car(4, 2, 2, true));
 
         for (int i = 0; i < numCars; i++) {
             board.addCar(this.findAcceptableCar(board));
