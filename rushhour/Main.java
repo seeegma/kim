@@ -45,8 +45,8 @@ public class Main {
 				System.out.println(e.description() + ": " + e.eval(b, g));
 				e = new IrrelevancyEvaluator();
 				System.out.println(e.description() + ": " + e.eval(b, g));
-				e = new DFSEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				//e = new DFSEvaluator();
+				//System.out.println(e.description() + ": " + e.eval(b, g));
 				e = new WeightedScoreEvaluator();
 				System.out.println(e.description() + ": " + e.eval(b, g));
 			} else if(operation.equals("analyze")) {

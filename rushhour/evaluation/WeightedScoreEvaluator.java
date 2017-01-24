@@ -11,15 +11,19 @@ import java.util.HashMap;
  */
 public class WeightedScoreEvaluator implements Evaluator {
     // TODO: maybe use lambda functions?
-    double PJRP_CONSTANT = 10;
-    int TRIALS = 1000;
+    double PJRP_CONSTANT = 50;
+    int TRIALS = 100;
 
     public String description() {
-        return "The number of moves to solve a puzzle based on a probabilistic model.";
+        return "weighted walk length";
     }
 
     public double eval(Board b, BoardGraph g) {
-        return this.weightedWalk(b, g);
+        //int depth = g.getVertex(b).depth;
+        //this.PJRP_CONSTANT = 2500000/(depth * depth * depth);
+
+        //return this.weightedWalk(b, g);
+        return this.multiTrialEval(b, g);
     }
 
     private double multiTrialEval(Board b, BoardGraph g) {
