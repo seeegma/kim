@@ -11,6 +11,7 @@ import java.util.HashMap;
  */
 public class WeightedScoreEvaluator implements Evaluator {
     // TODO: maybe use lambda functions?
+    // Could make more functions/heuristics
     double PJRP_CONSTANT = 50;
     int TRIALS = 100;
 
