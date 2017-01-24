@@ -12,41 +12,71 @@ import java.util.HashMap;
 public class WeightedScoreEvaluator implements Evaluator {
     // TODO: maybe use lambda functions?
     double PJRP_CONSTANT = 10;
+    int TRIALS = 1000;
 
     public String description() {
-        return "TODO: explain gooder.";
+        return "The number of moves to solve a puzzle based on a probabilistic model.";
     }
 
     public double eval(Board b, BoardGraph g) {
-        return 0;
+        return this.weightedWalk(b, g);
+    }
+
+    private double multiTrialEval(Board b, BoardGraph g) {
+        double total = 0;
+        for (int i = 0; i < TRIALS; i++) {
+            total += this.weightedWalk(b, g);
+        }
+        return total/TRIALS;
     }
 
     /**
      * Takes a random walk of the graph based off of a score function returns
      * the number of moves it took to reach a goal.
      */
-    private int weightedWalk(Board b, BoardGraph g) {
+    private double weightedWalk(Board b, BoardGraph g) {
         Random rng = new Random();
-        rng.doubles(0, 1);
-        return 0;
+        BoardGraph.Vertex current = g.getVertex(b);
+        double count = 0;
+        while (current.depth != 0) {
+            Map<BoardGraph.Vertex,Double> probs = this.probsPJRP(current);
+            double total = 0;
+            double threshold = rng.nextDouble();
+            // Checks each state the current vertex can get to
+            for (BoardGraph.Vertex v : probs.keySet()) {
+                total += probs.get(v);
+                if (total > threshold) {
+                    current = v;
+                    count++;
+                    break; // breaks out of the for loop
+                }
+            }
+        }
+        return count;
     }
 
     /**
      * The relatively simplistic scoring system based off of the paper.
      * Credits to Petr Jarusek and Radek Pelánek.
      */
-    private Map<BoardGraph.Vertex,Double> scorePJRP (BoardGraph.Vertex v){
-        Map<BoardGraph.Vertex,Double> scores =
+    private Map<BoardGraph.Vertex,Double> probsPJRP(BoardGraph.Vertex v) {
+        Map<BoardGraph.Vertex,Double> probs =
             new HashMap<BoardGraph.Vertex,Double>();
         double score;
+        double total = 0;
         for (BoardGraph.Vertex u : v.neighbors.values()) {
             score = u.depth;
             // moving closer to a solution
             if (v.depth > u.depth) {
                 score += PJRP_CONSTANT;
             }
-            scores.put(u, score);
+            total += score;
+            probs.put(u, score);
         }
-        return scores;
+        // Lambda expressions require final variables
+        final double finalTotal = total;
+        // should turn all the scores into probabilities
+        probs.replaceAll((k, w) -> w/finalTotal);
+        return probs;
     }
 }
