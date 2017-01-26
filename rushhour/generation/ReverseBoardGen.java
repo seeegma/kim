@@ -12,7 +12,7 @@ public class ReverseBoardGen {
     int VIP_Y = 2;
     int VIP_LEN = 2;
     Board board;
-    // a linked list of all free coordinate slots
+    // a linked list of all free coordinate slots. used with Random
     LinkedList<Coord> coordList;
     // pseudo-grid for easy Coord object lookup. Format: grid[x][y].
     Coord[][] grid;
@@ -47,6 +47,13 @@ public class ReverseBoardGen {
         }
     }
 
+    public Board getBoard() {
+        return this.board;
+    }
+
+    /**
+     * Removes a coordinate from the coordList when it is occupied.
+     */
     private boolean removeCoord(Coord c) {
         if (this.coordList.remove(c)) {
             this.freeSpots -= 1;
@@ -56,18 +63,19 @@ public class ReverseBoardGen {
         return false;
     }
 
-    public void genBoard() {
-        this.board = this.randomSolvedBoard();
+    public void genBoard(int minMoves) {
+        this.board = new Board(WIDTH, HEIGHT);
+        this.randomSolvedBoard(minMoves);
     }
 
-    private Board randomSolvedBoard() {
+    private void randomSolvedBoard() {
         this.randomSolvedBoard(this.RNG.nextInt(WIDTH * HEIGHT / 2));
     }
 
     /**
      * Generates a board with at most maxCars Cars.
      */
-    private Board randomSolvedBoard(int maxCars) {
+    private void randomSolvedBoard(int maxCars) {
         // Adds the VIP and removes from the coordList since those spots are
         // occupied
         this.board.addCar(new Car(VIP_X, VIP_Y, VIP_LEN, true));

@@ -9,13 +9,13 @@ public class DifficultyAdjust {
 	Board board;
 	
 	public BoardGraph getHarderBoard(BoardGraph originalBoard){
-		int minMoves = originalBoard.depth;
+		int minMoves = 30;
 		rG.generateBoard(minMoves);
 		return rG.graph;
 	}
 	
 	public BoardGraph getEasierBoard(BoardGraph originalBoard){
-		int maxMoves = originalBoard.depth;
+		int maxMoves = 10;
 		rG.generateBoard(maxMoves);
 		return rG.graph;
 	}
