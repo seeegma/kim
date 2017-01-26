@@ -32,7 +32,7 @@ public class ReverseBoardGen {
 
     public ReverseBoardGen() {
         this.board = new Board(WIDTH, HEIGHT);
-        this.coordList = new LinkedList();
+        this.coordList = new LinkedList<>();
         this.grid = new Coord[WIDTH][HEIGHT];
         this.freeSpots = WIDTH * HEIGHT;
         this.numCars = 0;
@@ -111,7 +111,7 @@ public class ReverseBoardGen {
 
             // determines if we can at least have a Car of len 2 that is on this
             // Coord. Also finds the orientation.
-            ArrayList<Coord> directions = new ArrayList();
+            ArrayList<Coord> directions = new ArrayList<>();
             if (x+1 < WIDTH && coordList.contains(grid[x+1][y])) {
                 directions.add(grid[x+1][y]);
             }

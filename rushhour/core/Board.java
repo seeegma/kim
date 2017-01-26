@@ -26,7 +26,6 @@ public class Board {
 	// on the board. We will use -1 to represent empty spaces.
 	private Grid grid;
 	private final int EMPTY_SPOT = -1;
-	//private HashMap<Character,Car> carList;
 	//The first car in carList should always be the VIP car, and
 	//many methods rely on the VIP having index 0.
 	private ArrayList<Car> carList;
@@ -91,6 +90,13 @@ public class Board {
 
 	public Long hash() {
 		return this.grid.hash();
+	}
+
+	public BoardGraph getGraph() {
+		if(this.graph == null) {
+			this.graph = new BoardGraph(this);
+		}
+		return this.graph;
 	}
 
 	/**

@@ -12,7 +12,7 @@ public class BackwardMoveAnalyzer implements Analyzer {
      */
     public double analyze(Log log) {
 		Board board = log.board.copy();
-        BoardGraph bg = new BoardGraph(board);
+        BoardGraph bg = log.board.getGraph();
         int numBackwardMoves = 0;
         int lastDepth = bg.getVertex(board).depth;
         for(LogMove line : log.moveList) {

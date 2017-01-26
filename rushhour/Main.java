@@ -13,7 +13,8 @@ public class Main {
 		"Supported operations:\n" +
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate <puzzle_file>\n" +
-		"\tanalyze <puzzle_file> <log_file>";
+		"\tanalyze <puzzle_file> <log_file>" +
+		"\tprint <puzzle_file>";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -32,6 +33,9 @@ public class Main {
 					System.out.println(m);
 				}
 			} else if(operation.equals("evaluate")) {
+				if(args.length < 2) {
+					usage();
+				}
 				Board b = BoardIO.read(puzzleFile);
 				BoardGraph g = new BoardGraph(b);
 				Evaluator e;
@@ -71,6 +75,8 @@ public class Main {
 				a = new BackwardMoveAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
 				a = new MoveRatioAnalyzer();
+				System.out.println(a.description() + ": " + a.analyze(l));
+				a = new UniqueStateAnalyzer();
 				System.out.println(a.description() + ": " + a.analyze(l));
 			}
 		} else {

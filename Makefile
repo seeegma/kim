@@ -18,5 +18,10 @@ analysis:
 generation:
 	javac rushhour/generation/*.java
 
-testing:
-	javac rushhour/Testing.java
+clean:
+	rm rushhour/Main.class
+	rm rushhour/core/*.class
+	rm rushhour/io/*.class
+	rm rushhour/evaluation/*.class
+	rm rushhour/analysis/*.class
+	rm rushhour/generation/*.class
