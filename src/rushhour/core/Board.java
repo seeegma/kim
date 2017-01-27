@@ -137,6 +137,7 @@ public class Board {
 		for (int i = 0; i < newCar.length; i++) {
 			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
 		}
+		this.graph = null;
 		return true;
 	}
 
@@ -304,6 +305,7 @@ public class Board {
 	 */
 	public void clear(){
 		this.grid.clear();
+		this.graph = null;
 	}
 
 	public boolean equals(Board other) {
