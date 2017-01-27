@@ -1,7 +1,5 @@
 package rushhour.core;
 
-import rushhour.io.AsciiGen;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;

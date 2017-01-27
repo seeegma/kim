@@ -1,27 +1,27 @@
 all: core io evaluation analysis generation main
 
-main:
-	javac rushhour/Main.java
+main: core
+	javac -d . src/rushhour/Main.java
 
 core:
-	javac rushhour/core/*.java
+	javac -d . src/rushhour/core/*.java
 
-io:
-	javac rushhour/io/*.java
+io: core analysis
+	javac -d . src/rushhour/io/*.java
 
-evaluation:
-	javac rushhour/evaluation/*.java
+evaluation: core
+	javac -d . src/rushhour/evaluation/*.java
 
-analysis:
-	javac rushhour/analysis/*.java
+analysis: core
+	javac -d . src/rushhour/analysis/*.java
 
-generation:
-	javac rushhour/generation/*.java
+generation: core
+	javac -d . src/rushhour/generation/*.java
 
 clean:
-	rm rushhour/Main.class
-	rm rushhour/core/*.class
-	rm rushhour/io/*.class
-	rm rushhour/evaluation/*.class
-	rm rushhour/analysis/*.class
-	rm rushhour/generation/*.class
+	rm -f rushhour/Main.class
+	rm -f rushhour/core/*.class
+	rm -f rushhour/io/*.class
+	rm -f rushhour/evaluation/*.class
+	rm -f rushhour/analysis/*.class
+	rm -f rushhour/generation/*.class

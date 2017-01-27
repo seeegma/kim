@@ -1,7 +1,6 @@
 package rushhour.analysis;
 
 import rushhour.core.*;
-import rushhour.io.BoardIO;
 
 public class BackwardMoveAnalyzer implements Analyzer {
 
