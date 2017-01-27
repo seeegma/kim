@@ -5,9 +5,9 @@ import rushhour.core.*;
 import java.util.List;
 
 public class AverageBranchingFactorOnPathToSolutionEvaluator implements Evaluator {
-	public double eval(Board b, BoardGraph g) {
+	public double eval(Board b) {
 		int totalBranchingFactor = 0;
-		List<BoardGraph.Vertex> path = g.pathToNearestSolution(b);
+		List<BoardGraph.Vertex> path = b.getGraph().pathToNearestSolution(b);
 		for(BoardGraph.Vertex v : path) {
 			totalBranchingFactor += v.neighbors.size();
 		}

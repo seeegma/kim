@@ -44,8 +44,8 @@ public final class AsciiGen {
 	public static String[] getPrintableGrid(Grid inputG){
 		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
 		//visual delimiters for top and bottom
-		fin[0] = " vvvvvvvvvvvvv";
-		fin[7] = " vvvvvvvvvvvvv";
+		fin[0] = " .=============.";
+		fin[7] = " `=============`";
 		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
@@ -53,7 +53,7 @@ public final class AsciiGen {
 		}
 		
 		//marking the exit path
-		fin[exitL] = fin[exitL] + "==>";
+		fin[exitL] = fin[exitL];
 		
 		return fin;
 	}
@@ -65,7 +65,7 @@ public final class AsciiGen {
 	 */
 	
 	public static String extractLine(int[] line){
-		String t = "| ";
+		String t = "|| ";
 		for(int i=0;i<len;i++){
 			if (line[i]==-1) {
 				t = t + "  ";
@@ -74,8 +74,7 @@ public final class AsciiGen {
 				t = t + symbolList().get(line[i]) + " ";
 			}
 		}
-		t = t + "|";
-		
+		t = t + "||";
 		return t;
 	}
 	

@@ -37,22 +37,21 @@ public class Main {
 					usage();
 				}
 				Board b = BoardIO.read(puzzleFile);
-				BoardGraph g = new BoardGraph(b);
 				Evaluator e;
 				e = new MinMovesToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new MinSlidesToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new AverageBranchingFactorEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new AverageBranchingFactorOnPathToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new IrrelevancyEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new DFSEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 				e = new WeightedScoreEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b, g));
+				System.out.println(e.description() + ": " + e.eval(b));
 			} else if(operation.equals("analyze")) {
 				if(args.length < 3) {
 					usage();

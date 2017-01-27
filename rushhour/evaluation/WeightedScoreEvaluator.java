@@ -19,18 +19,14 @@ public class WeightedScoreEvaluator implements Evaluator {
         return "weighted walk length";
     }
 
-    public double eval(Board b, BoardGraph g) {
-        //int depth = g.getVertex(b).depth;
-        //this.PJRP_CONSTANT = 2500000/(depth * depth * depth);
-
-        //return this.weightedWalk(b, g);
-        return this.multiTrialEval(b, g);
+    public double eval(Board b) {
+        return this.multiTrialEval(b);
     }
 
-    private double multiTrialEval(Board b, BoardGraph g) {
+    private double multiTrialEval(Board b) {
         double total = 0;
         for (int i = 0; i < TRIALS; i++) {
-            total += this.weightedWalk(b, g);
+            total += this.weightedWalk(b);
         }
         return total/TRIALS;
     }
@@ -39,9 +35,9 @@ public class WeightedScoreEvaluator implements Evaluator {
      * Takes a random walk of the graph based off of a score function returns
      * the number of moves it took to reach a goal.
      */
-    private double weightedWalk(Board b, BoardGraph g) {
+    private double weightedWalk(Board b) {
         Random rng = new Random();
-        BoardGraph.Vertex current = g.getVertex(b);
+        BoardGraph.Vertex current = b.getGraph().getVertex(b);
         double count = 0;
         while (current.depth != 0) {
             Map<BoardGraph.Vertex,Double> probs = this.probsPJRP(current);

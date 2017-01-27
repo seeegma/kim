@@ -23,13 +23,13 @@ public class IrrelevancyEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-    public double eval(Board b, BoardGraph g) {
+    public double eval(Board b) {
         boolean[] wasUsed = new boolean[b.getCars().size()];
         for (int i = 0; i < wasUsed.length; i++) {
            wasUsed[i] = false;
         }
 
-        List<Move> moves = g.movesToNearestSolution(b);
+        List<Move> moves = b.getGraph().movesToNearestSolution(b);
 
         // goes through and checks which ones were used.
         for (int j = 0; j < moves.size(); j++) {

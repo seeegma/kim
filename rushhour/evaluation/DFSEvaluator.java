@@ -23,7 +23,8 @@ public class DFSEvaluator implements Evaluator {
      * @param b the board to evaluate
      * @return the score
      */
-	public double eval(Board b, BoardGraph graph) {
+	public double eval(Board b) {
+		BoardGraph graph = b.getGraph();
 		int numTrials = 500;
 		double count = 0;
 		for(int trial = 0;trial<numTrials;trial++) {

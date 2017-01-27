@@ -6,6 +6,6 @@ public interface Evaluator {
 
 	public String description();
 
-    public double eval(Board b, BoardGraph g);
+    public double eval(Board b);
 
 }
