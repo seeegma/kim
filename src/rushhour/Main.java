@@ -6,23 +6,26 @@ import rushhour.evaluation.*;
 import rushhour.analysis.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Main {
 	private static final String usage =
-	   	"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
+		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
 		"\tsolve <puzzle_file>\n" +
-		"\tevaluate <puzzle_file>\n" +
-		"\tanalyze <puzzle_file> <log_file>" +
+		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
+		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>" +
 		"\tprint <puzzle_file>";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
-			String puzzleFile = args[1];
+			String puzzleFile = null;
 			if(operation.equals("print")) {
+				puzzleFile = args[1];
 				Board b = BoardIO.read(puzzleFile);
 				AsciiGen.printGrid(b.getGrid());
 			} else if(operation.equals("solve")) {
+				puzzleFile = args[1];
 				Board b = BoardIO.read(puzzleFile);
 				BoardGraph g = new BoardGraph(b);
 				// TODO: eventually make a package rushhour.solving with
@@ -33,50 +36,108 @@ public class Main {
 					System.out.println(m);
 				}
 			} else if(operation.equals("evaluate")) {
-				if(args.length < 2) {
+				String option = null;
+				boolean asCsv = false, fields = false;
+				if(args.length < 2 || args.length > 3) {
 					usage();
+				} else {
+					if(args.length == 2) {
+						option = args[1];
+						if(option.equals("--fields")) {
+							fields = true;
+						} else {
+							puzzleFile = args[1];
+						}
+					} else if(args.length == 3) {
+						option = args[1];
+						if(option.equals("--csv")) {
+							asCsv = true;
+						} else {
+							usage();
+						}
+						puzzleFile = args[2];
+					}
 				}
-				Board b = BoardIO.read(puzzleFile);
-				Evaluator e;
-				e = new MinMovesToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new MinSlidesToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new AverageBranchingFactorEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new AverageBranchingFactorOnPathToSolutionEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new IrrelevancyEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new DFSEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
-				e = new WeightedScoreEvaluator();
-				System.out.println(e.description() + ": " + e.eval(b));
+				List<Evaluator> evaluators = new ArrayList<>();
+				evaluators.add(new NumberOfCarsEvaluator());
+				evaluators.add(new MinMovesToSolutionEvaluator());
+				evaluators.add(new MinSlidesToSolutionEvaluator());
+				evaluators.add(new AverageBranchingFactorEvaluator());
+				evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
+				evaluators.add(new IrrelevancyEvaluator());
+				evaluators.add(new DFSEvaluator());
+				evaluators.add(new WeightedScoreEvaluator());
+				if(fields) {
+					for(Evaluator e : evaluators) {
+						System.out.print(e.description() + ",");
+					}
+				} else {
+					Board b = BoardIO.read(puzzleFile);
+					if(asCsv) {
+						for(Evaluator e : evaluators) {
+							System.out.print(e.eval(b) + ",");
+						}
+					} else {
+						for(Evaluator e : evaluators) {
+							System.out.println(e.description() + ": " + e.eval(b));
+						}
+					}
+				}
 			} else if(operation.equals("analyze")) {
-				if(args.length < 3) {
+				String option = null;
+				boolean asCsv = false, fields = false;
+				String logFile = null;
+				if(args.length < 2 || args.length > 4) {
 					usage();
+				} else {
+					if(args.length == 2) {
+						option = args[1];
+						if(option.equals("--fields")) {
+							fields = true;
+						} else {
+							usage();
+						}	
+					} else if(args.length == 3) {
+						puzzleFile = args[1];
+						logFile = args[2];
+					} else if(args.length == 4) {
+						option = args[1];
+						if(option.equals("--csv")) {
+							asCsv = true;
+						} else {
+							usage();
+						}
+						puzzleFile = args[2];
+						logFile = args[3];
+					}
 				}
-				Board b = BoardIO.read(puzzleFile);
-				String logFile = args[2];
-				Log l = LogIO.read(logFile);
-				l.board = b;
-				Analyzer a;
-				a = new MoveAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new TimeAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new MoveTimeAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new ResetAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new UndoAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new BackwardMoveAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new MoveRatioAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
-				a = new UniqueStateAnalyzer();
-				System.out.println(a.description() + ": " + a.analyze(l));
+				List<Analyzer> analyzers = new ArrayList<>();
+				analyzers.add(new MoveAnalyzer());
+				analyzers.add(new TimeAnalyzer());
+				analyzers.add(new MoveTimeAnalyzer());
+				analyzers.add(new ResetAnalyzer());
+				analyzers.add(new UndoAnalyzer());
+				analyzers.add(new BackwardMoveAnalyzer());
+				analyzers.add(new MoveRatioAnalyzer());
+				analyzers.add(new UniqueStateAnalyzer());
+				if(fields) {
+					for(Analyzer a : analyzers) {
+						System.out.print(a.description() + ",");
+					}
+				} else {
+					Board b = BoardIO.read(puzzleFile);
+					Log l = LogIO.read(logFile);
+					l.board = b;
+					if(asCsv) {
+						for(Analyzer a : analyzers) {
+							System.out.print(a.analyze(l) + ",");
+						}
+					} else {
+						for(Analyzer a : analyzers) {
+							System.out.println(a.description() + ": " + a.analyze(l));
+						}
+					}
+				}
 			}
 		} else {
 			usage();

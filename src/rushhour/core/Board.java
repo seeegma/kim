@@ -97,6 +97,10 @@ public class Board {
 		return this.graph;
 	}
 
+	public int numCars() {
+		return this.carList.size();
+	}
+
 	/**
 	 * Getter for the list of cars on the board.
 	 * @return an ArrayList<Car> of the cars
