@@ -4,6 +4,7 @@ import rushhour.core.*;
 import rushhour.io.*;
 import rushhour.evaluation.*;
 import rushhour.analysis.*;
+import rushhour.generation.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -12,10 +13,11 @@ public class Main {
 	private static final String usage =
 		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
+		"\tprint <puzzle_file>" +
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>" +
-		"\tprint <puzzle_file>";
+		"\tgenerate <constraint>=<min>,<max>";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -60,6 +62,7 @@ public class Main {
 				}
 				List<Evaluator> evaluators = new ArrayList<>();
 				evaluators.add(new NumberOfCarsEvaluator());
+				evaluators.add(new NumberOfLongCarsEvaluator());
 				evaluators.add(new MinMovesToSolutionEvaluator());
 				evaluators.add(new MinSlidesToSolutionEvaluator());
 				evaluators.add(new AverageBranchingFactorEvaluator());
@@ -138,6 +141,15 @@ public class Main {
 						}
 					}
 				}
+			} else if(operation.equals("generate")) {
+				if(args.length != 2) {
+					usage();
+				}
+				String arg = args[1];
+				int minMoves = Integer.parseInt(arg);
+				ReverseBoardGen generator = new ReverseBoardGen();
+				Board b = generator.genBoard(minMoves);
+				AsciiGen.printGrid(b.getGrid());
 			}
 		} else {
 			usage();

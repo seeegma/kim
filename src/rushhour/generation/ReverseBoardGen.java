@@ -20,11 +20,10 @@ public class ReverseBoardGen {
     int numCars;
     Random RNG = new Random();
 
-    public class Coord {
+    private class Coord {
         int x;
         int y;
-
-        public Coord(int x, int y) {
+        Coord(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -47,10 +46,6 @@ public class ReverseBoardGen {
         }
     }
 
-    public Board getBoard() {
-        return this.board;
-    }
-
     /**
      * Removes a coordinate from the coordList when it is occupied.
      */
@@ -63,9 +58,10 @@ public class ReverseBoardGen {
         return false;
     }
 
-    public void genBoard(int minMoves) {
+    public Board genBoard(int minMoves) {
         this.board = new Board(WIDTH, HEIGHT);
         this.randomSolvedBoard(minMoves);
+		return this.board;
     }
 
     private void randomSolvedBoard() {
@@ -113,16 +109,16 @@ public class ReverseBoardGen {
             // Coord. Also finds the orientation.
             ArrayList<Coord> directions = new ArrayList<>();
             if (x+1 < WIDTH && coordList.contains(grid[x+1][y])) {
-                directions.add(grid[x+1][y]);
+                directions.add(new Coord(1,0));
             }
             if (x-1 >= 0 && coordList.contains(grid[x-1][y])) {
-                directions.add(grid[x-1][y]);
+                directions.add(new Coord(-1,0));
             }
             if (y+1 < HEIGHT && coordList.contains(grid[x][y+1])) {
-                directions.add(grid[x][y+1]);
+                directions.add(new Coord(0,1));
             }
             if (y-1 >= 0 && coordList.contains(grid[x][y-1])) {
-                directions.add(grid[x][y-1]);
+                directions.add(new Coord(0,-1));
             }
 
             if (directions.size() == 0) {
@@ -133,11 +129,12 @@ public class ReverseBoardGen {
             } else {
                 // picks a random orientation for the car
                 int j = this.RNG.nextInt(directions.size());
-                int dx = x - directions.get(j).x;
-                int dy = y - directions.get(j).y;
+                int dx = directions.get(j).x;
+                int dy = directions.get(j).y;
                 Coord d = new Coord(dx, dy);
                 ArrayList<Coord> locations = new ArrayList<Coord>();
                 locations.add(candidate);
+				System.out.println((x+dx) + " " + (y+dy));
                 locations.add(grid[x+dx][y+dy]);
 
                 // Determines len 2 or 3. If it's len 2, we do nothing here.
