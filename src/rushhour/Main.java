@@ -16,7 +16,7 @@ public class Main {
 		"\tprint <puzzle_file>" +
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
-		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>" +
+		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
 		"\tgenerate <constraint>=<min>,<max>";
 	public static void main(String[] args) {
 		if(args.length > 1) {

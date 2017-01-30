@@ -140,9 +140,12 @@ public class ReverseBoardGen {
                 // Determines len 2 or 3. If it's len 2, we do nothing here.
                 if (this.RNG.nextInt(2) == 1) {
                     // len = 3
-                    Coord third = grid[x+2*dx][y+2*dy];
-                    if (coordList.contains(third)) {
-                        locations.add(grid[x+2*dx][y+2*dy]);
+                    if (x+2*dx >= 0 && x+2*dx < WIDTH &&
+                        y+2*dy >= 0 && y+2*dy < HEIGHT) {
+                        Coord third = grid[x+2*dx][y+2*dy];
+                        if (coordList.contains(third)) {
+                            locations.add(grid[x+2*dx][y+2*dy]);
+                        }
                     }
                 }
 
