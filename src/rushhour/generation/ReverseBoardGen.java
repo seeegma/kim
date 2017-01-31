@@ -134,7 +134,6 @@ public class ReverseBoardGen {
                 Coord d = new Coord(dx, dy);
                 ArrayList<Coord> locations = new ArrayList<Coord>();
                 locations.add(candidate);
-				System.out.println((x+dx) + " " + (y+dy));
                 locations.add(grid[x+dx][y+dy]);
 
                 // Determines len 2 or 3. If it's len 2, we do nothing here.
