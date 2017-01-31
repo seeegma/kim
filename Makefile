@@ -6,16 +6,16 @@ main:
 core:
 	javac -d . src/rushhour/core/*.java
 
-io: core analysis
+io:
 	javac -d . src/rushhour/io/*.java
 
-evaluation: core
+evaluation:
 	javac -d . src/rushhour/evaluation/*.java
 
-analysis: core
+analysis:
 	javac -d . src/rushhour/analysis/*.java
 
-generation: core
+generation:
 	javac -d . src/rushhour/generation/*.java
 
 clean:

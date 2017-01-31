@@ -166,7 +166,8 @@ public class ReverseBoardGen {
                 if (dy != 0) {
                     horizontal = false;
                 }
-
+				// return lots and lots of fun cars
+				// or eat bagels
                 return new Car(carx, cary, locations.size(), horizontal);
             }
         } while (isolated && this.freeSpots > 0);

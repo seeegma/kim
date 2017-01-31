@@ -37,7 +37,7 @@ public class DFSEvaluator implements Evaluator {
 					break;
 				}
 				count++;
-				List<BoardGraph.Vertex> neighbors = new ArrayList<BoardGraph.Vertex>(current.neighbors.values());
+				List<BoardGraph.Vertex> neighbors = new ArrayList<BoardGraph.Vertex>(current.neighbors);
 				Collections.shuffle(neighbors);
 				for (BoardGraph.Vertex neighbor : neighbors) {
 					if (!visited.contains(neighbor)) {

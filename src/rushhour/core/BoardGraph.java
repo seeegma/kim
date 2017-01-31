@@ -2,16 +2,18 @@ package rushhour.core;
 
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Comparator;
 
 public class BoardGraph {
 
 	public static class Vertex {
 		public Board board;
-		public HashMap<Move,Vertex> neighbors;
+		public Set<Vertex> neighbors;
 		public int depth;
 		public Vertex parent;
 		public Vertex(Board board) {
@@ -22,9 +24,15 @@ public class BoardGraph {
 		}
 	}
 
+	public static class VertexComparator implements Comparator<Vertex> {
+		public int compare(Vertex v1, Vertex v2) {
+			return v1.depth - v2.depth;
+		}
+	}
+
 	HashMap<Long,Vertex> vertices;
 
-	int depth; //Maximum distance from a solved state of any board in the graph.
+	public int depth; //Maximum distance from a solved state of any board in the graph.
 
 	int numberOfSolvedStates;
 
@@ -50,21 +58,21 @@ public class BoardGraph {
 		queue.offer(startingVertex);
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
-			current.neighbors = new HashMap<Move,Vertex>();
+			current.neighbors = new HashSet<Vertex>();
 			// fill in neighbors with vertices already in the graph
-			HashMap<Move,Board> currentPossibleMoves = current.board.allPossibleMoves();
+			Map<Move,Board> currentPossibleMoves = current.board.allPossibleMoves();
 			Set<Move> moves = currentPossibleMoves.keySet();
 			for (Move move : moves) {
 				Board neighborBoard = currentPossibleMoves.get(move);
 				// If the vertex exists in the graph, replace current's instance with the graph's
 				if (this.vertices.containsKey(neighborBoard.hash())) {
-					current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
+					current.neighbors.add(this.vertices.get(neighborBoard.hash()));
 				}
 				// otherwise add current's instance to the graph
 				else {
 					Vertex neighborVertex = new Vertex(neighborBoard);
 					this.vertices.put(neighborBoard.hash(), neighborVertex);
-					current.neighbors.put(move, neighborVertex);
+					current.neighbors.add(neighborVertex);
 					queue.offer(neighborVertex);
 				}
 
@@ -90,9 +98,8 @@ public class BoardGraph {
 		while (!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			numberOfVisitedStates--;
-			Set<Move> moves = current.neighbors.keySet();
-			for (Move move : moves) {
-				Vertex neighbor = current.neighbors.get(move);
+			Set<Vertex> neighbors = current.neighbors;
+			for (Vertex neighbor : neighbors) {
 				if (!visited.contains(neighbor)) {
 					neighbor.depth = current.depth + 1;
 					if (maxDepth<neighbor.depth) {
@@ -146,9 +153,9 @@ public class BoardGraph {
 		List<Move> moves = new ArrayList<Move>();
 		Vertex current = v;
 		while (current.depth != 0) {
-			Set<Move> neighborMoves = current.neighbors.keySet();
-			for (Move move : neighborMoves) {
-				Vertex neighbor = current.neighbors.get(move);
+			Map<Move,Board> possibleMoves = v.board.allPossibleMoves();
+			for (Move move : possibleMoves.keySet()) {
+				Vertex neighbor = this.getVertex(possibleMoves.get(move));
 				if (neighbor.depth == current.depth - 1) {
 					moves.add(move);
 					current = neighbor;
@@ -164,9 +171,8 @@ public class BoardGraph {
 		List<Vertex> path = new ArrayList<Vertex>();
 		Vertex current = v;
 		while (current.depth != 0) {
-			Set<Move> neighborMoves = current.neighbors.keySet();
-			for (Move move : neighborMoves) {
-				Vertex neighbor = current.neighbors.get(move);
+			Set<Vertex> neighbors = current.neighbors;
+			for (Vertex neighbor : neighbors) {
 				if (neighbor.depth == current.depth - 1) {
 					path.add(neighbor);
 					current = neighbor;

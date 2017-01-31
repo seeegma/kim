@@ -71,8 +71,7 @@ public class RandomGraphGen {
      */
     public void generateBoard(int minMoves) {
         ReverseBoardGen temp = new ReverseBoardGen();
-        temp.genBoard(minMoves);
-        this.board = temp.getBoard();
+        this.board = temp.genBoard(minMoves);
         this.graph = new BoardGraph(this.board);
         this.board = this.graph.getFarthest();
     }

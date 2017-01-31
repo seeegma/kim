@@ -65,7 +65,7 @@ public class WeightedScoreEvaluator implements Evaluator {
             new HashMap<BoardGraph.Vertex,Double>();
         double score;
         double total = 0;
-        for (BoardGraph.Vertex u : v.neighbors.values()) {
+        for (BoardGraph.Vertex u : v.neighbors) {
             score = u.depth;
             // moving closer to a solution
             if (v.depth > u.depth) {

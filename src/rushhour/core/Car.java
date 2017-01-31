@@ -22,4 +22,20 @@ public class Car {
     public Car copy() {
         return (new Car(this.x, this.y, this.length, this.horizontal));
     }
+
+	public boolean equals(Car other) {
+		return other.horizontal == this.horizontal
+			&& other.length == this.length
+			&& other.x == this.x
+			&& other.y == this.y;
+	}
+
+	public boolean occupiesPos(int testX, int testY) {
+		if(this.horizontal) {
+			return testY == this.y && this.x <= testX && testX < this.x + this.length;
+		} else {
+			return testX == this.x && this.y <= testY && testY < this.y + this.length;
+		}
+	}
+
 }

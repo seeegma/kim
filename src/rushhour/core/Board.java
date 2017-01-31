@@ -1,12 +1,9 @@
 package rushhour.core;
 
-import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -16,19 +13,13 @@ import java.util.Set;
  * flush with the East/Right edge of the board.
  */
 public class Board {
-	// TODO: introduce coordinate class just to make stuff more clear? Will make
-	// coordinate conversion from Direction easier.
 	private int w, h; // dimension of the board
-	// grid representation of the board. Each slot contains an integer that
-	// represents the index of the car in carList that is occupying the spot
-	// on the board. We will use -1 to represent empty spaces.
 	private Grid grid;
 	private final int EMPTY_SPOT = -1;
-	//The first car in carList should always be the VIP car, and
-	//many methods rely on the VIP having index 0.
-	private ArrayList<Car> carList;
+	private ArrayList<Car> cars;
 
 	private BoardGraph graph;
+	private Map<Move,Board> possibleMoves;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -38,32 +29,27 @@ public class Board {
 		this.w = w;
 		this.h = h;
 		this.grid = new Grid(w,h);
-		this.carList = new ArrayList<Car>();
+		this.cars = new ArrayList<Car>();
+		this.graph = null;
+		this.possibleMoves = null;
 	}
 
-	// Overloaded for importing from file
-	public Board(int w, int h, ArrayList<Car> c) {
-		this.w = w;
-		this.h = h;
-		this.grid = new Grid(w,h);
-		this.carList = new ArrayList<Car>();
-
-		// Could just carList = c, but then would need to update grid...
-		for (int i = 0; i < c.size(); i++) {
-			this.addCar(c.get(i));
+	public Board(int w, int h, ArrayList<Car> cars) {
+		this(w, h);
+		this.grid = grid;
+		for(Car c : cars) {
+			this.addCar(c);
 		}
 	}
 
-	public Board(int w, int h, Grid grid,ArrayList<Car> c) {
-		this.w = w;
-		this.h = h;
+	private Board(int w, int h, Grid grid, ArrayList<Car> cars) {
+		this(w, h);
 		this.grid = grid;
-		this.carList = c;
+		this.cars = cars;
 	}
 
-
 	public boolean isSolved() {
-		return carList.get(0).x == w-carList.get(0).length;
+		return cars.get(0).x == w-cars.get(0).length;
 	}
 
 	/**
@@ -98,7 +84,7 @@ public class Board {
 	}
 
 	public int numCars() {
-		return this.carList.size();
+		return this.cars.size();
 	}
 
 	/**
@@ -106,7 +92,7 @@ public class Board {
 	 * @return an ArrayList<Car> of the cars
 	 */
 	public ArrayList<Car> getCars() {
-		return this.carList;
+		return this.cars;
 	}
 
 	/**
@@ -115,8 +101,8 @@ public class Board {
 	 * @return the new board
 	 */
 	public Board copy() {
-		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
-		for (Car car : this.carList) {
+		ArrayList<Car> newCarList = new ArrayList<Car>(this.cars.size());
+		for (Car car : this.cars) {
 			newCarList.add(car.copy());
 		}
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
@@ -137,9 +123,9 @@ public class Board {
 		} else {
 			dy++;
 		}
-		carList.add(newCar);
+		cars.add(newCar);
 		for (int i = 0; i < newCar.length; i++) {
-			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),cars.size()-1);
 		}
 		this.graph = null;
 		return true;
@@ -166,7 +152,7 @@ public class Board {
 	}
 
 	public boolean canMove(int vehicleIndex, int vector) {
-		Car c = this.carList.get(vehicleIndex);
+		Car c = this.cars.get(vehicleIndex);
 		if(vector == 0) {
 			return true;
 		}
@@ -206,7 +192,7 @@ public class Board {
 		if(!this.canMove(carNum, vector)){
 			return false;
 		}
-		Car c = this.carList.get(carNum);
+		Car c = this.cars.get(carNum);
 		if(c.horizontal) {
 			if(vector > 0) {
 				// un-place car
@@ -252,18 +238,16 @@ public class Board {
 				}
 			}
 		}
+		this.graph = null;
+		this.possibleMoves = null;
 		return true;
 	}
 
-	/**
-	 * Gets all possible moves of car at index i on board b in that current
-	 * position.
-	 * @param i the index of the car
-	 * @return an ArrayList of all possible grid positions that results from
-	 *      moving that car
-	 */
-	public HashMap<Move,Board> allPossibleMoves() {
-		HashMap<Move,Board> moves = new HashMap<Move,Board>();
+	public Map<Move,Board> allPossibleMoves() {
+		if(this.possibleMoves != null) {
+			return this.possibleMoves;
+		}
+		this.possibleMoves = new HashMap<Move,Board>();
 		for(int vehicleIndex = 0; vehicleIndex<this.getCars().size(); vehicleIndex++) {
 			Direction direction;
 			int vector;
@@ -271,7 +255,7 @@ public class Board {
 			Board currentState = this.copy();
 			vector = -1;
 			while(currentState.move(vehicleIndex, -1)) {
-				moves.put(new Move(vehicleIndex, vector), currentState.copy());
+				this.possibleMoves.put(new Move(vehicleIndex, vector), currentState.copy());
 				vector--;
 			}
 			// Moves back to the original position
@@ -279,11 +263,11 @@ public class Board {
 			// Repeats in the reverse of the starting direction
 			vector = 1;
 			while(currentState.move(vehicleIndex, 1)) {
-				moves.put(new Move(vehicleIndex, vector), currentState.copy());
+				this.possibleMoves.put(new Move(vehicleIndex, vector), currentState.copy());
 				vector++;
 			}
 		}
-		return moves;
+		return this.possibleMoves;
 	}
 
 	/**
@@ -314,37 +298,6 @@ public class Board {
 
 	public boolean equals(Board other) {
 		return this.grid.equals(other.getGrid());
-	}
-
-	/**
-	 * @Exclude
-	 * For testing purposes. Prints out the innards.
-	 */
-	public void debug() {
-		System.out.println("---------------------------");
-		System.out.println("Dimensions: w" + w + " h" + h);
-		System.out.println();
-
-		System.out.println("grid:");
-		for(int i = 0; i < h; i++) {
-			for (int j = 0; j < w; j++) {
-				if (grid.get(j,i) != -1) {
-					System.out.print(String.format("%1$4s", grid.get(j,i)));
-				} else {
-					System.out.print(String.format("%1$4s", "_"));
-				}
-			}
-			System.out.println();
-		}
-		System.out.println();
-
-		Car car;
-		for(int i = 0; i < carList.size(); i++) {
-			car = carList.get(i);
-			System.out.println("Car #" + i + ": " + car.x + " " + car.y + " "
-					+ car.length + " " + car.horizontal + " " + i);
-		}
-		System.out.println("---------------------------");
 	}
 
 }

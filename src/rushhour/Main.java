@@ -147,9 +147,10 @@ public class Main {
 				}
 				String arg = args[1];
 				int minMoves = Integer.parseInt(arg);
-				ReverseBoardGen generator = new ReverseBoardGen();
-				Board b = generator.genBoard(minMoves);
-				AsciiGen.printGrid(b.getGrid());
+				List<Constraint> constraints = new ArrayList<>();
+				constraints.add(new Constraint(new MinMovesToSolutionEvaluator(), minMoves, minMoves));
+				Board finalBoard = ConstraintSatisfier.satisfy(constraints);
+				AsciiGen.printGrid(finalBoard.getGrid());
 			}
 		} else {
 			usage();
