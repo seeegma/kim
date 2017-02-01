@@ -21,10 +21,11 @@ public class ConstraintSatisfier {
 		for(Constraint c : constraints) {
 			if(c.metric instanceof NumberOfCarsEvaluator) {
 				targetNumCars = (int)c.maxValue;
-				break;
 			} else if(c.metric instanceof MinMovesToSolutionEvaluator) {
 				minMoves = (int)c.maxValue;
-				targetNumCars = (int)(0.0255 * minMoves + 10.774);
+				if(targetNumCars == -1) {
+					targetNumCars = (int)(0.0255 * minMoves + 10.774);
+				}
 			}
 		}
 		// generate solved boards with this number of cars until we have one with the proper depth
@@ -33,13 +34,21 @@ public class ConstraintSatisfier {
 		// ReverseBoardGen gen = new ReverseBoardGen();
 		if(minMoves != -1) {
 			do {
+				// TODO: start at numCars = 9, generate the board with a nice high
+				// depth, then keep trying different random cars to add until the depth
+				// is higher, and keep going
 				solvedBoard = SolvedBoardGenerator.generate(targetNumCars);
-				// solvedBoard = gen.genBoard(targetNumCars); // don't think this works
+				System.out.print("found board...");
+				System.out.print("numCars: " + solvedBoard.numCars() + ", ");
 				System.out.println("depth: " + solvedBoard.getGraph().maxDepth());
+				if(solvedBoard.getGraph().maxDepth() == 0) {
+					AsciiGen.printGrid(solvedBoard.getGrid());
+				}
 			} while(solvedBoard.getGraph().maxDepth() < minMoves);
 		} else {
 			solvedBoard = SolvedBoardGenerator.generate(targetNumCars);
 		}
+		System.out.println(minMoves);
 		System.out.println("solved board:");
 		System.out.println("depth: " + solvedBoard.getGraph().maxDepth());
 		AsciiGen.printGrid(solvedBoard.getGrid());
@@ -58,9 +67,8 @@ public class ConstraintSatisfier {
 			if(visited.contains(v.board.hash())) {
 				continue;
 			}
-			visited.add(v.board.hash());
 			// System.out.println("depth: " + v.depth);
-			if(v.depth() == minMoves) {
+			if(v.depth == minMoves) {
 				System.out.println("returning: ");
 				System.out.println(v.board);
 				return v.board;
@@ -72,6 +80,7 @@ public class ConstraintSatisfier {
 					queue.offer(neighbor);
 				}
 			}
+			visited.add(v.board.hash());
 		}
 		System.out.println("returning: null");
 		return null;

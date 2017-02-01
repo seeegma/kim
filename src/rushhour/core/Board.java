@@ -2,6 +2,8 @@ package rushhour.core;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -19,7 +21,7 @@ public class Board {
 	private ArrayList<Car> cars;
 
 	private BoardGraph graph;
-	private Map<Move,Board> possibleMoves;
+	private Set<Move> possibleMoves;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -188,6 +190,16 @@ public class Board {
 		return true;
 	}
 
+	public boolean move(Move move) {
+		return this.move(move.index, move.amount);
+	}
+
+	public Board getNeighborBoard(Move move) {
+		Board ret = this.copy();
+		ret.move(move);
+		return ret;
+	}
+
 	public boolean move(int carNum, int vector) {
 		if(!this.canMove(carNum, vector)){
 			return false;
@@ -243,11 +255,11 @@ public class Board {
 		return true;
 	}
 
-	public Map<Move,Board> allPossibleMoves() {
+	public Set<Move> allPossibleMoves() {
 		if(this.possibleMoves != null) {
 			return this.possibleMoves;
 		}
-		this.possibleMoves = new HashMap<Move,Board>();
+		this.possibleMoves = new HashSet<Move>();
 		for(int vehicleIndex = 0; vehicleIndex<this.getCars().size(); vehicleIndex++) {
 			Direction direction;
 			int vector;
@@ -255,7 +267,7 @@ public class Board {
 			Board currentState = this.copy();
 			vector = -1;
 			while(currentState.move(vehicleIndex, -1)) {
-				this.possibleMoves.put(new Move(vehicleIndex, vector), currentState.copy());
+				this.possibleMoves.add(new Move(vehicleIndex, vector));
 				vector--;
 			}
 			// Moves back to the original position
@@ -263,7 +275,7 @@ public class Board {
 			// Repeats in the reverse of the starting direction
 			vector = 1;
 			while(currentState.move(vehicleIndex, 1)) {
-				this.possibleMoves.put(new Move(vehicleIndex, vector), currentState.copy());
+				this.possibleMoves.add(new Move(vehicleIndex, vector));
 				vector++;
 			}
 		}
