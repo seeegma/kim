@@ -17,7 +17,7 @@ public class Main {
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate <constraint>=<min>,<max>";
+		"\tgenerate --<constraint1>=<val> [--<constraint2>=<val>, ...]";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -142,15 +142,21 @@ public class Main {
 					}
 				}
 			} else if(operation.equals("generate")) {
-				if(args.length != 2) {
+				if(args.length < 3) {
 					usage();
 				}
-				String arg = args[1];
-				int minMoves = Integer.parseInt(arg);
 				List<Constraint> constraints = new ArrayList<>();
-				constraints.add(new Constraint(new MinMovesToSolutionEvaluator(), minMoves, minMoves));
-				Board finalBoard = ConstraintSatisfier.satisfy(constraints);
-				AsciiGen.printGrid(finalBoard.getGrid());
+				for(int i=1; i<args.length-1; i++) {
+					int val = Integer.parseInt(args[i+1]);
+					if(args[i].equals("--minMoves")) {
+						constraints.add(new Constraint(new MinMovesToSolutionEvaluator(), val, val));
+					} else if(args[i].equals("--numCars")) {
+						constraints.add(new Constraint(new NumberOfCarsEvaluator(), val, val));
+					}
+					i++;
+				}
+				Board board = ConstraintSatisfier.satisfy(constraints);
+				AsciiGen.printGrid(board.getGrid());
 			}
 		} else {
 			usage();
