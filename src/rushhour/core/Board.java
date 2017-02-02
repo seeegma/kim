@@ -1,11 +1,12 @@
 package rushhour.core;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
@@ -15,13 +16,19 @@ import java.util.LinkedList;
  * flush with the East/Right edge of the board.
  */
 public class Board {
+	// TODO: introduce coordinate class just to make stuff more clear? Will make
+	// coordinate conversion from Direction easier.
 	private int w, h; // dimension of the board
+	// grid representation of the board. Each slot contains an integer that
+	// represents the index of the car in carList that is occupying the spot
+	// on the board. We will use -1 to represent empty spaces.
 	private Grid grid;
 	private final int EMPTY_SPOT = -1;
-	private ArrayList<Car> cars;
+	//The first car in carList should always be the VIP car, and
+	//many methods rely on the VIP having index 0.
+	private ArrayList<Car> carList;
 
 	private BoardGraph graph;
-	private Set<Move> possibleMoves;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -31,27 +38,32 @@ public class Board {
 		this.w = w;
 		this.h = h;
 		this.grid = new Grid(w,h);
-		this.cars = new ArrayList<Car>();
-		this.graph = null;
-		this.possibleMoves = null;
+		this.carList = new ArrayList<Car>();
 	}
 
-	public Board(int w, int h, ArrayList<Car> cars) {
-		this(w, h);
-		this.grid = grid;
-		for(Car c : cars) {
-			this.addCar(c);
+	// Overloaded for importing from file
+	public Board(int w, int h, ArrayList<Car> c) {
+		this.w = w;
+		this.h = h;
+		this.grid = new Grid(w,h);
+		this.carList = new ArrayList<Car>();
+
+		// Could just carList = c, but then would need to update grid...
+		for (int i = 0; i < c.size(); i++) {
+			this.addCar(c.get(i));
 		}
 	}
 
-	private Board(int w, int h, Grid grid, ArrayList<Car> cars) {
-		this(w, h);
+	public Board(int w, int h, Grid grid,ArrayList<Car> c) {
+		this.w = w;
+		this.h = h;
 		this.grid = grid;
-		this.cars = cars;
+		this.carList = c;
 	}
 
+
 	public boolean isSolved() {
-		return cars.get(0).x == w-cars.get(0).length;
+		return carList.get(0).x == w-carList.get(0).length;
 	}
 
 	/**
@@ -86,7 +98,7 @@ public class Board {
 	}
 
 	public int numCars() {
-		return this.cars.size();
+		return this.carList.size();
 	}
 
 	/**
@@ -94,7 +106,7 @@ public class Board {
 	 * @return an ArrayList<Car> of the cars
 	 */
 	public ArrayList<Car> getCars() {
-		return this.cars;
+		return this.carList;
 	}
 
 	/**
@@ -103,8 +115,8 @@ public class Board {
 	 * @return the new board
 	 */
 	public Board copy() {
-		ArrayList<Car> newCarList = new ArrayList<Car>(this.cars.size());
-		for (Car car : this.cars) {
+		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
+		for (Car car : this.carList) {
 			newCarList.add(car.copy());
 		}
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
@@ -125,9 +137,9 @@ public class Board {
 		} else {
 			dy++;
 		}
-		cars.add(newCar);
+		carList.add(newCar);
 		for (int i = 0; i < newCar.length; i++) {
-			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),cars.size()-1);
+			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
 		}
 		this.graph = null;
 		return true;
@@ -154,7 +166,7 @@ public class Board {
 	}
 
 	public boolean canMove(int vehicleIndex, int vector) {
-		Car c = this.cars.get(vehicleIndex);
+		Car c = this.carList.get(vehicleIndex);
 		if(vector == 0) {
 			return true;
 		}
@@ -190,21 +202,11 @@ public class Board {
 		return true;
 	}
 
-	public boolean move(Move move) {
-		return this.move(move.index, move.amount);
-	}
-
-	public Board getNeighborBoard(Move move) {
-		Board ret = this.copy();
-		ret.move(move);
-		return ret;
-	}
-
 	public boolean move(int carNum, int vector) {
 		if(!this.canMove(carNum, vector)){
 			return false;
 		}
-		Car c = this.cars.get(carNum);
+		Car c = this.carList.get(carNum);
 		if(c.horizontal) {
 			if(vector > 0) {
 				// un-place car
@@ -250,24 +252,24 @@ public class Board {
 				}
 			}
 		}
-		this.graph = null;
-		this.possibleMoves = null;
 		return true;
 	}
 
+	public Board getNeighborBoard(Move move) {
+		Board ret = this.copy();
+		ret.move(move.index, move.amount);
+		return ret;
+	}
+
 	public Set<Move> allPossibleMoves() {
-		if(this.possibleMoves != null) {
-			return this.possibleMoves;
-		}
-		this.possibleMoves = new HashSet<Move>();
+		Set<Move> moves = new HashSet<Move>();
 		for(int vehicleIndex = 0; vehicleIndex<this.getCars().size(); vehicleIndex++) {
-			Direction direction;
 			int vector;
 			// Creates all possible board positions moving to the starting direction
 			Board currentState = this.copy();
 			vector = -1;
 			while(currentState.move(vehicleIndex, -1)) {
-				this.possibleMoves.add(new Move(vehicleIndex, vector));
+				moves.add(new Move(vehicleIndex, vector));
 				vector--;
 			}
 			// Moves back to the original position
@@ -275,11 +277,11 @@ public class Board {
 			// Repeats in the reverse of the starting direction
 			vector = 1;
 			while(currentState.move(vehicleIndex, 1)) {
-				this.possibleMoves.add(new Move(vehicleIndex, vector));
+				moves.add(new Move(vehicleIndex, vector));
 				vector++;
 			}
 		}
-		return this.possibleMoves;
+		return moves;
 	}
 
 	/**
@@ -306,6 +308,7 @@ public class Board {
 	public void clear(){
 		this.grid.clear();
 		this.graph = null;
+		this.carList.clear();
 	}
 
 	public boolean equals(Board other) {
