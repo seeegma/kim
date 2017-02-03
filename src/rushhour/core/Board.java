@@ -156,7 +156,6 @@ public class Board {
 		}
 
 		for (int i = 0; i < newCar.length; i++) {
-			// since the newCar was added at the end of the array its index is:
 			if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
 				canPlace = false;
 				break;

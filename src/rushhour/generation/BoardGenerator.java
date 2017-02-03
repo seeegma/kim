@@ -34,9 +34,9 @@ public class BoardGenerator {
 	private void init() {
 		this.carOptions.clear();
 		if(this.usingHeuristics) {
-			this.vip = new Car(rng.nextInt(5), 2, 2, true);
+			this.vip = new Car(rng.nextInt(4), 2, 2, true);
 		} else {
-			this.vip = new Car(rng.nextInt(6), 2, 2, true);
+			this.vip = new Car(rng.nextInt(5), 2, 2, true);
 		}
 		this.board.clear();
 		this.board.addCar(this.vip);
@@ -45,7 +45,11 @@ public class BoardGenerator {
 				// horiz
 				for(int length=2; length<=3 && x+length-1<6; length++) {
 					Car toAdd = new Car(x, y, length, true);
-					if(toAdd.y != this.vip.y || toAdd.x + toAdd.length < this.vip.x) {
+					if(this.usingHeuristics) {
+						if(toAdd.y != this.vip.y || toAdd.x + toAdd.length < this.vip.x) {
+							carOptions.add(toAdd);
+						}
+					} else {
 						carOptions.add(toAdd);
 					}
 				}
@@ -66,7 +70,7 @@ public class BoardGenerator {
 	public Board generate(int targetNumCars) {
 		this.init();
 		while(this.board.numCars() < targetNumCars) {
-			if(this.cars.isEmpty() == 0) {
+			if(this.cars.isEmpty()) {
 				return this.generate(targetNumCars);
 			}
 			for(int i=0; i<this.cars.size(); i++) {

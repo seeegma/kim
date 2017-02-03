@@ -8,6 +8,7 @@ import rushhour.generation.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Main {
 	private static final String usage =
@@ -17,7 +18,7 @@ public class Main {
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate --<constraint1>=<val> [--<constraint2>=<val>, ...]";
+		"\tgenerate [--useHeuristics] [--numBoards n] [--numCars n]";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -145,18 +146,36 @@ public class Main {
 				if(args.length < 3) {
 					usage();
 				}
-				List<Constraint> constraints = new ArrayList<>();
-				for(int i=1; i<args.length-1; i++) {
-					int val = Integer.parseInt(args[i+1]);
-					if(args[i].equals("--minMoves")) {
-						constraints.add(new Constraint(new MinMovesToSolutionEvaluator(), val, val));
+				boolean usingHeuristics = false; 
+				boolean setNumCars = false;
+				int numCars = 0;
+				int numBoards = 1;
+				for(int i=1; i<args.length; i++) {
+					if(args[i].equals("--useHeuristics")) {
+						usingHeuristics = true;
 					} else if(args[i].equals("--numCars")) {
-						constraints.add(new Constraint(new NumberOfCarsEvaluator(), val, val));
+						numCars = Integer.parseInt(args[i+1]);
+						setNumCars = true;
+						i++;
+					} else if(args[i].equals("--numBoards")) {
+						numBoards = Integer.parseInt(args[i+1]);
+						i++;
+					} else {
+						System.err.println("unrecognized option '" + args[i] + "'");
+						usage();
 					}
-					i++;
 				}
-				Board board = ConstraintSatisfier.satisfy(constraints);
-				AsciiGen.printGrid(board.getGrid());
+				BoardGenerator gen = new BoardGenerator(usingHeuristics);
+				Random rng = new Random();
+				while(numBoards > 0) {
+					if(!setNumCars) {
+						numCars = rng.nextInt(8) + 9; // random number from 9 to 15
+					}
+					System.out.println("numCars = " + numCars);
+					Board board = gen.generate(numCars);
+					AsciiGen.printGrid(board.getGrid());
+					numBoards--;
+				}
 			}
 		} else {
 			usage();
