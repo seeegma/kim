@@ -69,7 +69,7 @@ public class Main {
 				evaluators.add(new AverageBranchingFactorEvaluator());
 				evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
 				evaluators.add(new IrrelevancyEvaluator());
-				evaluators.add(new DFSEvaluator());
+				//evaluators.add(new DFSEvaluator());
 				evaluators.add(new WeightedScoreEvaluator());
 				if(fields) {
 					for(Evaluator e : evaluators) {

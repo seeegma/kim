@@ -13,7 +13,8 @@ public class WeightedScoreEvaluator implements Evaluator {
     // TODO: maybe use lambda functions?
     // Could make more functions/heuristics
     double PJRP_CONSTANT = 50;
-    int TRIALS = 100;
+	double RECIP_CONST;
+    int TRIALS = 50000;
 
     public String description() {
         return "weighted walk length";
@@ -37,7 +38,9 @@ public class WeightedScoreEvaluator implements Evaluator {
      */
     private double weightedWalk(Board b) {
         Random rng = new Random();
-        BoardGraph.Vertex current = b.getGraph().getVertex(b);
+		BoardGraph g = b.getGraph();
+        BoardGraph.Vertex current = g.getVertex(b);
+		this.RECIP_CONST = g.maxDepth();
         double count = 0;
         while (current.depth != 0) {
             Map<BoardGraph.Vertex,Double> probs = this.probsPJRP(current);
@@ -70,6 +73,33 @@ public class WeightedScoreEvaluator implements Evaluator {
             // moving closer to a solution
             if (v.depth > u.depth) {
                 score += PJRP_CONSTANT;
+            }
+            total += score;
+            probs.put(u, score);
+        }
+        // Lambda expressions require final variables
+        final double finalTotal = total;
+        // should turn all the scores into probabilities
+        probs.replaceAll((k, w) -> w/finalTotal);
+        return probs;
+    }
+	
+	/**
+     * The relatively simplistic scoring system based off of the paper.
+     * Credits to Petr Jarusek and Radek Pelánek.
+	 * 
+	 * Instead of adding a constant, adds the constant multiplied by the reciprocal of the vertex depth.
+     */
+    private Map<BoardGraph.Vertex,Double> probsPJRPRecip(BoardGraph.Vertex v) {
+        Map<BoardGraph.Vertex,Double> probs =
+            new HashMap<BoardGraph.Vertex,Double>();
+        double score;
+        double total = 0;
+        for (BoardGraph.Vertex u : v.neighbors.values()) {
+            score = u.depth;
+            // moving closer to a solution
+            if (v.depth > u.depth) {
+                score += (((float)RECIP_CONST)/v.depth);
             }
             total += score;
             probs.put(u, score);
