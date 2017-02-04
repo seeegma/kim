@@ -115,7 +115,7 @@ public class BoardGraph {
 		return this.solutions.size();
 	}
 
-	public int getDepth(Board b) {
+	public int getDepthOfBoard(Board b) {
 		return getVertex(b).depth;
 	}
 
