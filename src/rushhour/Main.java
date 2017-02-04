@@ -8,7 +8,10 @@ import rushhour.generation.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.Collections;
 
 public class Main {
 	private static final String usage =
@@ -147,19 +150,35 @@ public class Main {
 					usage();
 				}
 				boolean usingHeuristics = false; 
+				boolean onlySolvable = false;
 				boolean setNumCars = false;
 				int numCars = 0;
 				int numBoards = 1;
+				boolean stats = false;
+				boolean puzzleOutToFile = false;
+				boolean printBoards = true;
 				for(int i=1; i<args.length; i++) {
 					if(args[i].equals("--useHeuristics")) {
 						usingHeuristics = true;
+					} else if(args[i].equals("--solvable")) {
+						onlySolvable = true;
 					} else if(args[i].equals("--numCars")) {
 						numCars = Integer.parseInt(args[i+1]);
+						if(numCars > 18) {
+							System.err.println("No such boards exist, sorry!");
+							System.exit(0);
+						}
 						setNumCars = true;
 						i++;
 					} else if(args[i].equals("--numBoards")) {
 						numBoards = Integer.parseInt(args[i+1]);
 						i++;
+					} else if(args[i].equals("--stats")) {
+						stats = true;
+					} else if(args[i].equals("--puzzleFile")) {
+						puzzleOutToFile = true;
+					} else if(args[i].equals("--noPrint")) {
+						printBoards = false;
 					} else {
 						System.err.println("unrecognized option '" + args[i] + "'");
 						usage();
@@ -167,14 +186,71 @@ public class Main {
 				}
 				BoardGenerator gen = new BoardGenerator(usingHeuristics);
 				Random rng = new Random();
-				while(numBoards > 0) {
+				// stats
+				Map<Integer,Integer> depths = new HashMap<>();
+				depths.put(-1, 0);
+				int boardsGenerated = 0;
+				// ok go!
+				int i = 0;
+				while(i < numBoards) {
 					if(!setNumCars) {
 						numCars = rng.nextInt(8) + 9; // random number from 9 to 15
 					}
-					System.out.println("numCars = " + numCars);
-					Board board = gen.generate(numCars);
-					AsciiGen.printGrid(board.getGrid());
-					numBoards--;
+					Board board;
+					if(onlySolvable) {
+						depths.put(-1, depths.get(-1) - 1);
+						do {
+							depths.put(-1, depths.get(-1) + 1);
+							board = gen.generate(numCars);
+							boardsGenerated++;
+						} while(board.getGraph().numSolutions() == 0);
+					} else {
+						board = gen.generate(numCars);
+						boardsGenerated++;
+					}
+					// now we have a board
+					// TODO: check if we've seen its graph before
+					if(stats) {
+						int depth;
+						if(board.getGraph().numSolutions() == 0) {
+							depth = -1;
+						} else {
+							depth = board.getGraph().getDepth(board);
+						}
+						if(!depths.containsKey(depth)) {
+							depths.put(depth, 1);
+						} else {
+							depths.put(depth, depths.get(depth)+1);
+						}
+					}
+					if(puzzleOutToFile) {
+						// String filename = ""; // TODO
+						// BoardIO.write(filename, board);
+					} else if(printBoards) {
+						AsciiGen.printGrid(board.getGrid());
+					}
+					i++;
+				}
+				if(stats) {
+					// TODO: also store depths by numCars
+					System.out.println("TOTAL NUMBER OF BOARDS GENERATED: " + boardsGenerated);
+					System.out.println("TOTAL DEPTHS COUNT:");
+					int minDepth = Collections.min(depths.keySet());
+					if(minDepth == -1) {
+						minDepth = 0;
+						System.out.println("-1 --> " + depths.get(-1));
+					}
+					int maxDepth = Collections.max(depths.keySet());
+					double totalDepth = 0;
+					for(int d=minDepth; d<=maxDepth; d++) {
+						if(depths.containsKey(d)) {
+							System.out.println(" " + d + " --> " + depths.get(d));
+							totalDepth += depths.get(d) * d;
+						} else {
+							System.out.println(" " + d + " --> 0");
+						}
+					}
+					System.out.println("AVERAGE DEPTH OF SOLVABLE BOARDS: " + totalDepth/numBoards);
 				}
 			}
 		} else {

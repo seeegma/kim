@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Collections;
 
 public class BoardGraph {
 
@@ -104,6 +105,10 @@ public class BoardGraph {
 
 	public int maxDepth() {
 		return this.maxDepth;
+	}
+
+	public long hash() {
+		return Collections.min(this.vertices.keySet());
 	}
 
 	public int numSolutions() {
