@@ -188,6 +188,8 @@ public class Main {
 				Random rng = new Random();
 				// stats
 				Map<Integer,Integer> depths = new HashMap<>();
+				Map<Integer,Map<Integer,Integer> numCarToDepths = new HashMap<>();
+				// depths = -1 is unsolvable
 				depths.put(-1, 0);
 				int boardsGenerated = 0;
 				// ok go!
@@ -211,12 +213,8 @@ public class Main {
 					// now we have a board
 					// TODO: check if we've seen its graph before
 					if(stats) {
-						int depth;
-						if(board.getGraph().numSolutions() == 0) {
-							depth = -1;
-						} else {
-							depth = board.getGraph().getDepth(board);
-						}
+					
+						int depth = board.getGraph().maxDepth();
 						if(!depths.containsKey(depth)) {
 							depths.put(depth, 1);
 						} else {
@@ -232,6 +230,7 @@ public class Main {
 					i++;
 				}
 				if(stats) {
+					// TODO: keep multiplicities of equiv classes.
 					// TODO: also store depths by numCars
 					System.out.println("TOTAL NUMBER OF BOARDS GENERATED: " + boardsGenerated);
 					System.out.println("TOTAL DEPTHS COUNT:");
