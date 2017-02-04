@@ -188,7 +188,7 @@ public class Main {
 				Random rng = new Random();
 				// stats
 				Map<Integer,Integer> depths = new HashMap<>();
-				Map<Integer,Map<Integer,Integer> numCarToDepths = new HashMap<>();
+				Map<Integer,Map<Integer,Integer>> numCarToDepths = new HashMap<>();
 				// depths = -1 is unsolvable
 				depths.put(-1, 0);
 				int boardsGenerated = 0;
