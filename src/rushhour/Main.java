@@ -208,17 +208,20 @@ public class Main {
 				// total counts
 				int totalBoardsGenerated = 0;
 				int boardsSavedSoFar = 0;
-				Map<Integer,Integer> numBoardsByDepth = new HashMap<>();
+				Map<Integer,Integer> numBoardsByBoardDepth = new HashMap<>();
+				Map<Integer,Integer> numBoardsByGraphDepth = new HashMap<>();
 				Set<Long> uniqueGraphs = new HashSet<>();
 				// per-numCars counts
 				Map<Integer,Integer> totalBoardsGeneratedByNumCars = new HashMap<>();
 				Map<Integer,Integer> boardsSavedSoFarByNumCars = new HashMap<>();
-				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>();
+				Map<Integer,Map<Integer,Integer>> numBoardsByBoardDepthByNumCars = new HashMap<>();
+				Map<Integer,Map<Integer,Integer>> numBoardsByGraphDepthByNumCars = new HashMap<>();
 				Map<Integer,Integer> uniqueGraphsByNumCars = new HashMap<>();
 				for(int i=0; i<=18; i++) {
 					totalBoardsGeneratedByNumCars.put(i, 0);
 					boardsSavedSoFarByNumCars.put(i, 0);
-					numBoardsByDepthByNumCars.put(i, new HashMap<Integer,Integer>());
+					numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
+					numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 					uniqueGraphsByNumCars.put(i, 0);
 				}
 				// it's generation time!
@@ -243,11 +246,11 @@ public class Main {
 							keepBoard = false;
 						}
 					}
-					// update global stats
+					// update non-depth-related stats
 					totalBoardsGenerated++;
+					uniqueGraphs.add(board.getGraph().hash());
 					int numCars = board.numCars();
 					totalBoardsGeneratedByNumCars.put(numCars, totalBoardsGeneratedByNumCars.get(numCars) + 1);
-					uniqueGraphs.add(board.getGraph().hash());
 					uniqueGraphsByNumCars.put(numCars, uniqueGraphsByNumCars.get(numCars) + 1);
 					// save it
 					if(keepBoard) {
@@ -263,25 +266,36 @@ public class Main {
 					// if we need the depth
 					if(stats || (keepBoard && puzzleOutToFile)) {
 						// get the depth
-						int depth = board.getGraph().getDepthOfBoard(board);
-						// update stats
+						int boardDepth = board.getGraph().getDepthOfBoard(board);
+						int graphDepth = board.getGraph().maxDepth();
+						// update depth-related stats
 						if(stats) {
-							// increment numBoardsByDepth counter
-							if(!numBoardsByDepth.containsKey(depth)) {
-								numBoardsByDepth.put(depth, 0);
+							// increment numBoardsByBoardDepth
+							if(!numBoardsByBoardDepth.containsKey(boardDepth)) {
+								numBoardsByBoardDepth.put(boardDepth, 0);
 							}
-							numBoardsByDepth.put(depth, numBoardsByDepth.get(depth)+1);
-							// increment numBoardsByDepthByNumCars counter
-							if(!numBoardsByDepthByNumCars.get(numCars).containsKey(depth)) {
-								numBoardsByDepthByNumCars.get(numCars).put(depth, 0);
+							numBoardsByBoardDepth.put(boardDepth, numBoardsByBoardDepth.get(boardDepth)+1);
+							// increment numBoardsByBoardDepthByNumCars
+							if(!numBoardsByBoardDepthByNumCars.get(numCars).containsKey(boardDepth)) {
+								numBoardsByBoardDepthByNumCars.get(numCars).put(boardDepth, 0);
 							}
-							numBoardsByDepthByNumCars.get(numCars).put(depth, numBoardsByDepthByNumCars.get(numCars).get(depth)+1);
+							numBoardsByBoardDepthByNumCars.get(numCars).put(boardDepth, numBoardsByBoardDepthByNumCars.get(numCars).get(boardDepth)+1);
+							// increment numBoardsByGraphDepth
+							if(!numBoardsByGraphDepth.containsKey(graphDepth)) {
+								numBoardsByGraphDepth.put(graphDepth, 0);
+							}
+							numBoardsByGraphDepth.put(graphDepth, numBoardsByGraphDepth.get(graphDepth)+1);
+							// increment numBoardsByGraphDepthByNumCars
+							if(!numBoardsByGraphDepthByNumCars.get(numCars).containsKey(graphDepth)) {
+								numBoardsByGraphDepthByNumCars.get(numCars).put(graphDepth, 0);
+							}
+							numBoardsByGraphDepthByNumCars.get(numCars).put(graphDepth, numBoardsByGraphDepthByNumCars.get(numCars).get(graphDepth)+1);
 						}
 						// dump board to file
 						if(keepBoard && puzzleOutToFile) {
 							// write the board to a file
-							int index = numBoardsByDepth.get(depth);
-							String pathName = "generated_puzzles/" + depth + "/";
+							int index = numBoardsByBoardDepth.get(boardDepth);
+							String pathName = "generated_puzzles/" + boardDepth + "/";
 							File outDir = new File(pathName);
 							outDir.mkdirs();
 							String filename = pathName + index + ".txt";
@@ -294,19 +308,20 @@ public class Main {
 				}
 				// stats output
 				if(stats) {
-					printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByDepth);
-					int minGeneratedNumCars = Collections.min(numBoardsByDepthByNumCars.keySet());
-					int maxGeneratedNumCars = Collections.max(numBoardsByDepthByNumCars.keySet());
+					System.out.println(" >>>>> STATS <<<<< ");
+					int minGeneratedNumCars = Collections.min(numBoardsByBoardDepthByNumCars.keySet());
+					int maxGeneratedNumCars = Collections.max(numBoardsByBoardDepthByNumCars.keySet());
 					for(int numCars = minGeneratedNumCars; numCars <= maxGeneratedNumCars; numCars++) {
 						if(uniqueGraphsByNumCars.get(numCars) == 0) {
 							continue;
 						}
 						totalBoardsGeneratedByNumCars.get(numCars);
 						uniqueGraphsByNumCars.get(numCars);
-						numBoardsByDepthByNumCars.get(numCars);
+						numBoardsByBoardDepthByNumCars.get(numCars);
+						printStats("=== NUMCARS=" + numCars + " ===", totalBoardsGeneratedByNumCars.get(numCars), uniqueGraphsByNumCars.get(numCars), numBoardsByBoardDepthByNumCars.get(numCars), numBoardsByGraphDepthByNumCars.get(numCars));
 						System.out.println();
-						printStats("=== NUMCARS=" + numCars + " ===", totalBoardsGeneratedByNumCars.get(numCars), uniqueGraphsByNumCars.get(numCars), numBoardsByDepthByNumCars.get(numCars));
 					}
+					printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByBoardDepth, numBoardsByGraphDepth);
 				}
 			}
 		} else {
@@ -314,40 +329,52 @@ public class Main {
 		}
 	}
 
-	private static void printStats(String desc, int totalBoardsGenerated, int numUniqueGraphs, Map<Integer,Integer> numBoardsByDepth) {
+	private static void printStats(String desc, int totalBoardsGenerated, int numUniqueGraphs, Map<Integer,Integer> numBoardsByBoardDepth, Map<Integer,Integer> numBoardsByGraphDepth) {
 		System.out.println(desc);
 		System.out.println("NUMBER OF BOARDS GENERATED: " + totalBoardsGenerated);
 		System.out.println("NUMBER OF UNIQUE EQUIVALENCE CLASSES: " + numUniqueGraphs);
 		System.out.println("DEPTHS COUNT:");
-		int minDepth = Collections.min(numBoardsByDepth.keySet());
-		int maxDepth = Collections.max(numBoardsByDepth.keySet());
+		int minDepth = Collections.min(numBoardsByBoardDepth.keySet());
+		int maxDepth = Collections.max(numBoardsByGraphDepth.keySet());
 		int maxDepthStringWidth = 5;
-		int maxCountStringWidth = Collections.max(numBoardsByDepth.values()).toString().length();
-		if(maxCountStringWidth < 5) {
-			maxCountStringWidth = 5;
+		int maxCountStringWidth = Collections.max(numBoardsByBoardDepth.values()).toString().length();
+		if(maxCountStringWidth < 6) {
+			maxCountStringWidth = 6;
 		}
-		printRow("depth", "count", maxDepthStringWidth, maxCountStringWidth);
-		printRow("-----", "-----", maxDepthStringWidth, maxCountStringWidth);
+		printRow("depth", "boards", "graphs", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
+		printRow("-----", "------", "------", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
 		if(minDepth == -1) { // nearly guaranteed to be the case
 			minDepth = 0;
-			printRow("-1", numBoardsByDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth);
+			numBoardsByBoardDepth.get(-1).toString();
+			numBoardsByGraphDepth.get(-1).toString();
+			printRow("-1", numBoardsByBoardDepth.get(-1).toString(), numBoardsByGraphDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
 		}
-		double totalDepth = 0;
+		double totalBoardDepth = 0;
+		double totalGraphDepth = 0;
 		int solvableBoards = 0;
 		for(int d=minDepth; d<=maxDepth; d++) {
-			if(numBoardsByDepth.containsKey(d)) {
-				printRow(new Integer(d).toString(), numBoardsByDepth.get(d).toString(), maxDepthStringWidth, maxCountStringWidth);
-				totalDepth += numBoardsByDepth.get(d) * d;
-				solvableBoards += numBoardsByDepth.get(d);
+			String count1, count2;
+			if(numBoardsByBoardDepth.containsKey(d)) {
+				count1 = numBoardsByBoardDepth.get(d).toString();
+				totalBoardDepth += numBoardsByBoardDepth.get(d) * d;
+				solvableBoards += numBoardsByBoardDepth.get(d);
 			} else {
-				printRow(new Integer(d).toString(), "0", maxDepthStringWidth, maxCountStringWidth);
+				count1 = "0";
 			}
+			if(numBoardsByGraphDepth.containsKey(d)) {
+				count2 = numBoardsByGraphDepth.get(d).toString();
+				totalGraphDepth += numBoardsByGraphDepth.get(d) * d;
+			} else {
+				count2 = "0";
+			}
+			printRow(new Integer(d).toString(), count1, count2, maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
 		}
 		System.out.println("NUMBER OF SOLVABLE BOARDS: " + solvableBoards);
-		System.out.println("AVERAGE DEPTH OF SOLVABLE BOARDS: " + totalDepth/solvableBoards);
+		System.out.println("AVERAGE BOARD DEPTH OF SOLVABLE BOARDS: " + totalBoardDepth/solvableBoards);
+		System.out.println("AVERAGE GRAPH DEPTH OF SOLVABLE BOARDS: " + totalGraphDepth/solvableBoards);
 	}
 
-	private static void printRow(String col1, String col2, int col1Width, int col2Width) {
+	private static void printRow(String col1, String col2, String col3, int col1Width, int col2Width, int col3Width) {
 		System.out.print("| ");
 		if(col1.length() < col1Width) {
 			System.out.print(new String(new char[col1Width - col1.length()]).replace("\0", " "));
@@ -358,6 +385,11 @@ public class Main {
 			System.out.print(new String(new char[col2Width - col2.length()]).replace("\0", " "));
 		}
 		System.out.print(col2);
+		System.out.print(" | ");
+		if(col3.length() < col3Width) {
+			System.out.print(new String(new char[col3Width - col3.length()]).replace("\0", " "));
+		}
+		System.out.print(col3);
 		System.out.print(" |");
 		System.out.println();
 	}
