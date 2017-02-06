@@ -65,7 +65,7 @@ public class BoardGraph {
 		}
 		// propogate depth values and graph pointers
 		int numberOfVisitedStates = 0;
-		int maxDepth = 0;
+		int maxDepth = -1;
 		int solvedStates = 0;
 		queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
