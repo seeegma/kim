@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
+import java.util.Map;
 
 public class BoardGraph {
 
@@ -162,6 +163,37 @@ public class BoardGraph {
 			}
 		}
 		return path;
+	}
+
+	/**
+	 * Uses a dumb walk starting from the first soln vertex to find a Board with
+	 * maxDepth.
+	 */
+	public Board getFarthest() {
+		if (this.solutions.size() == 0) {
+			return null;
+		}
+
+		// takes element from set
+		Vertex current = solutions.iterator().next();
+
+		// "random" walk
+		while (current.depth != this.maxDepth) {
+			for (Map.Entry<Move,Vertex> e : current.neighbors.entrySet()) {
+				// if it finds a move that goes deeper, make that move
+				if (e.getValue().depth > current.depth) {
+					current = e.getValue();
+					break;
+				}
+
+				// so we at least make a move
+				if (e.getValue().depth == current.depth) {
+					current = e.getValue();
+				}
+			}
+		}
+
+		return current.board;
 	}
 
 }
