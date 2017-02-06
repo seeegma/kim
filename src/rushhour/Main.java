@@ -307,7 +307,7 @@ public class Main {
 								if(!quiet) {
 									System.out.println("writing to '" + filename + "'...");
 								}
-								BoardIO.write(filename, board);
+								BoardIO.write(filename, board.getGraph().getFarthest());
 							}
 						}
 					}
