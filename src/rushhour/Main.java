@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Collections;
 import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
 
 public class Main {
 	private static final String usage =
@@ -193,17 +195,18 @@ public class Main {
 				Random rng = new Random();
 				// stats
 				Map<Integer,Integer> numBoardsByDepth = new HashMap<>(); // depths to be deleted once final output is fixed
-				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>();
-				Map<Integer,ArrayList<Long>> equivalenceMap = new HashMap<>();
-				Map<Integer,ArrayList<Integer>> multiplicityMap = new HashMap<>();
+				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>(); // splits based on numCars
+				//Map<Integer,Map<Long,Integer>> multiplicityByEquivalenceByNumCars = new HashMap<>(); // can calc the ratio of unique boards generated vs total solvable based on numCars of board
+				Set<Long> graphHashes = new HashSet<>();
 				for (int i = 0; i <= 18; i++) {
 					numBoardsByDepthByNumCars.put(i, new HashMap<Integer, Integer>());
-					equivalenceMap.put(i, new ArrayList<Long>());
-					multiplicityMap.put(i, new ArrayList<Integer>());
+					// depth of -1 is unsolvable
+					numBoardsByDepthByNumCars.get(i).put(-1, 0);
+					//equivalenceMap.put(i, new ArrayList<Long>());
+					//multiplicityMap.put(i, new ArrayList<Integer>());
 				}
-				// depth and numCars of -1 is unsolvable
-				numBoardsByDepthByNumCars.put(-1, new HashMap<Integer, Integer>());
-				numBoardsByDepthByNumCars.get(-1).put(-1, 0);
+				// depth of -1 is unsolvable
+				numBoardsByDepth.put(-1, 0);
 				int boardsGenerated = 0;
 				// ok go!
 				int i = 0;
@@ -211,36 +214,39 @@ public class Main {
 					if(!setNumCars) {
 						numCars = rng.nextInt(8) + 9; // random number from 9 to 15
 					}
-					// generates a board in an equivalence class not seen before
+					// generates a solvable board
 					Board board = new Board(6, 6);
-					boolean isUnique = false;
-					while (!isUnique) {
-						if(onlySolvable) {
-							// keeps track of num of unsolvable boards generated
-							numBoardsByDepthByNumCars.get(-1).put(-1, numBoardsByDepthByNumCars.get(-1).get(-1) - 1);
-							do {
-								numBoardsByDepthByNumCars.get(-1).put(-1, numBoardsByDepthByNumCars.get(-1).get(-1) + 1);
-								board = gen.generate(numCars);
-								boardsGenerated++;
-							} while(board.getGraph().numSolutions() == 0);
-						} else {
+					if(onlySolvable) {
+						// keeps track of num of unsolvable boards generated
+						numBoardsByDepthByNumCars.get(numCars).put(-1, numBoardsByDepthByNumCars.get(numCars).get(-1) - 1);
+						numBoardsByDepth.put(-1, numBoardsByDepth.get(-1)-1);
+						do {
+							numBoardsByDepthByNumCars.get(numCars).put(-1, numBoardsByDepthByNumCars.get(numCars).get(-1) + 1);
+							numBoardsByDepth.put(-1, numBoardsByDepth.get(-1)+1);
 							board = gen.generate(numCars);
 							boardsGenerated++;
-						}
+						} while(board.getGraph().numSolutions() == 0);
+					} else {
+						board = gen.generate(numCars);
+						boardsGenerated++;
+					}
 
-						if (stats) {
-							// makes sure the new graph is in a unique equivalence class and updates all the stats stuff
-							if (!equivalenceMap.containsValue(board.getGraph().hash())) {
-								equivalenceMap.get(numCars).add(board.getGraph().hash());
-								multiplicityMap.get(numCars).add(1);
-								isUnique = true;
-							} else {
-								int j = equivalenceMap.get(numCars).indexOf(board.getGraph().hash());
-								multiplicityMap.get(numCars).set(j, multiplicityMap.get(numCars).get(j)+1);
-							}
-						} else {
+					// uniqueness check
+					boolean isUnique = false;
+					if (stats) {
+						// makes sure the new graph is in a unique equivalence class and updates all the stats stuff
+						if (!graphHashes.contains(board.getGraph().hash())) {
+							graphHashes.add(board.getGraph().hash());
 							isUnique = true;
 						}
+						/*if (!equivalenceMap.containsValue(board.getGraph().hash())) {
+							equivalenceMap.get(numCars).add(board.getGraph().hash());
+							multiplicityMap.get(numCars).add(1);
+							isUnique = true;
+						} else {
+							int j = equivalenceMap.get(numCars).indexOf(board.getGraph().hash());
+							multiplicityMap.get(numCars).set(j, multiplicityMap.get(numCars).get(j)+1);
+						}*/
 					}
 
 					// now we have a board
@@ -253,14 +259,21 @@ public class Main {
 						// get its depth
 						int depth = board.getGraph().getDepthOfBoard(board);
 						if(stats) {
-							// increment depth counter(s)
+							// increment numBoardsByDepth counter(s)
 							if(!numBoardsByDepth.containsKey(depth)) {
 								numBoardsByDepth.put(depth, 1);
 							} else {
 								numBoardsByDepth.put(depth, numBoardsByDepth.get(depth)+1);
 							}
+							// increments numBoardsByDepthByNumCars counter
+							if (!numBoardsByDepthByNumCars.get(numCars).containsKey(depth)) {
+								numBoardsByDepthByNumCars.get(numCars).put(depth, 1);
+							} else {
+								numBoardsByDepthByNumCars.get(numCars).put(depth, numBoardsByDepthByNumCars.get(numCars).get(depth)+1);
+							}
 						}
-						if(puzzleOutToFile) {
+						// only outputs unique boards
+						if(puzzleOutToFile && isUnique) {
 							// write the board to a file
 							int index = numBoardsByDepth.get(depth);
 							String pathName = "generated_puzzles/" + depth + "/";
