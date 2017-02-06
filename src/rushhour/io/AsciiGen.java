@@ -11,7 +11,7 @@ public final class AsciiGen {
 	final static int len = 6;
 	final static int hei = 6;
 	//print height
-	final static int phei = 9;
+	final static int phei = 8;
 	//print length
 	final static int plen = 8;
 	final static int exitL = 3;
@@ -46,14 +46,13 @@ public final class AsciiGen {
 		//visual delimiters for top and bottom
 		fin[0] = " .=============.";
 		fin[7] = " `=============`";
-		fin[8] = "";
 		//gets individual lines
 		for(int i = 0;i<hei;i++){
 			fin[i+1] = extractLine(inputG.getRow(i));
 		}
 		
 		//marking the exit path
-		fin[exitL] = fin[exitL];
+		fin[exitL] = fin[exitL].substring(0, 14);
 		
 		return fin;
 	}
