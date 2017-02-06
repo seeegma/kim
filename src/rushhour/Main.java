@@ -159,10 +159,12 @@ public class Main {
 				boolean useHeuristics = false; 
 				boolean setNumCars = false;
 				int targetNumCars = 11; // reasonable default
+				int minNumCars = 9; // reasonable default
+				int maxNumCars = 15; // reasonable default
 				int boardsToSave = 1; // reasonable default
 				boolean stats = false;
 				boolean puzzleOutToFile = false;
-				boolean printBoards = true;
+				boolean quiet = false;
 				for(int i=1; i<args.length; i++) {
 					if(args[i].equals("--numBoards")) {
 						boardsToSave = Integer.parseInt(args[i+1]);
@@ -183,12 +185,18 @@ public class Main {
 						}
 						setNumCars = true;
 						i++;
+					} else if(args[i].equals("--minNumCars")) {
+						minNumCars = Integer.parseInt(args[i+1]);
+						i++;
+					} else if(args[i].equals("--maxNumCars")) {
+						maxNumCars = Integer.parseInt(args[i+1]);
+						i++;
 					} else if(args[i].equals("--stats")) {
 						stats = true;
 					} else if(args[i].equals("--puzzleFile")) {
 						puzzleOutToFile = true;
 					} else if(args[i].equals("--quiet")) {
-						printBoards = false;
+						quiet = true;
 					} else {
 						System.err.println("unrecognized option '" + args[i] + "'");
 						usage();
@@ -207,15 +215,16 @@ public class Main {
 				Map<Integer,Integer> boardsSavedSoFarByNumCars = new HashMap<>();
 				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>();
 				Map<Integer,Integer> uniqueGraphsByNumCars = new HashMap<>();
-				for(int i=0; i<18; i++) {
+				for(int i=0; i<=18; i++) {
 					totalBoardsGeneratedByNumCars.put(i, 0);
 					boardsSavedSoFarByNumCars.put(i, 0);
 					numBoardsByDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 					uniqueGraphsByNumCars.put(i, 0);
 				}
+				// it's generation time!
 				while(boardsSavedSoFar < boardsToSave) {
 					if(!setNumCars) {
-						targetNumCars = rng.nextInt(8) + 9; // random number from 9 to 15
+						targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 					}
 					// generate a board
 					Board board = new Board(6, 6);
@@ -246,8 +255,10 @@ public class Main {
 						boardsSavedSoFarByNumCars.put(numCars, boardsSavedSoFarByNumCars.get(numCars) + 1);
 					}
 					// print it
-					if(keepBoard && printBoards) {
+					if(keepBoard && !quiet) {
+						System.out.println();
 						AsciiGen.printGrid(board.getGrid());
+						System.out.println("numCars: " + board.numCars());
 					}
 					// if we need the depth
 					if(stats || (keepBoard && puzzleOutToFile)) {
@@ -274,7 +285,9 @@ public class Main {
 							File outDir = new File(pathName);
 							outDir.mkdirs();
 							String filename = pathName + index + ".txt";
-							System.out.println("writing to '" + filename + "'...");
+							if(!quiet) {
+								System.out.println("writing to '" + filename + "'...");
+							}
 							BoardIO.write(filename, board);
 						}
 					}
@@ -282,9 +295,9 @@ public class Main {
 				// stats output
 				if(stats) {
 					printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByDepth);
-					int minNumCars = Collections.min(numBoardsByDepthByNumCars.keySet());
-					int maxNumCars = Collections.max(numBoardsByDepthByNumCars.keySet());
-					for(int numCars = minNumCars; numCars <= maxNumCars; numCars++) {
+					int minGeneratedNumCars = Collections.min(numBoardsByDepthByNumCars.keySet());
+					int maxGeneratedNumCars = Collections.max(numBoardsByDepthByNumCars.keySet());
+					for(int numCars = minGeneratedNumCars; numCars <= maxGeneratedNumCars; numCars++) {
 						if(uniqueGraphsByNumCars.get(numCars) == 0) {
 							continue;
 						}
