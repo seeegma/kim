@@ -18,7 +18,7 @@ public class BoardGraph {
 		public Vertex(Board board) {
 			this.board = board;
 			this.parent = null;
-			this.depth = 0;
+			this.depth = -1;
 			this.neighbors = null;
 		}
 	}

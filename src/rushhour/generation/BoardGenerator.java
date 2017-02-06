@@ -19,21 +19,24 @@ public class BoardGenerator {
 	private Board board;
 	// rng
 	private Random rng;
-	// whether or not we're using heuristics to prevent generating unsolvable or uninteresting boards
-	private boolean usingHeuristics;
+	// whether or not we block the vip with horizontal cars
+	private boolean useHeuristics;
+	// whether or not we want to allow generation of trivial boards
+	private boolean nontrivial;
 	
-	public BoardGenerator(boolean usingHeuristics) {
+	public BoardGenerator(boolean nontrivial, boolean useHeuristics) {
 		this.rng = new Random();
 		this.vip = null;
 		this.carOptions = new ArrayList<Car>();
 		this.board = new Board(6, 6);
 		this.cars = new ArrayList<Car>();
-		this.usingHeuristics = usingHeuristics;
+		this.nontrivial = nontrivial;
+		this.useHeuristics = useHeuristics;
 	}
 
 	private void init() {
 		this.carOptions.clear();
-		if(this.usingHeuristics) {
+		if(this.nontrivial) {
 			this.vip = new Car(rng.nextInt(4), 2, 2, true);
 		} else {
 			this.vip = new Car(rng.nextInt(5), 2, 2, true);
@@ -45,7 +48,7 @@ public class BoardGenerator {
 				// horiz
 				for(int length=2; length<=3 && x+length-1<6; length++) {
 					Car toAdd = new Car(x, y, length, true);
-					if(this.usingHeuristics) {
+					if(this.useHeuristics) {
 						if(toAdd.y != this.vip.y || toAdd.x + toAdd.length < this.vip.x) {
 							carOptions.add(toAdd);
 						}
