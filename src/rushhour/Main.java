@@ -192,10 +192,18 @@ public class Main {
 				BoardGenerator gen = new BoardGenerator(nontrivial, useHeuristics);
 				Random rng = new Random();
 				// stats
-				Map<Integer,Integer> numBoardsByDepth = new HashMap<>();
+				Map<Integer,Integer> numBoardsByDepth = new HashMap<>(); // depths to be deleted once final output is fixed
 				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>();
-				// numBoardsByDepth of -1 means unsolvable
-				numBoardsByDepth.put(-1, 0);
+				Map<Integer,ArrayList<Long>> equivalenceMap = new HashMap<>();
+				Map<Integer,ArrayList<Integer>> multiplicityMap = new HashMap<>();
+				for (int i = 0; i <= 18; i++) {
+					numBoardsByDepthByNumCars.put(i, new HashMap<Integer, Integer>());
+					equivalenceMap.put(i, new ArrayList<Long>());
+					multiplicityMap.put(i, new ArrayList<Integer>());
+				}
+				// depth and numCars of -1 is unsolvable
+				numBoardsByDepthByNumCars.put(-1, new HashMap<Integer, Integer>());
+				numBoardsByDepthByNumCars.get(-1).put(-1, 0);
 				int boardsGenerated = 0;
 				// ok go!
 				int i = 0;
@@ -203,22 +211,39 @@ public class Main {
 					if(!setNumCars) {
 						numCars = rng.nextInt(8) + 9; // random number from 9 to 15
 					}
-					Board board;
-					// generate a board
-					board = gen.generate(numCars);
-					boardsGenerated++;
-					if(onlySolvable) {
-						// if we only want solvable boards, keep generating until we get one
-						while(board.getGraph().numSolutions() == 0) {
-							numBoardsByDepth.put(-1, numBoardsByDepth.get(-1) + 1);
+					// generates a board in an equivalence class not seen before
+					Board board = new Board(6, 6);
+					boolean isUnique = false;
+					while (!isUnique) {
+						if(onlySolvable) {
+							// keeps track of num of unsolvable boards generated
+							numBoardsByDepthByNumCars.get(-1).put(-1, numBoardsByDepthByNumCars.get(-1).get(-1) - 1);
+							do {
+								numBoardsByDepthByNumCars.get(-1).put(-1, numBoardsByDepthByNumCars.get(-1).get(-1) + 1);
+								board = gen.generate(numCars);
+								boardsGenerated++;
+							} while(board.getGraph().numSolutions() == 0);
+						} else {
 							board = gen.generate(numCars);
 							boardsGenerated++;
 						}
+
+						if (stats) {
+							// makes sure the new graph is in a unique equivalence class and updates all the stats stuff
+							if (!equivalenceMap.containsValue(board.getGraph().hash())) {
+								equivalenceMap.get(numCars).add(board.getGraph().hash());
+								multiplicityMap.get(numCars).add(1);
+								isUnique = true;
+							} else {
+								int j = equivalenceMap.get(numCars).indexOf(board.getGraph().hash());
+								multiplicityMap.get(numCars).set(j, multiplicityMap.get(numCars).get(j)+1);
+							}
+						} else {
+							isUnique = true;
+						}
 					}
 
-					// TODO: check if we've seen its graph before
-					// ...
-
+					// now we have a board
 					// print it
 					if(printBoards) {
 						AsciiGen.printGrid(board.getGrid());
@@ -248,6 +273,7 @@ public class Main {
 					}
 					i++;
 				}
+				// stats output
 				if(stats) {
 					// TODO: keep multiplicities of equiv classes.
 					// TODO: also print this stuff for numBoardsByDepthByNumCars
