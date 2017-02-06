@@ -72,6 +72,7 @@ public class BoardGraph {
 		for(Vertex vert : vertices.values()) {
 			if (vert.board.isSolved()) {
 				vert.depth = 0;
+				maxDepth = 0;
 				queue.offer(vert);
 				visited.add(vert);
 				this.solutions.add(vert);
