@@ -297,6 +297,7 @@ public class Main {
 						// dump board to file
 						if(keepBoard && puzzleOutToFile) {
 							// write the board to a file
+							// using graph depth to group output boards
 							if (numBoardsByGraphDepth.get(boardDepth) <= boardsToSave) {
 								int index = numBoardsByGraphDepth.get(boardDepth);
 								String pathName = "generated_puzzles/" + boardDepth + "/";
