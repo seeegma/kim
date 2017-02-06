@@ -232,8 +232,7 @@ public class Main {
 						targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 					}
 					// generate a board
-					Board board = new Board(6, 6);
-					board = gen.generate(targetNumCars);
+					Board board = gen.generate(targetNumCars);
 					boolean keepBoard = true;
 					// see if we should save it
 					if(onlyUnique) {
@@ -249,16 +248,17 @@ public class Main {
 					totalBoardsGenerated++;
 					uniqueGraphs.add(board.getGraph().hash());
 					int numCars = board.numCars();
-					totalBoardsGeneratedByNumCars.put(numCars, totalBoardsGeneratedByNumCars.get(numCars) + 1);
-					uniqueGraphsByNumCars.put(numCars, uniqueGraphsByNumCars.get(numCars) + 1);
+					incrementMapValue(totalBoardsGeneratedByNumCars, numCars);
+					incrementMapValue(uniqueGraphsByNumCars, numCars);
 					// save it
 					if(keepBoard) {
 						boardsSavedSoFar++;
-						boardsSavedSoFarByNumCars.put(numCars, boardsSavedSoFarByNumCars.get(numCars) + 1);
+						incrementMapValue(boardsSavedSoFarByNumCars, numCars);
 					}
 					// print it
 					if(keepBoard && !quiet) {
 						System.out.println();
+						System.out.println("board " + boardsSavedSoFar);
 						AsciiGen.printGrid(board.getGrid());
 						System.out.println("numCars: " + board.numCars());
 					}
@@ -277,22 +277,22 @@ public class Main {
 							if(!numBoardsByBoardDepth.containsKey(boardDepth)) {
 								numBoardsByBoardDepth.put(boardDepth, 0);
 							}
-							numBoardsByBoardDepth.put(boardDepth, numBoardsByBoardDepth.get(boardDepth)+1);
+							incrementMapValue(numBoardsByBoardDepth, boardDepth);
 							// increment numBoardsByBoardDepthByNumCars
 							if(!numBoardsByBoardDepthByNumCars.get(numCars).containsKey(boardDepth)) {
 								numBoardsByBoardDepthByNumCars.get(numCars).put(boardDepth, 0);
 							}
-							numBoardsByBoardDepthByNumCars.get(numCars).put(boardDepth, numBoardsByBoardDepthByNumCars.get(numCars).get(boardDepth)+1);
+							incrementMapValue(numBoardsByBoardDepthByNumCars.get(numCars), boardDepth);
 							// increment numBoardsByGraphDepth
 							if(!numBoardsByGraphDepth.containsKey(graphDepth)) {
 								numBoardsByGraphDepth.put(graphDepth, 0);
 							}
-							numBoardsByGraphDepth.put(graphDepth, numBoardsByGraphDepth.get(graphDepth)+1);
+							incrementMapValue(numBoardsByGraphDepth, graphDepth);
 							// increment numBoardsByGraphDepthByNumCars
 							if(!numBoardsByGraphDepthByNumCars.get(numCars).containsKey(graphDepth)) {
 								numBoardsByGraphDepthByNumCars.get(numCars).put(graphDepth, 0);
 							}
-							numBoardsByGraphDepthByNumCars.get(numCars).put(graphDepth, numBoardsByGraphDepthByNumCars.get(numCars).get(graphDepth)+1);
+							incrementMapValue(numBoardsByGraphDepthByNumCars.get(numCars), graphDepth);
 						}
 						// dump board to file
 						if(keepBoard && puzzleOutToFile) {
@@ -330,6 +330,10 @@ public class Main {
 		} else {
 			usage();
 		}
+	}
+
+	private static void incrementMapValue(Map<Integer,Integer> map, int key) {
+		map.put(key, map.get(key)+1);
 	}
 
 	private static void printStats(String desc, int totalBoardsGenerated, int numUniqueGraphs, Map<Integer,Integer> numBoardsByBoardDepth, Map<Integer,Integer> numBoardsByGraphDepth) {
