@@ -297,15 +297,17 @@ public class Main {
 						// dump board to file
 						if(keepBoard && puzzleOutToFile) {
 							// write the board to a file
-							int index = numBoardsByBoardDepth.get(boardDepth);
-							String pathName = "generated_puzzles/" + boardDepth + "/";
-							File outDir = new File(pathName);
-							outDir.mkdirs();
-							String filename = pathName + index + ".txt";
-							if(!quiet) {
-								System.out.println("writing to '" + filename + "'...");
+							if (numBoardsByGraphDepth.get(boardDepth) <= boardsToSave) {
+								int index = numBoardsByGraphDepth.get(boardDepth);
+								String pathName = "generated_puzzles/" + boardDepth + "/";
+								File outDir = new File(pathName);
+								outDir.mkdirs();
+								String filename = pathName + index + ".txt";
+								if(!quiet) {
+									System.out.println("writing to '" + filename + "'...");
+								}
+								BoardIO.write(filename, board);
 							}
-							BoardIO.write(filename, board);
 						}
 					}
 				}
