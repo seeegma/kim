@@ -20,11 +20,11 @@ public class Main {
 	private static final String usage =
 		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
-		"\tprint <puzzle_file>" +
+		"\tprint <puzzle_file>\n" +
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate [--useHeuristics] [--boardsToGenerate n] [--numCars n]";
+		"\tgenerate [--useHeuristics] [--numBoards n] [--numCars n] [--quiet] [--solvable] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -155,26 +155,29 @@ public class Main {
 				// options
 				boolean nontrivial = false; 
 				boolean onlySolvable = false;
+				boolean onlyUnique = false;
 				boolean useHeuristics = false; 
 				boolean setNumCars = false;
-				int numCars = 0;
-				int boardsToGenerate = 1;
+				int targetNumCars = 11; // reasonable default
+				int boardsToSave = 1; // reasonable default
 				boolean stats = false;
 				boolean puzzleOutToFile = false;
 				boolean printBoards = true;
 				for(int i=1; i<args.length; i++) {
 					if(args[i].equals("--numBoards")) {
-						boardsToGenerate = Integer.parseInt(args[i+1]);
+						boardsToSave = Integer.parseInt(args[i+1]);
 						i++;
 					} else if(args[i].equals("--solvable")) {
 						onlySolvable = true;
+					} else if(args[i].equals("--unique")) {
+						onlyUnique = true;
 					} else if(args[i].equals("--useHeuristics")) {
 						useHeuristics = true;
 					} else if(args[i].equals("--nontrivial")) {
 						nontrivial = true;
 					} else if(args[i].equals("--numCars")) {
-						numCars = Integer.parseInt(args[i+1]);
-						if(numCars > 18) {
+						targetNumCars = Integer.parseInt(args[i+1]);
+						if(targetNumCars > 18) {
 							System.err.println("No such boards exist, sorry!");
 							System.exit(0);
 						}
@@ -184,7 +187,7 @@ public class Main {
 						stats = true;
 					} else if(args[i].equals("--puzzleFile")) {
 						puzzleOutToFile = true;
-					} else if(args[i].equals("--noPrint")) {
+					} else if(args[i].equals("--quiet")) {
 						printBoards = false;
 					} else {
 						System.err.println("unrecognized option '" + args[i] + "'");
@@ -193,87 +196,78 @@ public class Main {
 				}
 				BoardGenerator gen = new BoardGenerator(nontrivial, useHeuristics);
 				Random rng = new Random();
-				// stats
-				Map<Integer,Integer> numBoardsByDepth = new HashMap<>(); // depths to be deleted once final output is fixed
-				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>(); // splits based on numCars
-				//Map<Integer,Map<Long,Integer>> multiplicityByEquivalenceByNumCars = new HashMap<>(); // can calc the ratio of unique boards generated vs total solvable based on numCars of board
-				Set<Long> graphHashes = new HashSet<>();
-				for (int i = 0; i <= 18; i++) {
-					numBoardsByDepthByNumCars.put(i, new HashMap<Integer, Integer>());
-					// depth of -1 is unsolvable
-					numBoardsByDepthByNumCars.get(i).put(-1, 0);
-					//equivalenceMap.put(i, new ArrayList<Long>());
-					//multiplicityMap.put(i, new ArrayList<Integer>());
+				// STATS STUFF //
+				// total counts
+				int totalBoardsGenerated = 0;
+				int boardsSavedSoFar = 0;
+				Map<Integer,Integer> numBoardsByDepth = new HashMap<>();
+				Set<Long> uniqueGraphs = new HashSet<>();
+				// per-numCars counts
+				Map<Integer,Integer> totalBoardsGeneratedByNumCars = new HashMap<>();
+				Map<Integer,Integer> boardsSavedSoFarByNumCars = new HashMap<>();
+				Map<Integer,Map<Integer,Integer>> numBoardsByDepthByNumCars = new HashMap<>();
+				Map<Integer,Integer> uniqueGraphsByNumCars = new HashMap<>();
+				for(int i=0; i<18; i++) {
+					totalBoardsGeneratedByNumCars.put(i, 0);
+					boardsSavedSoFarByNumCars.put(i, 0);
+					numBoardsByDepthByNumCars.put(i, new HashMap<Integer,Integer>());
+					uniqueGraphsByNumCars.put(i, 0);
 				}
-				// depth of -1 is unsolvable
-				numBoardsByDepth.put(-1, 0);
-				int boardsGenerated = 0;
-				// ok go!
-				int i = 0;
-				while(i < boardsToGenerate) {
+				while(boardsSavedSoFar < boardsToSave) {
 					if(!setNumCars) {
-						numCars = rng.nextInt(8) + 9; // random number from 9 to 15
+						targetNumCars = rng.nextInt(8) + 9; // random number from 9 to 15
 					}
-					// generates a solvable board
+					// generate a board
 					Board board = new Board(6, 6);
-					if(onlySolvable) {
-						// keeps track of num of unsolvable boards generated
-						numBoardsByDepthByNumCars.get(numCars).put(-1, numBoardsByDepthByNumCars.get(numCars).get(-1) - 1);
-						numBoardsByDepth.put(-1, numBoardsByDepth.get(-1)-1);
-						do {
-							numBoardsByDepthByNumCars.get(numCars).put(-1, numBoardsByDepthByNumCars.get(numCars).get(-1) + 1);
-							numBoardsByDepth.put(-1, numBoardsByDepth.get(-1)+1);
-							board = gen.generate(numCars);
-							boardsGenerated++;
-						} while(board.getGraph().numSolutions() == 0);
-					} else {
-						board = gen.generate(numCars);
-						boardsGenerated++;
-					}
-
-					// uniqueness check
-					boolean isUnique = false;
-					if (stats) {
-						// makes sure the new graph is in a unique equivalence class and updates all the stats stuff
-						if (!graphHashes.contains(board.getGraph().hash())) {
-							graphHashes.add(board.getGraph().hash());
-							isUnique = true;
+					board = gen.generate(targetNumCars);
+					boolean keepBoard = true;
+					// see if we should save it
+					if(onlyUnique) {
+						// make sure the new graph is in a unique equivalence class
+						if(uniqueGraphs.contains(board.getGraph().hash())) {
+							keepBoard = false;
 						}
-						/*if (!equivalenceMap.containsValue(board.getGraph().hash())) {
-							equivalenceMap.get(numCars).add(board.getGraph().hash());
-							multiplicityMap.get(numCars).add(1);
-							isUnique = true;
-						} else {
-							int j = equivalenceMap.get(numCars).indexOf(board.getGraph().hash());
-							multiplicityMap.get(numCars).set(j, multiplicityMap.get(numCars).get(j)+1);
-						}*/
 					}
-
-					// now we have a board
+					if(onlySolvable) {
+						// make sure the board is solvable
+						if(board.getGraph().numSolutions() == 0) {
+							keepBoard = false;
+						}
+					}
+					// update global stats
+					totalBoardsGenerated++;
+					int numCars = board.numCars();
+					totalBoardsGeneratedByNumCars.put(numCars, totalBoardsGeneratedByNumCars.get(numCars) + 1);
+					uniqueGraphs.add(board.getGraph().hash());
+					uniqueGraphsByNumCars.put(numCars, uniqueGraphsByNumCars.get(numCars) + 1);
+					// save it
+					if(keepBoard) {
+						boardsSavedSoFar++;
+						boardsSavedSoFarByNumCars.put(numCars, boardsSavedSoFarByNumCars.get(numCars) + 1);
+					}
 					// print it
-					if(printBoards) {
+					if(keepBoard && printBoards) {
 						AsciiGen.printGrid(board.getGrid());
 					}
-					// deal with final things
-					if(stats || puzzleOutToFile) {
-						// get its depth
+					// if we need the depth
+					if(stats || (keepBoard && puzzleOutToFile)) {
+						// get the depth
 						int depth = board.getGraph().getDepthOfBoard(board);
+						// update stats
 						if(stats) {
-							// increment numBoardsByDepth counter(s)
+							// increment numBoardsByDepth counter
 							if(!numBoardsByDepth.containsKey(depth)) {
-								numBoardsByDepth.put(depth, 1);
-							} else {
-								numBoardsByDepth.put(depth, numBoardsByDepth.get(depth)+1);
+								numBoardsByDepth.put(depth, 0);
 							}
-							// increments numBoardsByDepthByNumCars counter
-							if (!numBoardsByDepthByNumCars.get(numCars).containsKey(depth)) {
-								numBoardsByDepthByNumCars.get(numCars).put(depth, 1);
-							} else {
-								numBoardsByDepthByNumCars.get(numCars).put(depth, numBoardsByDepthByNumCars.get(numCars).get(depth)+1);
+							numBoardsByDepth.put(depth, numBoardsByDepth.get(depth)+1);
+							// increment numBoardsByDepthByNumCars counter
+							if(!numBoardsByDepthByNumCars.get(numCars).containsKey(depth)) {
+								numBoardsByDepthByNumCars.get(numCars).put(depth, 0);
 							}
+							numBoardsByDepthByNumCars.get(numCars).put(depth, numBoardsByDepthByNumCars.get(numCars).get(depth)+1);
 						}
-						// only outputs unique boards
-						if(puzzleOutToFile && isUnique) {
+						// dump board to file
+						if(keepBoard && puzzleOutToFile) {
 							// write the board to a file
 							int index = numBoardsByDepth.get(depth);
 							String pathName = "generated_puzzles/" + depth + "/";
@@ -284,42 +278,60 @@ public class Main {
 							BoardIO.write(filename, board);
 						}
 					}
-					i++;
 				}
 				// stats output
 				if(stats) {
-					// TODO: keep multiplicities of equiv classes.
-					// TODO: also print this stuff for numBoardsByDepthByNumCars
-					System.out.println("TOTAL NUMBER OF BOARDS GENERATED: " + boardsGenerated);
-					System.out.println("TOTAL DEPTHS COUNT:");
-					int minDepth = Collections.min(numBoardsByDepth.keySet());
-					int maxDepth = Collections.max(numBoardsByDepth.keySet());
-					int maxDepthStringWidth = 5;
-					int maxCountStringWidth = Collections.max(numBoardsByDepth.values()).toString().length();
-					if(maxCountStringWidth < 5) {
-						maxCountStringWidth = 5;
-					}
-					printRow("depth", "count", maxDepthStringWidth, maxCountStringWidth);
-					printRow("-----", "-----", maxDepthStringWidth, maxCountStringWidth);
-					if(minDepth == -1) { // nearly guaranteed to be the case
-						minDepth = 0;
-						printRow("-1", numBoardsByDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth);
-					}
-					double totalDepth = 0;
-					for(int d=minDepth; d<=maxDepth; d++) {
-						if(numBoardsByDepth.containsKey(d)) {
-							printRow(new Integer(d).toString(), numBoardsByDepth.get(d).toString(), maxDepthStringWidth, maxCountStringWidth);
-							totalDepth += numBoardsByDepth.get(d) * d;
-						} else {
-							printRow(new Integer(d).toString(), "0", maxDepthStringWidth, maxCountStringWidth);
+					printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByDepth);
+					int minNumCars = Collections.min(numBoardsByDepthByNumCars.keySet());
+					int maxNumCars = Collections.max(numBoardsByDepthByNumCars.keySet());
+					for(int numCars = minNumCars; numCars <= maxNumCars; numCars++) {
+						if(uniqueGraphsByNumCars.get(numCars) == 0) {
+							continue;
 						}
+						totalBoardsGeneratedByNumCars.get(numCars);
+						uniqueGraphsByNumCars.get(numCars);
+						numBoardsByDepthByNumCars.get(numCars);
+						System.out.println();
+						printStats("=== NUMCARS=" + numCars + " ===", totalBoardsGeneratedByNumCars.get(numCars), uniqueGraphsByNumCars.get(numCars), numBoardsByDepthByNumCars.get(numCars));
 					}
-					System.out.println("AVERAGE DEPTH OF SOLVABLE BOARDS: " + totalDepth/boardsToGenerate);
 				}
 			}
 		} else {
 			usage();
 		}
+	}
+
+	private static void printStats(String desc, int totalBoardsGenerated, int numUniqueGraphs, Map<Integer,Integer> numBoardsByDepth) {
+		System.out.println(desc);
+		System.out.println("NUMBER OF BOARDS GENERATED: " + totalBoardsGenerated);
+		System.out.println("NUMBER OF UNIQUE EQUIVALENCE CLASSES: " + numUniqueGraphs);
+		System.out.println("DEPTHS COUNT:");
+		int minDepth = Collections.min(numBoardsByDepth.keySet());
+		int maxDepth = Collections.max(numBoardsByDepth.keySet());
+		int maxDepthStringWidth = 5;
+		int maxCountStringWidth = Collections.max(numBoardsByDepth.values()).toString().length();
+		if(maxCountStringWidth < 5) {
+			maxCountStringWidth = 5;
+		}
+		printRow("depth", "count", maxDepthStringWidth, maxCountStringWidth);
+		printRow("-----", "-----", maxDepthStringWidth, maxCountStringWidth);
+		if(minDepth == -1) { // nearly guaranteed to be the case
+			minDepth = 0;
+			printRow("-1", numBoardsByDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth);
+		}
+		double totalDepth = 0;
+		int solvableBoards = 0;
+		for(int d=minDepth; d<=maxDepth; d++) {
+			if(numBoardsByDepth.containsKey(d)) {
+				printRow(new Integer(d).toString(), numBoardsByDepth.get(d).toString(), maxDepthStringWidth, maxCountStringWidth);
+				totalDepth += numBoardsByDepth.get(d) * d;
+				solvableBoards += numBoardsByDepth.get(d);
+			} else {
+				printRow(new Integer(d).toString(), "0", maxDepthStringWidth, maxCountStringWidth);
+			}
+		}
+		System.out.println("NUMBER OF SOLVABLE BOARDS: " + solvableBoards);
+		System.out.println("AVERAGE DEPTH OF SOLVABLE BOARDS: " + totalDepth/solvableBoards);
 	}
 
 	private static void printRow(String col1, String col2, int col1Width, int col2Width) {
