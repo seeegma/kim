@@ -24,7 +24,7 @@ public class Main {
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate [--useHeuristics] [--numBoards n] [--numCars n] [--quiet] [--solvable] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
+		"\tgenerate [--useHeuristics] [--numBoards n] [--numCars n] [--minNumCars] [--maxNumCars] [--quiet] [--minDepth] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -162,6 +162,7 @@ public class Main {
 				int minNumCars = 9; // reasonable default
 				int maxNumCars = 15; // reasonable default
 				int boardsToSave = 1; // reasonable default
+				int minDepth = -1; // reasonable default
 				boolean stats = false;
 				boolean puzzleOutToFile = false;
 				boolean quiet = false;
@@ -169,8 +170,6 @@ public class Main {
 					if(args[i].equals("--numBoards")) {
 						boardsToSave = Integer.parseInt(args[i+1]);
 						i++;
-					} else if(args[i].equals("--solvable")) {
-						onlySolvable = true;
 					} else if(args[i].equals("--unique")) {
 						onlyUnique = true;
 					} else if(args[i].equals("--useHeuristics")) {
@@ -190,6 +189,9 @@ public class Main {
 						i++;
 					} else if(args[i].equals("--maxNumCars")) {
 						maxNumCars = Integer.parseInt(args[i+1]);
+						i++;
+					} else if(args[i].equals("--minDepth")) {
+						minDepth = Integer.parseInt(args[i+1]);
 						i++;
 					} else if(args[i].equals("--stats")) {
 						stats = true;
@@ -240,11 +242,8 @@ public class Main {
 							keepBoard = false;
 						}
 					}
-					if(onlySolvable) {
-						// make sure the board is solvable
-						if(board.getGraph().numSolutions() == 0) {
-							keepBoard = false;
-						}
+					if(board.getGraph().getDepthOfBoard(board) < minDepth) {
+						keepBoard = false;
 					}
 					// update non-depth-related stats
 					totalBoardsGenerated++;
@@ -268,6 +267,10 @@ public class Main {
 						// get the depth
 						int boardDepth = board.getGraph().getDepthOfBoard(board);
 						int graphDepth = board.getGraph().maxDepth();
+						if(keepBoard && !quiet) {
+							System.out.print("board depth: " + boardDepth + ", ");
+							System.out.println("graph depth: " + graphDepth);
+						}
 						// update depth-related stats
 						if(stats) {
 							// increment numBoardsByBoardDepth
