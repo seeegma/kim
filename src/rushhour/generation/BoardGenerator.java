@@ -74,7 +74,7 @@ public class BoardGenerator {
 		this.init();
 		while(this.board.numCars() < targetNumCars) {
 			if(this.cars.isEmpty()) {
-				return this.generate(targetNumCars);
+				this.init(); // start over
 			}
 			for(int i=0; i<this.cars.size(); i++) {
 				Car c = this.cars.get(i);
