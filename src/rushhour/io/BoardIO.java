@@ -16,7 +16,6 @@ public final class BoardIO {
 	 * @return a board object based on the information in the file.
 	 */
 	public static Board read(String filename) {
-		// Have to fix AltBoard and the file structure...
 		int width = 0;
 	    int height = 0;
 
