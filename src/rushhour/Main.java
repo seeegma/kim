@@ -24,7 +24,7 @@ public class Main {
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate [--useHeuristics] [--numBoards n] [--numCars n] [--minNumCars] [--maxNumCars] [--quiet] [--minDepth] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
+		"\tgenerate [--useHeuristics] [--numBoards n] [--maxPerDepth n] [--numCars n] [--minNumCars] [--maxNumCars] [--quiet] [--minDepth n] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
 	public static void main(String[] args) {
 		if(args.length > 1) {
 			String operation = args[0];
@@ -32,7 +32,7 @@ public class Main {
 			if(operation.equals("print")) {
 				puzzleFile = args[1];
 				Board b = BoardIO.read(puzzleFile);
-				AsciiGen.printGrid(b.getGrid());
+				System.out.println(AsciiGen.getGridString(b));
 			} else if(operation.equals("solve")) {
 				puzzleFile = args[1];
 				Board b = BoardIO.read(puzzleFile);
@@ -68,14 +68,14 @@ public class Main {
 					}
 				}
 				List<Evaluator> evaluators = new ArrayList<>();
-				/*evaluators.add(new NumberOfCarsEvaluator());
+				evaluators.add(new NumberOfCarsEvaluator());
 				evaluators.add(new NumberOfLongCarsEvaluator());
 				evaluators.add(new MinMovesToSolutionEvaluator());
 				evaluators.add(new MinSlidesToSolutionEvaluator());
 				evaluators.add(new AverageBranchingFactorEvaluator());
 				evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
 				evaluators.add(new IrrelevancyEvaluator());
-				evaluators.add(new DFSEvaluator());*/
+				evaluators.add(new DFSEvaluator());
 				evaluators.add(new WeightedScoreEvaluator());
 				if(fields) {
 					for(Evaluator e : evaluators) {
@@ -164,6 +164,7 @@ public class Main {
 				int boardsToSave = 1; // reasonable default
 				int minDepth = -1; // reasonable default
 				boolean stats = false;
+				int maxBoardsPerDepth = -1;
 				boolean puzzleOutToFile = false;
 				boolean quiet = false;
 				for(int i=1; i<args.length; i++) {
@@ -172,6 +173,9 @@ public class Main {
 						i++;
 					} else if(args[i].equals("--unique")) {
 						onlyUnique = true;
+					} else if(args[i].equals("--maxPerDepth")) {
+						maxBoardsPerDepth = Integer.parseInt(args[i+1]);
+						i++;
 					} else if(args[i].equals("--useHeuristics")) {
 						useHeuristics = true;
 					} else if(args[i].equals("--nontrivial")) {
@@ -209,7 +213,6 @@ public class Main {
 				// STATS STUFF //
 				// total counts
 				int totalBoardsGenerated = 0;
-				int boardsSavedSoFar = 0;
 				Map<Integer,Integer> numBoardsByBoardDepth = new HashMap<>();
 				Map<Integer,Integer> numBoardsByGraphDepth = new HashMap<>();
 				Set<Long> uniqueGraphs = new HashSet<>();
@@ -226,63 +229,109 @@ public class Main {
 					numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 					uniqueGraphsByNumCars.put(i, 0);
 				}
+				// saved boards counts
+				int boardsSavedSoFar = 0;
+				Map<Integer,Integer> boardsSavedSoFarByBoardDepth = new HashMap<>(); // for outputBoard filenames
+				Map<Integer,Integer> boardsSavedSoFarByGraphDepth = new HashMap<>();
+				Set<Long> uniqueGraphsOfSavedBoards = new HashSet<>(); // only for stats purposes
+				//
 				// it's generation time!
 				while(boardsSavedSoFar < boardsToSave) {
+					// generate a random board
 					if(!setNumCars) {
 						targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 					}
-					// generate a board
-					Board board = gen.generate(targetNumCars);
-					boolean keepBoard = true;
-					// see if we should save it
-					if(onlyUnique) {
-						// make sure the new graph is in a unique equivalence class
-						if(uniqueGraphs.contains(board.getGraph().hash())) {
-							keepBoard = false;
+					Board randomBoard = gen.generate(targetNumCars);
+					BoardGraph graph = randomBoard.getGraph();
+					int graphDepth = graph.maxDepth();
+					int randomBoardDepth = graph.getDepthOfBoard(randomBoard);
+					Board outputBoard = randomBoard;
+					int outputBoardDepth = randomBoardDepth;
+					boolean keepBoard = true; // whether or not we're going to save outputBoard
+					// compute keepBoard
+					if(onlyUnique && uniqueGraphs.contains(randomBoard.getGraph().hash())) {
+						// make sure the graph is in a unique equivalence class, if necessary
+						keepBoard = false;
+					} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
+						// see if we need to increase the depth of outputBoard
+						// (either because randomBoard's depth is too small
+						// or because we already have enough boards of that depth)
+						if(outputBoardDepth < minDepth || (boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth)) {
+							if(graphDepth < minDepth) {
+								// if using the highest depth board in the graph won't be enough
+								keepBoard = false;
+							} else {
+								outputBoard = graph.getFarthest();
+								outputBoardDepth = graph.maxDepth();
+								// see if we need to backtrack
+								while(boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth) {
+									outputBoard = graph.getOneBoardCloser(outputBoard);
+									outputBoardDepth = graph.getDepthOfBoard(outputBoard);
+									if(outputBoardDepth == 0) {
+										break;
+									} else if(outputBoardDepth < minDepth) {
+										keepBoard = false;
+										break;
+									}
+								}
+							}
 						}
 					}
-					if(board.getGraph().getDepthOfBoard(board) < minDepth) {
-						keepBoard = false;
-					}
+					// ---
 					// update non-depth-related stats
 					totalBoardsGenerated++;
-					uniqueGraphs.add(board.getGraph().hash());
-					int numCars = board.numCars();
+					int numCars = randomBoard.numCars();
+					if(!uniqueGraphs.contains(randomBoard.getGraph().hash())) {
+						uniqueGraphs.add(randomBoard.getGraph().hash());
+						incrementMapValue(uniqueGraphsByNumCars, numCars);
+					}
 					incrementMapValue(totalBoardsGeneratedByNumCars, numCars);
-					incrementMapValue(uniqueGraphsByNumCars, numCars);
 					// save it
 					if(keepBoard) {
 						boardsSavedSoFar++;
 						incrementMapValue(boardsSavedSoFarByNumCars, numCars);
-					}
-					// print it
-					if(keepBoard && !quiet) {
-						System.out.println();
-						System.out.println("board " + boardsSavedSoFar);
-						AsciiGen.printGrid(board.getGrid());
-						System.out.println("numCars: " + board.numCars());
+						if(!uniqueGraphsOfSavedBoards.contains(randomBoard.getGraph().hash())) {
+							uniqueGraphsOfSavedBoards.add(randomBoard.getGraph().hash());
+						}
+						// print it
+						if(!quiet) {
+							System.out.println();
+							System.out.println("board " + boardsSavedSoFar);
+							System.out.println(AsciiGen.getGridString(outputBoard));
+							System.out.println("numCars: " + numCars);
+						}
 					}
 					// if we need the depth
-					if(stats || (keepBoard && puzzleOutToFile)) {
-						// get the depth
-						int boardDepth = board.getGraph().getDepthOfBoard(board);
-						int graphDepth = board.getGraph().maxDepth();
-						if(keepBoard && !quiet) {
-							System.out.print("board depth: " + boardDepth + ", ");
-							System.out.println("graph depth: " + graphDepth);
+					if(stats || maxBoardsPerDepth > -1 || (keepBoard && puzzleOutToFile)) {
+						if(keepBoard) {
+							// update boardsSavedSoFarByBoardDepth
+							if(!boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth)) {
+								boardsSavedSoFarByBoardDepth.put(outputBoardDepth, 0);
+							}
+							incrementMapValue(boardsSavedSoFarByBoardDepth, outputBoardDepth);
+							// update boardsSavedSoFarByGraphDepth
+							if(!boardsSavedSoFarByGraphDepth.containsKey(graphDepth)) {
+								boardsSavedSoFarByGraphDepth.put(graphDepth, 0);
+							}
+							incrementMapValue(boardsSavedSoFarByGraphDepth, graphDepth);
+							// print depths
+							if(!quiet) {
+								System.out.print("board depth: " + outputBoardDepth + ", ");
+								System.out.println("graph depth: " + graphDepth);
+							}
 						}
 						// update depth-related stats
 						if(stats) {
 							// increment numBoardsByBoardDepth
-							if(!numBoardsByBoardDepth.containsKey(boardDepth)) {
-								numBoardsByBoardDepth.put(boardDepth, 0);
+							if(!numBoardsByBoardDepth.containsKey(randomBoardDepth)) {
+								numBoardsByBoardDepth.put(randomBoardDepth, 0);
 							}
-							incrementMapValue(numBoardsByBoardDepth, boardDepth);
+							incrementMapValue(numBoardsByBoardDepth, randomBoardDepth);
 							// increment numBoardsByBoardDepthByNumCars
-							if(!numBoardsByBoardDepthByNumCars.get(numCars).containsKey(boardDepth)) {
-								numBoardsByBoardDepthByNumCars.get(numCars).put(boardDepth, 0);
+							if(!numBoardsByBoardDepthByNumCars.get(numCars).containsKey(randomBoardDepth)) {
+								numBoardsByBoardDepthByNumCars.get(numCars).put(randomBoardDepth, 0);
 							}
-							incrementMapValue(numBoardsByBoardDepthByNumCars.get(numCars), boardDepth);
+							incrementMapValue(numBoardsByBoardDepthByNumCars.get(numCars), randomBoardDepth);
 							// increment numBoardsByGraphDepth
 							if(!numBoardsByGraphDepth.containsKey(graphDepth)) {
 								numBoardsByGraphDepth.put(graphDepth, 0);
@@ -297,27 +346,22 @@ public class Main {
 						// dump board to file
 						if(keepBoard && puzzleOutToFile) {
 							// write the board to a file
-							// using graph depth to group output boards
-							if (numBoardsByGraphDepth.get(boardDepth) <= boardsToSave) {
-								int index = numBoardsByGraphDepth.get(boardDepth);
-								String pathName = "generated_puzzles/" + boardDepth + "/";
-								File outDir = new File(pathName);
-								outDir.mkdirs();
-								String filename = pathName + index + ".txt";
-								if(!quiet) {
-									System.out.println("writing to '" + filename + "'...");
-								}
-								Board temp = board.getGraph().getFarthest();
-								if (temp != null) { // should always be true
-									BoardIO.write(filename, temp);
-								}
+							int index = boardsSavedSoFarByBoardDepth.get(outputBoardDepth);
+							String pathName = "generated_puzzles/" + outputBoardDepth + "/";
+							File outDir = new File(pathName);
+							outDir.mkdirs();
+							String filename = pathName + index + ".txt";
+							if(!quiet) {
+								System.out.println("writing to '" + filename + "'...");
 							}
+							BoardIO.write(filename, outputBoard);
 						}
 					}
 				}
 				// stats output
 				if(stats) {
-					System.out.println(" >>>>> STATS <<<<< ");
+					System.out.println(">>>>> STATS <<<<<");
+					System.out.println();
 					int minGeneratedNumCars = Collections.min(numBoardsByBoardDepthByNumCars.keySet());
 					int maxGeneratedNumCars = Collections.max(numBoardsByBoardDepthByNumCars.keySet());
 					for(int numCars = minGeneratedNumCars; numCars <= maxGeneratedNumCars; numCars++) {
@@ -331,6 +375,8 @@ public class Main {
 						System.out.println();
 					}
 					printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByBoardDepth, numBoardsByGraphDepth);
+					System.out.println();
+					printStats("=== SAVED ===", boardsToSave, uniqueGraphsOfSavedBoards.size(), boardsSavedSoFarByBoardDepth, boardsSavedSoFarByGraphDepth);
 				}
 			}
 		} else {
