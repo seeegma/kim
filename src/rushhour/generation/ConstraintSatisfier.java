@@ -212,7 +212,7 @@ public class ConstraintSatisfier {
 			printStats("=== TOTAL ===", totalBoardsGenerated, uniqueGraphs.size(), numBoardsByBoardDepth, numBoardsByGraphDepth);
 			System.out.println();
 		}
-		printStats("=== SAVED ===", boardsToSave, uniqueGraphsOfSavedBoards.size(), boardsSavedSoFarByBoardDepth, boardsSavedSoFarByGraphDepth);
+		printStats("=== SAVED ===", boardsSavedSoFar, uniqueGraphsOfSavedBoards.size(), boardsSavedSoFarByBoardDepth, boardsSavedSoFarByGraphDepth);
 	}
 
 	private static void incrementMapValue(Map<Integer,Integer> map, int key) {
