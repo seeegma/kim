@@ -21,7 +21,7 @@ public class WeightedScoreEvaluator implements Evaluator {
 
     // Variables for reset. Idea is that if movesWithNoProgress of moves goes by without any progress towards solution, then
     // chance to reset is 1-RESET_CHANCE^(movesWithNoProgress/RESET_NUM)
-    boolean USE_RESET = false;
+    boolean USE_RESET = true;
     int RESET_NUM = 5;
     double RESET_CHANCE = .4; // lower = more likely
     int movesWithNoProgress = 0;

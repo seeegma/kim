@@ -68,14 +68,14 @@ public class Main {
 					}
 				}
 				List<Evaluator> evaluators = new ArrayList<>();
-				evaluators.add(new NumberOfCarsEvaluator());
+				/*evaluators.add(new NumberOfCarsEvaluator());
 				evaluators.add(new NumberOfLongCarsEvaluator());
 				evaluators.add(new MinMovesToSolutionEvaluator());
 				evaluators.add(new MinSlidesToSolutionEvaluator());
 				evaluators.add(new AverageBranchingFactorEvaluator());
 				evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
 				evaluators.add(new IrrelevancyEvaluator());
-				//evaluators.add(new DFSEvaluator());
+				evaluators.add(new DFSEvaluator());*/
 				evaluators.add(new WeightedScoreEvaluator());
 				if(fields) {
 					for(Evaluator e : evaluators) {
@@ -307,7 +307,10 @@ public class Main {
 								if(!quiet) {
 									System.out.println("writing to '" + filename + "'...");
 								}
-								BoardIO.write(filename, board.getGraph().getFarthest());
+								Board temp = board.getGraph().getFarthest();
+								if (temp != null) { // should always be true
+									BoardIO.write(filename, temp);
+								}
 							}
 						}
 					}

@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class BoardGraph {
 
-	public class Vertex {
+	public class Vertex implements Comparator<Vertex> {
 		public Board board;
 		public HashMap<Move,Vertex> neighbors;
 		public int depth;
@@ -22,6 +24,28 @@ public class BoardGraph {
 			this.depth = -1;
 			this.neighbors = null;
 		}
+
+		@Override
+    	public int compare(Vertex u, Vertex v) {
+    		// used in PriorityQueue. since Java's pq dequeues based on lowest first, we'll evaluate higher depths as lower 
+    		// special cases
+    		if (u == null && v == null) {
+    			return 0;
+    		} else if (u == null) {
+    			return 1;
+    		} else if (v == null) {
+    			return -1;
+    		}
+
+    		// compares depth
+    		if (u.depth < v.depth) {
+    			return 1;
+    		} else if (u.depth > v.depth) {
+    			return -1;
+    		}
+
+    		return 0;
+    	}
 	}
 
 	HashMap<Long,Vertex> vertices;
@@ -174,26 +198,24 @@ public class BoardGraph {
 			return null;
 		}
 
-		// takes element from set
-		Vertex current = solutions.iterator().next();
+		// takes element from set and sets up pq
+		Vertex soln = solutions.iterator().next();
+		PriorityQueue<Vertex> pq = new PriorityQueue<>();
+		pq.add(soln);
 
 		// "random" walk
-		while (current.depth != this.maxDepth) {
+		while (!pq.isEmpty()) {
+			Vertex current = pq.poll();
 			for (Map.Entry<Move,Vertex> e : current.neighbors.entrySet()) {
-				// if it finds a move that goes deeper, make that move
-				if (e.getValue().depth > current.depth) {
-					current = e.getValue();
-					break;
-				}
+				pq.add(e.getValue());
+			}
 
-				// so we at least make a move
-				if (e.getValue().depth == current.depth) {
-					current = e.getValue();
-				}
+			if (current.depth == this.maxDepth) {
+				return current.board;
 			}
 		}
 
-		return current.board;
+		return null;
 	}
 
 }
