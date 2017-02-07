@@ -13,7 +13,7 @@ import java.util.Comparator;
 
 public class BoardGraph {
 
-	public class Vertex implements Comparator<Vertex> {
+	public class Vertex implements Comparable<Vertex> {
 		public Board board;
 		public HashMap<Move,Vertex> neighbors;
 		public int depth;
@@ -24,27 +24,8 @@ public class BoardGraph {
 			this.depth = -1;
 			this.neighbors = null;
 		}
-
-		@Override
-    	public int compare(Vertex u, Vertex v) {
-    		// used in PriorityQueue. since Java's pq dequeues based on lowest first, we'll evaluate higher depths as lower 
-    		// special cases
-    		if (u == null && v == null) {
-    			return 0;
-    		} else if (u == null) {
-    			return 1;
-    		} else if (v == null) {
-    			return -1;
-    		}
-
-    		// compares depth
-    		if (u.depth < v.depth) {
-    			return 1;
-    		} else if (u.depth > v.depth) {
-    			return -1;
-    		}
-
-    		return 0;
+    	public int compareTo(Vertex other) {
+			return other.depth - this.depth;
     	}
 	}
 
@@ -197,24 +178,35 @@ public class BoardGraph {
 		if (this.solutions.size() == 0) {
 			return null;
 		}
-
 		// takes element from set and sets up pq
 		Vertex soln = solutions.iterator().next();
 		PriorityQueue<Vertex> pq = new PriorityQueue<>();
+		Set<Long> visited = new HashSet<>();
+		visited.add(soln.board.hash());
 		pq.add(soln);
-
 		// "random" walk
-		while (!pq.isEmpty()) {
+		while(!pq.isEmpty()) {
 			Vertex current = pq.poll();
-			for (Map.Entry<Move,Vertex> e : current.neighbors.entrySet()) {
-				pq.add(e.getValue());
-			}
-
-			if (current.depth == this.maxDepth) {
+			if(current.depth == this.maxDepth) {
 				return current.board;
 			}
+			for(Vertex v : current.neighbors.values()) {
+				if(!visited.contains(v.board.hash())) {
+					pq.add(v);
+				}
+			}
+			visited.add(current.board.hash());
 		}
+		return null;
+	}
 
+	public Board getOneBoardCloser(Board board) {
+		Vertex v = this.getVertex(board);
+		for(Vertex neighbor : v.neighbors.values()) {
+			if(neighbor.depth < v.depth) {
+				return neighbor.board;
+			}
+		}
 		return null;
 	}
 
