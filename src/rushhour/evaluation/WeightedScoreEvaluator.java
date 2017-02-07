@@ -10,6 +10,8 @@ import java.util.HashMap;
  * https://www.researchgate.net/publication/221438347_What_Determines_Difficulty_of_Transport_Puzzles
  */
 public class WeightedScoreEvaluator implements Evaluator {
+    // TODO: make walk more noisy?
+
     int TRIALS = 50000;
 
     // Based on the PJRP paper, adds this constant to the score (distance to soln) of the state if it moves closer => more likely to go to states closer to soln
@@ -18,10 +20,10 @@ public class WeightedScoreEvaluator implements Evaluator {
     
 
     // Variables for reset. Idea is that if movesWithNoProgress of moves goes by without any progress towards solution, then
-    // chance to reset is RESET_CHANCE^(movesWithNoProgress/RESET_NUM)
-    boolean USE_RESET = true;
-    int RESET_NUM = 4;
-    double RESET_CHANCE = .5;
+    // chance to reset is 1-RESET_CHANCE^(movesWithNoProgress/RESET_NUM)
+    boolean USE_RESET = false;
+    int RESET_NUM = 5;
+    double RESET_CHANCE = .4; // lower = more likely
     int movesWithNoProgress = 0;
 
     public String description() {
@@ -58,7 +60,7 @@ public class WeightedScoreEvaluator implements Evaluator {
             for (BoardGraph.Vertex v : probs.keySet()) {
                 total += probs.get(v);
                 if (total > threshold) {
-                    if (v.depth >= current.depth) {
+                    if (v.depth > current.depth) {
                         madeProgress = false;
                     }
                     current = v;
@@ -68,14 +70,23 @@ public class WeightedScoreEvaluator implements Evaluator {
             }
 
             // does reset
-            if (USE_RESET) {
+            if (this.USE_RESET) {
                 if (!madeProgress) {
-                    movesWithNoProgress++;
+                    this.movesWithNoProgress++;
+                } else {
+                    this.movesWithNoProgress = 0;
                 }
 
-                if (movesWithNoProgress >= RESET_NUM) {
+                if (this.movesWithNoProgress >= this.RESET_NUM) {
                     // we do want int division here
-                    double chance = Math.pow(RESET_CHANCE, movesWithNoProgress/RESET_NUM);
+                    double chance = 1-Math.pow(this.RESET_CHANCE, this.movesWithNoProgress/this.RESET_NUM);
+                    double resetThreshold = rng.nextDouble();
+                    //System.out.print(chance);
+                    //System.out.println(resetThreshold);
+                    if (chance >= resetThreshold) {
+                        current = g.getVertex(b);
+                        this.movesWithNoProgress = 0;
+                    }
                 }
             }
         }
