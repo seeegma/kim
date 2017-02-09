@@ -52,8 +52,9 @@ public class ConstraintSatisfier {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				System.out.println("Aborting early; printing stats anyway.");
-				printAllStats();
+				if(stats) {
+					printAllStats();
+				}
 			}
 		});
 	}
@@ -77,13 +78,14 @@ public class ConstraintSatisfier {
 			}
 			Board randomBoard = gen.generate(targetNumCars);
 			BoardGraph graph = randomBoard.getGraph();
+			Long hash = graph.hash();
 			int graphDepth = graph.maxDepth();
 			int randomBoardDepth = graph.getDepthOfBoard(randomBoard);
 			Board outputBoard = randomBoard;
 			int outputBoardDepth = randomBoardDepth;
 			boolean keepBoard = true; // whether or not we're going to save outputBoard
 			// compute keepBoard
-			if(onlyUnique && uniqueGraphs.contains(randomBoard.getGraph().hash())) {
+			if(onlyUnique && uniqueGraphs.contains(graph.hash())) {
 				// make sure the graph is in a unique equivalence class, if necessary
 				keepBoard = false;
 			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
@@ -100,33 +102,23 @@ public class ConstraintSatisfier {
 						// see if we need to backtrack
 						while(boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth) {
 							outputBoard = graph.getOneBoardCloser(outputBoard);
-							outputBoardDepth = graph.getDepthOfBoard(outputBoard);
-							if(outputBoardDepth == 0) {
-								break;
-							} else if(outputBoardDepth < minDepth) {
+							outputBoardDepth--;
+							if(outputBoardDepth < minDepth) {
 								keepBoard = false;
+								break;
+							} else if(outputBoardDepth == 0) {
 								break;
 							}
 						}
 					}
 				}
 			}
-			// ---
-			// update non-depth-related stats
-			totalBoardsGenerated++;
 			int numCars = randomBoard.numCars();
-			if(!uniqueGraphs.contains(randomBoard.getGraph().hash())) {
-				uniqueGraphs.add(randomBoard.getGraph().hash());
-				incrementMapValue(uniqueGraphsByNumCars, numCars);
-			}
-			incrementMapValue(totalBoardsGeneratedByNumCars, numCars);
 			// save it
 			if(keepBoard) {
+				// update stats that are always needed for this stuff (for indexing output boards)
 				boardsSavedSoFar++;
-				incrementMapValue(boardsSavedSoFarByNumCars, numCars);
-				if(!uniqueGraphsOfSavedBoards.contains(randomBoard.getGraph().hash())) {
-					uniqueGraphsOfSavedBoards.add(randomBoard.getGraph().hash());
-				}
+				incrementMapValue(boardsSavedSoFarByBoardDepth, outputBoardDepth);
 				// print it
 				if(!quiet) {
 					System.out.println();
@@ -134,18 +126,6 @@ public class ConstraintSatisfier {
 					System.out.println(AsciiGen.getGridString(outputBoard));
 					System.out.println("numCars: " + numCars);
 					System.out.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
-				}
-				if(stats) {
-					// update boardsSavedSoFarByBoardDepth
-					if(!boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth)) {
-						boardsSavedSoFarByBoardDepth.put(outputBoardDepth, 0);
-					}
-					incrementMapValue(boardsSavedSoFarByBoardDepth, outputBoardDepth);
-					// update boardsSavedSoFarByGraphDepth
-					if(!boardsSavedSoFarByGraphDepth.containsKey(graphDepth)) {
-						boardsSavedSoFarByGraphDepth.put(graphDepth, 0);
-					}
-					incrementMapValue(boardsSavedSoFarByGraphDepth, graphDepth);
 				}
 				// dump board to file
 				if(puzzleOutToFile) {
@@ -161,34 +141,30 @@ public class ConstraintSatisfier {
 					BoardIO.write(filename, outputBoard);
 				}
 			}
-			// update total count stats
-			if(fullStats) {
-				// increment numBoardsByBoardDepth
-				if(!numBoardsByBoardDepth.containsKey(randomBoardDepth)) {
-					numBoardsByBoardDepth.put(randomBoardDepth, 0);
+			// update stats
+			if(stats) {
+				// counts for total boards and for each numCars
+				if(fullStats) {
+					if(!uniqueGraphs.contains(hash)) {
+						incrementMapValue(uniqueGraphsByNumCars, numCars);
+					}
+					incrementMapValue(totalBoardsGeneratedByNumCars, numCars);
+					incrementMapValue(numBoardsByBoardDepth, randomBoardDepth);
+					incrementMapValue(numBoardsByBoardDepthByNumCars.get(numCars), randomBoardDepth);
+					incrementMapValue(numBoardsByGraphDepth, graphDepth);
+					incrementMapValue(numBoardsByGraphDepthByNumCars.get(numCars), graphDepth);
 				}
-				incrementMapValue(numBoardsByBoardDepth, randomBoardDepth);
-				// increment numBoardsByBoardDepthByNumCars
-				if(!numBoardsByBoardDepthByNumCars.get(numCars).containsKey(randomBoardDepth)) {
-					numBoardsByBoardDepthByNumCars.get(numCars).put(randomBoardDepth, 0);
+				// counts for saved boards only
+				if(keepBoard) {
+					uniqueGraphsOfSavedBoards.add(hash);
+					incrementMapValue(boardsSavedSoFarByNumCars, numCars);
+					incrementMapValue(boardsSavedSoFarByGraphDepth, graphDepth);
+					// recall that boardsSavedSoFarByBoardDepth and boardsSavedSoFar are always updated in if(keepBoard) above
 				}
-				incrementMapValue(numBoardsByBoardDepthByNumCars.get(numCars), randomBoardDepth);
-				// increment numBoardsByGraphDepth
-				if(!numBoardsByGraphDepth.containsKey(graphDepth)) {
-					numBoardsByGraphDepth.put(graphDepth, 0);
-				}
-				incrementMapValue(numBoardsByGraphDepth, graphDepth);
-				// increment numBoardsByGraphDepthByNumCars
-				if(!numBoardsByGraphDepthByNumCars.get(numCars).containsKey(graphDepth)) {
-					numBoardsByGraphDepthByNumCars.get(numCars).put(graphDepth, 0);
-				}
-				incrementMapValue(numBoardsByGraphDepthByNumCars.get(numCars), graphDepth);
+				// general stats
+				totalBoardsGenerated++;
+				uniqueGraphs.add(hash); // needs to happen after the containment check above
 			}
-		}
-
-		// stats output
-		if(stats) {
-			printAllStats();
 		}
 	}
 
@@ -216,6 +192,9 @@ public class ConstraintSatisfier {
 	}
 
 	private static void incrementMapValue(Map<Integer,Integer> map, int key) {
+		if(!map.containsKey(key)) {
+			map.put(key, 0);
+		}
 		map.put(key, map.get(key)+1);
 	}
 
@@ -242,46 +221,48 @@ public class ConstraintSatisfier {
 	private static void printStats(String desc, int totalBoardsGenerated, int numUniqueGraphs, Map<Integer,Integer> numBoardsByBoardDepth, Map<Integer,Integer> numBoardsByGraphDepth) {
 		System.out.println(desc);
 		System.out.println("NUMBER OF BOARDS GENERATED: " + totalBoardsGenerated);
-		System.out.println("NUMBER OF UNIQUE EQUIVALENCE CLASSES: " + numUniqueGraphs);
-		System.out.println("DEPTHS COUNT:");
-		int minDepth = Collections.min(numBoardsByBoardDepth.keySet());
-		int maxDepth = Collections.max(numBoardsByGraphDepth.keySet());
-		int maxDepthStringWidth = 5;
-		int maxCountStringWidth = Collections.max(numBoardsByBoardDepth.values()).toString().length();
-		if(maxCountStringWidth < 6) {
-			maxCountStringWidth = 6;
-		}
-		printRow("depth", "boards", "graphs", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
-		printRow("-----", "------", "------", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
-		if(minDepth == -1) { // nearly guaranteed to be the case
-			minDepth = 0;
-			numBoardsByBoardDepth.get(-1).toString();
-			numBoardsByGraphDepth.get(-1).toString();
-			printRow("-1", numBoardsByBoardDepth.get(-1).toString(), numBoardsByGraphDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
-		}
-		double totalBoardDepth = 0;
-		double totalGraphDepth = 0;
-		int solvableBoards = 0;
-		for(int d=minDepth; d<=maxDepth; d++) {
-			String count1, count2;
-			if(numBoardsByBoardDepth.containsKey(d)) {
-				count1 = numBoardsByBoardDepth.get(d).toString();
-				totalBoardDepth += numBoardsByBoardDepth.get(d) * d;
-				solvableBoards += numBoardsByBoardDepth.get(d);
-			} else {
-				count1 = "0";
+		if(!numBoardsByGraphDepth.keySet().isEmpty()) {
+			System.out.println("NUMBER OF UNIQUE EQUIVALENCE CLASSES: " + numUniqueGraphs);
+			System.out.println("DEPTHS COUNT:");
+			int minDepth = Collections.min(numBoardsByBoardDepth.keySet());
+			int maxDepth = Collections.max(numBoardsByGraphDepth.keySet());
+			int maxDepthStringWidth = 5;
+			int maxCountStringWidth = Collections.max(numBoardsByBoardDepth.values()).toString().length();
+			if(maxCountStringWidth < 6) {
+				maxCountStringWidth = 6;
 			}
-			if(numBoardsByGraphDepth.containsKey(d)) {
-				count2 = numBoardsByGraphDepth.get(d).toString();
-				totalGraphDepth += numBoardsByGraphDepth.get(d) * d;
-			} else {
-				count2 = "0";
+			printRow("depth", "boards", "graphs", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
+			printRow("-----", "------", "------", maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
+			if(minDepth == -1) { // nearly guaranteed to be the case
+				minDepth = 0;
+				numBoardsByBoardDepth.get(-1).toString();
+				numBoardsByGraphDepth.get(-1).toString();
+				printRow("-1", numBoardsByBoardDepth.get(-1).toString(), numBoardsByGraphDepth.get(-1).toString(), maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
 			}
-			printRow(new Integer(d).toString(), count1, count2, maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
+			double totalBoardDepth = 0;
+			double totalGraphDepth = 0;
+			int solvableBoards = 0;
+			for(int d=minDepth; d<=maxDepth; d++) {
+				String count1, count2;
+				if(numBoardsByBoardDepth.containsKey(d)) {
+					count1 = numBoardsByBoardDepth.get(d).toString();
+					totalBoardDepth += numBoardsByBoardDepth.get(d) * d;
+					solvableBoards += numBoardsByBoardDepth.get(d);
+				} else {
+					count1 = "0";
+				}
+				if(numBoardsByGraphDepth.containsKey(d)) {
+					count2 = numBoardsByGraphDepth.get(d).toString();
+					totalGraphDepth += numBoardsByGraphDepth.get(d) * d;
+				} else {
+					count2 = "0";
+				}
+				printRow(new Integer(d).toString(), count1, count2, maxDepthStringWidth, maxCountStringWidth, maxCountStringWidth);
+			}
+			System.out.println("NUMBER OF SOLVABLE BOARDS: " + solvableBoards);
+			System.out.println("AVERAGE BOARD DEPTH OF SOLVABLE BOARDS: " + totalBoardDepth/solvableBoards);
+			System.out.println("AVERAGE GRAPH DEPTH OF SOLVABLE BOARDS: " + totalGraphDepth/solvableBoards);
 		}
-		System.out.println("NUMBER OF SOLVABLE BOARDS: " + solvableBoards);
-		System.out.println("AVERAGE BOARD DEPTH OF SOLVABLE BOARDS: " + totalBoardDepth/solvableBoards);
-		System.out.println("AVERAGE GRAPH DEPTH OF SOLVABLE BOARDS: " + totalGraphDepth/solvableBoards);
 	}
 
 }
