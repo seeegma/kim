@@ -121,11 +121,11 @@ public class ConstraintSatisfier {
 				incrementMapValue(boardsSavedSoFarByBoardDepth, outputBoardDepth);
 				// print it
 				if(!quiet) {
-					System.out.println();
-					System.out.println("board " + boardsSavedSoFar);
-					System.out.println(AsciiGen.getGridString(outputBoard));
-					System.out.println("numCars: " + numCars);
-					System.out.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
+					System.err.println();
+					System.err.println("board " + boardsSavedSoFar);
+					System.err.println(AsciiGen.getGridString(outputBoard));
+					System.err.println("numCars: " + numCars);
+					System.err.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
 				}
 				// dump board to file
 				if(puzzleOutToFile) {
@@ -136,7 +136,7 @@ public class ConstraintSatisfier {
 					outDir.mkdirs();
 					String filename = pathName + index + ".txt";
 					if(!quiet) {
-						System.out.println("writing to '" + filename + "'...");
+						System.err.println("writing to '" + filename + "'...");
 					}
 					BoardIO.write(filename, outputBoard);
 				}
