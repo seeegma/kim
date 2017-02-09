@@ -180,9 +180,9 @@ public class Main {
 						csf.setNumCars = true;
 						i++;
 					} else if(args[i].equals("--prevGraphs")) {
-						List<String> fileNames = getFileNames(Paths.get(args[i+1]));
-						for(String fileName : fileNames) {
-							csf.prevGraphs.add(BoardIO.read(fileName).getGraph().hash());
+						List<Path> paths = getFilePaths(args[i+1]);
+						for(Path path : paths) {
+							csf.prevGraphs.add(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash());
 						}
 					} else if(args[i].equals("--minNumCars")) {
 						csf.minNumCars = Integer.parseInt(args[i+1]);
@@ -208,29 +208,58 @@ public class Main {
 					}
 				}
 				csf.satisfy();
+			} else if(operation.equals("check-unique")) {
+				if(args.length == 3) {
+					List<Path> oldPaths = getFilePaths(args[1]);
+					List<Path> newPaths = getFilePaths(args[2]);
+					Map<Long,Path> oldHashes = new HashMap<>();
+					for(Path path : oldPaths) {
+						oldHashes.put(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash(), path);
+					}
+					boolean allUnique = true;
+					for(Path path : newPaths) {
+						Long newHash = BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash();
+						if(oldHashes.containsKey(newHash)) {
+							allUnique = false;
+							System.out.println(path.toString() + " is in the same equivalence class as " + oldHashes.get(newHash).toString());
+						}
+					}
+					if(allUnique) {
+						System.out.println("all unique");
+					}
+				} else {
+					usage();
+				}
+			} else {
+				usage();
 			}
-		} else {
-			usage();
 		}
 	}
 
-	private static List<String> getFileNames(Path dir) {
-		return getFileNamesHelper(new LinkedList<String>(), dir);
+	private static List<Path> getFilePaths(String filename) {
+		Path path = Paths.get(filename);
+		if(path.toFile().isDirectory()) {
+			return getFilePathsHelper(new LinkedList<Path>(), path);
+		} else {
+			List<Path> ret = new LinkedList<>();
+			ret.add(path);
+			return ret;
+		}
 	}
 
-	private static List<String> getFileNamesHelper(List<String> fileNames, Path dir) {
+	private static List<Path> getFilePathsHelper(List<Path> ret, Path dir) {
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-			for (Path path : stream) {
+			for(Path path : stream) {
 				if(path.toFile().isDirectory()) {
-					getFileNamesHelper(fileNames, path);
+					getFilePathsHelper(ret, path);
 				} else {
-					fileNames.add(path.toAbsolutePath().toString());
+					ret.add(path);
 				}
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		return fileNames;
+		return ret;
 	} 
 
 	private static void usage() {
