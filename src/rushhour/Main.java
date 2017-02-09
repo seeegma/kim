@@ -8,11 +8,16 @@ import rushhour.generation.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Collections;
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.DirectoryStream;
+import java.io.IOException;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -68,14 +73,14 @@ public class Main {
 					}
 				}
 				List<Evaluator> evaluators = new ArrayList<>();
-				evaluators.add(new NumberOfCarsEvaluator());
-				evaluators.add(new NumberOfLongCarsEvaluator());
+				// evaluators.add(new NumberOfCarsEvaluator());
+				// evaluators.add(new NumberOfLongCarsEvaluator());
 				evaluators.add(new MinMovesToSolutionEvaluator());
-				evaluators.add(new MinSlidesToSolutionEvaluator());
-				evaluators.add(new AverageBranchingFactorEvaluator());
-				evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
-				evaluators.add(new IrrelevancyEvaluator());
-				evaluators.add(new DFSEvaluator());
+				// evaluators.add(new MinSlidesToSolutionEvaluator());
+				// evaluators.add(new AverageBranchingFactorEvaluator());
+				// evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
+				// evaluators.add(new IrrelevancyEvaluator());
+				// evaluators.add(new DFSEvaluator());
 				evaluators.add(new WeightedScoreEvaluator());
 				if(fields) {
 					for(Evaluator e : evaluators) {
@@ -174,6 +179,11 @@ public class Main {
 						}
 						csf.setNumCars = true;
 						i++;
+					} else if(args[i].equals("--prevGraphs")) {
+						List<String> fileNames = getFileNames(Paths.get(args[i+1]));
+						for(String fileName : fileNames) {
+							csf.prevGraphs.add(BoardIO.read(fileName).getGraph().hash());
+						}
 					} else if(args[i].equals("--minNumCars")) {
 						csf.minNumCars = Integer.parseInt(args[i+1]);
 						i++;
@@ -203,6 +213,25 @@ public class Main {
 			usage();
 		}
 	}
+
+	private static List<String> getFileNames(Path dir) {
+		return getFileNamesHelper(new LinkedList<String>(), dir);
+	}
+
+	private static List<String> getFileNamesHelper(List<String> fileNames, Path dir) {
+		try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+			for (Path path : stream) {
+				if(path.toFile().isDirectory()) {
+					getFileNamesHelper(fileNames, path);
+				} else {
+					fileNames.add(path.toAbsolutePath().toString());
+				}
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		return fileNames;
+	} 
 
 	private static void usage() {
 		System.err.println(usage);

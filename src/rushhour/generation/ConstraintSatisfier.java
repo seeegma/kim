@@ -29,6 +29,7 @@ public class ConstraintSatisfier {
 	public int maxBoardsPerDepth = -1;
 	public boolean puzzleOutToFile = false;
 	public boolean quiet = false;
+	public Set<Long> prevGraphs = new HashSet<>();
 
 	// STATS STUFF //
 	// total counts
@@ -85,7 +86,10 @@ public class ConstraintSatisfier {
 			int outputBoardDepth = randomBoardDepth;
 			boolean keepBoard = true; // whether or not we're going to save outputBoard
 			// compute keepBoard
-			if(onlyUnique && uniqueGraphs.contains(graph.hash())) {
+			if(prevGraphs.contains(hash)) {
+				// make sure the graph isn't that of any of the boards we've been told to skip
+				keepBoard = false;
+			} if(onlyUnique && uniqueGraphs.contains(hash)) {
 				// make sure the graph is in a unique equivalence class, if necessary
 				keepBoard = false;
 			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
