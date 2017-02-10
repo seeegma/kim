@@ -30,11 +30,7 @@ public class Main {
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
 		"\tgenerate [--useHeuristics] [--numBoards n] [--maxPerDepth n] [--numCars n] [--minNumCars] [--maxNumCars] [--quiet] [--minDepth n] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
-	public static void main(String[] args2) {
-		String[] args = new String[3];
-		args[0] = "check-unique";
-		args[1] = "oldP";
-		args[2] = "newP";
+	public static void main(String[] args) {
 		
 		if(args.length > 1) {
 			String operation = args[0];
