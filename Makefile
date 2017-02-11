@@ -1,4 +1,7 @@
-all: core analysis io evaluation generation main
+all: core analysis io evaluation util generation main
+
+util:
+	javac -d . src/rushhour/Util.java
 
 main:
 	javac -d . src/rushhour/Main.java

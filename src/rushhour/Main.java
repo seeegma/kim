@@ -1,5 +1,6 @@
 package rushhour;
 
+import rushhour.Util;
 import rushhour.core.*;
 import rushhour.io.*;
 import rushhour.evaluation.*;
@@ -8,16 +9,11 @@ import rushhour.generation.*;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Collections;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.file.DirectoryStream;
-import java.io.IOException;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -29,9 +25,9 @@ public class Main {
 		"\tsolve <puzzle_file>\n" +
 		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
 		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
-		"\tgenerate [--useHeuristics] [--numBoards n] [--maxPerDepth n] [--numCars n] [--minNumCars] [--maxNumCars] [--quiet] [--minDepth n] [--unique] [--nontrivial] [--stats] [--puzzleFile]";
+		ConstraintSatisfier.usage;
+
 	public static void main(String[] args) {
-		
 		if(args.length > 1) {
 			String operation = args[0];
 			String puzzleFile = null;
@@ -155,64 +151,16 @@ public class Main {
 					}
 				}
 			} else if(operation.equals("generate")) {
-				if(args.length < 3) {
+				ConstraintSatisfier csf = new ConstraintSatisfier();
+				if(csf.readArgs(args)) {
+					csf.satisfy();
+				} else {
 					usage();
 				}
-				ConstraintSatisfier csf = new ConstraintSatisfier();
-				for(int i=1; i<args.length; i++) {
-					if(args[i].equals("--numBoards")) {
-						csf.boardsToSave = Integer.parseInt(args[i+1]);
-						i++;
-					} else if(args[i].equals("--unique")) {
-						csf.onlyUnique = true;
-					} else if(args[i].equals("--maxPerDepth")) {
-						csf.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
-						i++;
-					} else if(args[i].equals("--useHeuristics")) {
-						csf.useHeuristics = true;
-					} else if(args[i].equals("--nontrivial")) {
-						csf.nontrivial = true;
-					} else if(args[i].equals("--numCars")) {
-						csf.targetNumCars = Integer.parseInt(args[i+1]);
-						if(csf.targetNumCars > 18) {
-							System.err.println("No such boards exist, sorry!");
-							System.exit(0);
-						}
-						csf.setNumCars = true;
-						i++;
-					} else if(args[i].equals("--prevGraphs")) {
-						List<Path> paths = getFilePaths(args[i+1]);
-						for(Path path : paths) {
-							csf.prevGraphs.add(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash());
-						}
-					} else if(args[i].equals("--minNumCars")) {
-						csf.minNumCars = Integer.parseInt(args[i+1]);
-						i++;
-					} else if(args[i].equals("--maxNumCars")) {
-						csf.maxNumCars = Integer.parseInt(args[i+1]);
-						i++;
-					} else if(args[i].equals("--minDepth")) {
-						csf.minDepth = Integer.parseInt(args[i+1]);
-						i++;
-					} else if(args[i].equals("--stats")) {
-						csf.stats = true;
-					} else if(args[i].equals("--fullStats")) {
-						csf.fullStats = true;
-						csf.stats = true;
-					} else if(args[i].equals("--puzzleFile")) {
-						csf.puzzleOutToFile = true;
-					} else if(args[i].equals("--quiet")) {
-						csf.quiet = true;
-					} else {
-						System.err.println("unrecognized option '" + args[i] + "'");
-						usage();
-					}
-				}
-				csf.satisfy();
 			} else if(operation.equals("check-unique")) {
 				if(args.length == 3) {
-					List<Path> oldPaths = getFilePaths(args[1]);
-					List<Path> newPaths = getFilePaths(args[2]);
+					List<Path> oldPaths = Util.getFilePaths(args[1]);
+					List<Path> newPaths = Util.getFilePaths(args[2]);
 					Map<Long,Path> oldHashes = new HashMap<>();
 					for(Path path : oldPaths) {
 						oldHashes.put(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash(), path);
@@ -234,34 +182,10 @@ public class Main {
 			} else {
 				usage();
 			}
-		}
-	}
-
-	private static List<Path> getFilePaths(String filename) {
-		Path path = Paths.get(filename);
-		if(path.toFile().isDirectory()) {
-			return getFilePathsHelper(new LinkedList<Path>(), path);
 		} else {
-			List<Path> ret = new LinkedList<>();
-			ret.add(path);
-			return ret;
+			usage();
 		}
 	}
-
-	private static List<Path> getFilePathsHelper(List<Path> ret, Path dir) {
-		try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-			for(Path path : stream) {
-				if(path.toFile().isDirectory()) {
-					getFilePathsHelper(ret, path);
-				} else {
-					ret.add(path);
-				}
-			}
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		return ret;
-	} 
 
 	private static void usage() {
 		System.err.println(usage);

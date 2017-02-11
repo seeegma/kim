@@ -1,8 +1,10 @@
 package rushhour.generation;
 
+import rushhour.Util;
 import rushhour.core.*;
 import rushhour.io.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
@@ -10,44 +12,64 @@ import java.util.Collections;
 import java.io.File;
 import java.util.Set;
 import java.util.HashSet;
+import java.nio.file.Path;
 
 public class ConstraintSatisfier {
 
+	public static final String usage = 
+		"\tgenerate [GENERATION OPTIONS]\n\n" + 
+		"Generation Options: \n" +
+		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
+		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH" +
+		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
+		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
+		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
+		"--maxnNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
+		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
+		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
+		"--nontrivial           Only generate boards with depth at least 1\n\n" +
+		"--useHeuristics        Use heuristics to avoid generating unsolvable boards\n\n" +
+		"--stats                Print statistics about the boards that were produced\n\n" +
+		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
+		"--quiet                Don't print anything while generation is running\n\n" +
+		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
+
 	// options
-	public boolean nontrivial = false; 
-	public boolean onlySolvable = false;
-	public boolean onlyUnique = false;
-	public boolean useHeuristics = false; 
-	public boolean setNumCars = false;
-	public int targetNumCars = 11; // reasonable default
-	public int minNumCars = 9; // reasonable default
-	public int maxNumCars = 15; // reasonable default
-	public int boardsToSave = 1; // reasonable default
-	public int minDepth = -1; // reasonable default
-	public boolean stats = false;
-	public boolean fullStats = false;
-	public int maxBoardsPerDepth = -1;
-	public boolean puzzleOutToFile = false;
-	public boolean quiet = false;
-	public Set<Long> prevGraphs = new HashSet<>();
+	private boolean nontrivial = false; 
+	private boolean onlySolvable = false;
+	private boolean onlyUnique = false;
+	private boolean useHeuristics = false; 
+	private boolean setNumCars = false;
+	private int targetNumCars = 11; // reasonable default
+	private int minNumCars = 9; // reasonable default
+	private int maxNumCars = 15; // reasonable default
+	private int boardsToSave = 1; // reasonable default
+	private int minDepth = -1; // reasonable default
+	private boolean stats = false;
+	private boolean fullStats = false;
+	private int maxBoardsPerDepth = -1;
+	private boolean puzzleOutToFile = false;
+	private boolean quiet = false;
+	private Set<Long> prevGraphs = new HashSet<>();
+	private String prevGraphsDir = null;
 
 	// STATS STUFF //
 	// total counts
-	int totalBoardsGenerated = 0;
-	Map<Integer,Integer> numBoardsByBoardDepth = new HashMap<>();
-	Map<Integer,Integer> numBoardsByGraphDepth = new HashMap<>();
-	Set<Long> uniqueGraphs = new HashSet<>();
-	// per-numCars counts
+	private int totalBoardsGenerated = 0;
+	private Map<Integer,Integer> numBoardsByBoardDepth = new HashMap<>();
+	private Map<Integer,Integer> numBoardsByGraphDepth = new HashMap<>();
+	private Set<Long> uniqueGraphs = new HashSet<>();
+	private // per-numCars counts
 	Map<Integer,Integer> totalBoardsGeneratedByNumCars = new HashMap<>();
-	Map<Integer,Integer> boardsSavedSoFarByNumCars = new HashMap<>();
-	Map<Integer,Map<Integer,Integer>> numBoardsByBoardDepthByNumCars = new HashMap<>();
-	Map<Integer,Map<Integer,Integer>> numBoardsByGraphDepthByNumCars = new HashMap<>();
-	Map<Integer,Integer> uniqueGraphsByNumCars = new HashMap<>();
-	// saved boards counts
+	private Map<Integer,Integer> boardsSavedSoFarByNumCars = new HashMap<>();
+	private Map<Integer,Map<Integer,Integer>> numBoardsByBoardDepthByNumCars = new HashMap<>();
+	private Map<Integer,Map<Integer,Integer>> numBoardsByGraphDepthByNumCars = new HashMap<>();
+	private Map<Integer,Integer> uniqueGraphsByNumCars = new HashMap<>();
+	private // saved boards counts
 	int boardsSavedSoFar = 0;
-	Map<Integer,Integer> boardsSavedSoFarByBoardDepth = new HashMap<>(); // for outputBoard filenames
-	Map<Integer,Integer> boardsSavedSoFarByGraphDepth = new HashMap<>();
-	Set<Long> uniqueGraphsOfSavedBoards = new HashSet<>(); // only for stats purposes
+	private Map<Integer,Integer> boardsSavedSoFarByBoardDepth = new HashMap<>(); // for outputBoard filenames
+	private Map<Integer,Integer> boardsSavedSoFarByGraphDepth = new HashMap<>();
+	private Set<Long> uniqueGraphsOfSavedBoards = new HashSet<>(); // only for stats purposes
 
 	public ConstraintSatisfier() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -60,14 +82,77 @@ public class ConstraintSatisfier {
 		});
 	}
 
+	public boolean readArgs(String[] args) {
+		if(args.length < 3) {
+			return false;
+		}
+		for(int i=1; i<args.length; i++) {
+			if(args[i].equals("--numBoards")) {
+				this.boardsToSave = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--unique")) {
+				this.onlyUnique = true;
+			} else if(args[i].equals("--maxPerDepth")) {
+				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--useHeuristics")) {
+				this.useHeuristics = true;
+			} else if(args[i].equals("--nontrivial")) {
+				this.nontrivial = true;
+			} else if(args[i].equals("--numCars")) {
+				this.targetNumCars = Integer.parseInt(args[i+1]);
+				if(this.targetNumCars > 18) {
+					System.err.println("No such boards exist, sorry!");
+					System.exit(0);
+				}
+				this.setNumCars = true;
+				i++;
+			} else if(args[i].equals("--prevGraphs")) {
+				this.prevGraphsDir = args[i+1];
+				i++;
+			} else if(args[i].equals("--minNumCars")) {
+				this.minNumCars = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--maxNumCars")) {
+				this.maxNumCars = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--minDepth")) {
+				this.minDepth = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--stats")) {
+				this.stats = true;
+			} else if(args[i].equals("--fullStats")) {
+				this.fullStats = true;
+				this.stats = true;
+			} else if(args[i].equals("--puzzleFile")) {
+				this.puzzleOutToFile = true;
+			} else if(args[i].equals("--quiet")) {
+				this.quiet = true;
+			} else {
+				System.err.println("unrecognized option '" + args[i] + "'");
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void satisfy() {
+		if(prevGraphsDir != null) {
+			if(!quiet) {
+				System.err.println("importing prevGraphs...");
+			}
+			List<Path> paths = Util.getFilePaths(prevGraphsDir);
+			for(Path path : paths) {
+				this.prevGraphs.add(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash());
+			}
+			if(!quiet) {
+				System.err.println("done.");
+			}
+		}
 		// initialize some values
 		for(int i=0; i<=18; i++) {
-			totalBoardsGeneratedByNumCars.put(i, 0);
-			boardsSavedSoFarByNumCars.put(i, 0);
 			numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 			numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
-			uniqueGraphsByNumCars.put(i, 0);
 		}
 		BoardGenerator gen = new BoardGenerator(nontrivial, useHeuristics);
 		Random rng = new Random();
