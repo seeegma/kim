@@ -20,7 +20,7 @@ public class ConstraintSatisfier {
 		"\tgenerate [GENERATION OPTIONS]\n\n" + 
 		"Generation Options: \n" +
 		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
-		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH" +
+		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n\n" +
 		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
 		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
 		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
