@@ -155,7 +155,7 @@ public class ConstraintSatisfier {
 			numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 			numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 		}
-		BoardGenerator gen = new BoardGenerator(maxVipX, useHeuristics);
+		BoardGenerator gen = new RandomBoardGen(this.maxVipX);
 		Random rng = new Random();
 		// it's generation time!
 		while(boardsSavedSoFar < boardsToSave) {

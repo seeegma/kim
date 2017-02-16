@@ -1,44 +1,30 @@
 package rushhour.generation;
 
 import rushhour.core.*;
-import rushhour.io.*;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-public class RandomBoardGen {
+public class RandomBoardGen implements BoardGenerator {
 
-	int numCars;
-	int h;
-	int w;
 	private Board board;
-	Random random = new Random();
-	AsciiGen aaGen = new AsciiGen();
+	private Random random;
+	private int maxVipX;
 
-
-	public RandomBoardGen(int w, int h, int numCars){
-		this.numCars = numCars;
-		Board board = new Board(w,h);
-		this.board = board;
-		addVIP();
-		this.w = w;
-		this.h = h;
+	public RandomBoardGen(int maxVipX){
+		this.board = new Board(6, 6);
+		this.maxVipX = maxVipX;
+		this.random = new Random();
 	}
 
-	public Board getBoard(){
-		return board;
+	private void init(){
+		this.board.clear();
+		this.board.addCar(new Car(random.nextInt(this.maxVipX), 2, 2, true));
 	}
 
-	public void newBoard(){
-		Board board = new Board(w,h);
-		this.board = board;
-		addVIP();
-	}
-
-	public void addVIP(){
-		int i = random.nextInt(2);
-		Car vip = new Car(i,2,2,true);
-		board.addCar(vip);
+	public Board generate(int targetNumCars) {
+		this.init();
+		while(!this.tryGenerate(targetNumCars));
+		return this.board;
 	}
 
 	/**
@@ -46,19 +32,15 @@ public class RandomBoardGen {
 	 * If fails to make board after 100 tries, stops
 	 * @return true is success, false if fails after 100 tries
 	 */
-	public boolean generateBoard(){
-		//		Board board = new Board(h,w);
-
+	private boolean tryGenerate(int targetNumCars) {
 		int i = 0;
 		boolean succ;
 		while(i < 100){
-			succ = addNRCars();
+			succ = addNRCars(targetNumCars);
 			if (succ == true){
 				return true;
 			} else {
-				//board = new Board(h,w);
-				newBoard();
-				addVIP();
+				this.init();
 				i++;
 			}
 		}
@@ -69,19 +51,15 @@ public class RandomBoardGen {
 	 * Add N random Cars. If fails, clears boards
 	 * @return true if succ, false if fail
 	 */
-	public boolean addNRCars(){
-		int i = numCars;
-		boolean succ;
-		while (i > 0){
+	private boolean addNRCars(int targetNumCars){
+		int numCars = 1; // b/c we already have the vip
+		while(numCars < targetNumCars){
 			//if there is no space to put in a car
 			if (!this.board.hasEmpty()){
 				return false;
 			}
-
-			succ = addRandomCar();
-			if (succ == true){
-				//aaGen.printGrid(this.board.getGrid());
-				i--;
+			if(this.addRandomCar()) {
+				numCars++;
 			}
 		}
 		return true;
