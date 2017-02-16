@@ -21,26 +21,22 @@ public class BoardGenerator {
 	private Random rng;
 	// whether or not we block the vip with horizontal cars
 	private boolean useHeuristics;
-	// whether or not we want to allow generation of trivial boards
-	private boolean nontrivial;
+	// the farthest right the vip can be placed
+	private int maxVipX;
 	
-	public BoardGenerator(boolean nontrivial, boolean useHeuristics) {
+	public BoardGenerator(int maxVipX, boolean useHeuristics) {
 		this.rng = new Random();
 		this.vip = null;
 		this.carOptions = new ArrayList<Car>();
 		this.board = new Board(6, 6);
 		this.cars = new ArrayList<Car>();
-		this.nontrivial = nontrivial;
+		this.maxVipX = maxVipX;
 		this.useHeuristics = useHeuristics;
 	}
 
 	private void init() {
 		this.carOptions.clear();
-		if(this.nontrivial) {
-			this.vip = new Car(rng.nextInt(4), 2, 2, true);
-		} else {
-			this.vip = new Car(rng.nextInt(5), 2, 2, true);
-		}
+		this.vip = new Car(rng.nextInt(this.maxVipX + 1), 2, 2, true);
 		this.board.clear();
 		this.board.addCar(this.vip);
 		for(int x=0; x<6; x++) {

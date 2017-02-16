@@ -27,7 +27,7 @@ public class ConstraintSatisfier {
 		"--maxnNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
 		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
 		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
-		"--nontrivial           Only generate boards with depth at least 1\n\n" +
+		"--maxVipX X            Only generate boards with vip.x <= X\n\n" +
 		"--useHeuristics        Use heuristics to avoid generating unsolvable boards\n\n" +
 		"--stats                Print statistics about the boards that were produced\n\n" +
 		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
@@ -35,7 +35,7 @@ public class ConstraintSatisfier {
 		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
 
 	// options
-	private boolean nontrivial = false; 
+	private int maxVipX = 4; 
 	private boolean onlySolvable = false;
 	private boolean onlyUnique = false;
 	private boolean useHeuristics = false; 
@@ -97,8 +97,9 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--useHeuristics")) {
 				this.useHeuristics = true;
-			} else if(args[i].equals("--nontrivial")) {
-				this.nontrivial = true;
+			} else if(args[i].equals("--maxVipX")) {
+				this.maxVipX = Integer.parseInt(args[i+1]);
+				i++;
 			} else if(args[i].equals("--numCars")) {
 				this.targetNumCars = Integer.parseInt(args[i+1]);
 				if(this.targetNumCars > 18) {
@@ -154,7 +155,7 @@ public class ConstraintSatisfier {
 			numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 			numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 		}
-		BoardGenerator gen = new BoardGenerator(nontrivial, useHeuristics);
+		BoardGenerator gen = new BoardGenerator(maxVipX, useHeuristics);
 		Random rng = new Random();
 		// it's generation time!
 		while(boardsSavedSoFar < boardsToSave) {
