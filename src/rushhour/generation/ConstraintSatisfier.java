@@ -265,7 +265,7 @@ public class ConstraintSatisfier {
 			int minGeneratedNumCars = Collections.min(numBoardsByBoardDepthByNumCars.keySet());
 			int maxGeneratedNumCars = Collections.max(numBoardsByBoardDepthByNumCars.keySet());
 			for(int numCars = minGeneratedNumCars; numCars <= maxGeneratedNumCars; numCars++) {
-				if(uniqueGraphsByNumCars.get(numCars) == 0) {
+				if(uniqueGraphsByNumCars.get(numCars) == null) {
 					continue;
 				}
 				totalBoardsGeneratedByNumCars.get(numCars);
