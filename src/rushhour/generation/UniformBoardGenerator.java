@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 
-public class DylansBoardGenerator implements BoardGenerator {
+public class UniformBoardGenerator implements BoardGenerator {
 
 	// vip in solved position
 	private Car vip;
@@ -19,24 +19,18 @@ public class DylansBoardGenerator implements BoardGenerator {
 	private Board board;
 	// rng
 	private Random rng;
-	// whether or not we block the vip with horizontal cars
-	private boolean useHeuristics;
-	// the farthest right the vip can be placed
-	private int maxVipX;
 	
-	public DylansBoardGenerator(int maxVipX, boolean useHeuristics) {
+	public UniformBoardGenerator() {
 		this.rng = new Random();
 		this.vip = null;
 		this.carOptions = new ArrayList<Car>();
 		this.board = new Board(6, 6);
 		this.cars = new ArrayList<Car>();
-		this.maxVipX = maxVipX;
-		this.useHeuristics = useHeuristics;
 	}
 
-	private void init() {
+	private void init(int maxVipX) {
 		this.carOptions.clear();
-		this.vip = new Car(rng.nextInt(this.maxVipX + 1), 2, 2, true);
+		this.vip = new Car(rng.nextInt(maxVipX + 1), 2, 2, true);
 		this.board.clear();
 		this.board.addCar(this.vip);
 		for(int x=0; x<6; x++) {
@@ -44,13 +38,7 @@ public class DylansBoardGenerator implements BoardGenerator {
 				// horiz
 				for(int length=2; length<=3 && x+length-1<6; length++) {
 					Car toAdd = new Car(x, y, length, true);
-					if(this.useHeuristics) {
-						if(toAdd.y != this.vip.y || toAdd.x + toAdd.length < this.vip.x) {
-							carOptions.add(toAdd);
-						}
-					} else {
-						carOptions.add(toAdd);
-					}
+					carOptions.add(toAdd);
 				}
 				// vert
 				for(int length=2; length<=3 && y+length-1<6; length++) {
@@ -66,11 +54,11 @@ public class DylansBoardGenerator implements BoardGenerator {
 		Collections.shuffle(this.cars);
 	}
 
-	public Board generate(int targetNumCars) {
-		this.init();
+	public Board generate(int targetNumCars, int maxVipX) {
+		this.init(maxVipX);
 		while(this.board.numCars() < targetNumCars) {
 			if(this.cars.isEmpty()) {
-				this.init(); // start over
+				this.init(maxVipX); // start over
 			}
 			for(int i=0; i<this.cars.size(); i++) {
 				Car c = this.cars.get(i);

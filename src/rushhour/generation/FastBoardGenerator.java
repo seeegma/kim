@@ -4,26 +4,24 @@ import rushhour.core.*;
 
 import java.util.Random;
 
-public class RandomBoardGen implements BoardGenerator {
+public class FastBoardGenerator implements BoardGenerator {
 
 	private Board board;
 	private Random random;
-	private int maxVipX;
 
-	public RandomBoardGen(int maxVipX){
+	public FastBoardGenerator(){
 		this.board = new Board(6, 6);
-		this.maxVipX = maxVipX;
 		this.random = new Random();
 	}
 
-	private void init(){
+	private void init(int maxVipX){
 		this.board.clear();
-		this.board.addCar(new Car(random.nextInt(this.maxVipX), 2, 2, true));
+		this.board.addCar(new Car(random.nextInt(maxVipX), 2, 2, true));
 	}
 
-	public Board generate(int targetNumCars) {
-		this.init();
-		while(!this.tryGenerate(targetNumCars));
+	public Board generate(int targetNumCars, int maxVipX) {
+		this.init(maxVipX);
+		while(!this.tryGenerate(targetNumCars, maxVipX));
 		return this.board;
 	}
 
@@ -32,7 +30,7 @@ public class RandomBoardGen implements BoardGenerator {
 	 * If fails to make board after 100 tries, stops
 	 * @return true is success, false if fails after 100 tries
 	 */
-	private boolean tryGenerate(int targetNumCars) {
+	private boolean tryGenerate(int targetNumCars, int maxVipX) {
 		int i = 0;
 		boolean succ;
 		while(i < 100){
@@ -40,7 +38,7 @@ public class RandomBoardGen implements BoardGenerator {
 			if (succ == true){
 				return true;
 			} else {
-				this.init();
+				this.init(maxVipX);
 				i++;
 			}
 		}

@@ -31,6 +31,7 @@ public class ConstraintSatisfier {
 		"--useHeuristics        Use heuristics to avoid generating unsolvable boards\n\n" +
 		"--stats                Print statistics about the boards that were produced\n\n" +
 		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
+		"--uniform              Slower, but guarantees uniformly random generation\n\n" +
 		"--quiet                Don't print anything while generation is running\n\n" +
 		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
 
@@ -50,8 +51,11 @@ public class ConstraintSatisfier {
 	private int maxBoardsPerDepth = -1;
 	private boolean puzzleOutToFile = false;
 	private boolean quiet = false;
+	private boolean uniform = false;
 	private Set<Long> prevGraphs = new HashSet<>();
 	private String prevGraphsDir = null;
+
+	private boolean needGraph = false;
 
 	// STATS STUFF //
 	// total counts
@@ -92,8 +96,10 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--unique")) {
 				this.onlyUnique = true;
+				this.needGraph = true;
 			} else if(args[i].equals("--maxPerDepth")) {
 				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
+				this.needGraph = true;
 				i++;
 			} else if(args[i].equals("--useHeuristics")) {
 				this.useHeuristics = true;
@@ -110,6 +116,7 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--prevGraphs")) {
 				this.prevGraphsDir = args[i+1];
+				this.needGraph = true;
 				i++;
 			} else if(args[i].equals("--minNumCars")) {
 				this.minNumCars = Integer.parseInt(args[i+1]);
@@ -119,20 +126,29 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--minDepth")) {
 				this.minDepth = Integer.parseInt(args[i+1]);
+				this.needGraph = true;
 				i++;
+			} else if(args[i].equals("--uniform")) {
+				this.uniform = true;
 			} else if(args[i].equals("--stats")) {
 				this.stats = true;
+				this.needGraph = true;
 			} else if(args[i].equals("--fullStats")) {
 				this.fullStats = true;
 				this.stats = true;
+				this.needGraph = true;
 			} else if(args[i].equals("--puzzleFile")) {
 				this.puzzleOutToFile = true;
+				this.needGraph = true;
 			} else if(args[i].equals("--quiet")) {
 				this.quiet = true;
 			} else {
 				System.err.println("unrecognized option '" + args[i] + "'");
 				return false;
 			}
+		}
+		if(!quiet) {
+			this.needGraph = true;
 		}
 		return true;
 	}
@@ -155,7 +171,12 @@ public class ConstraintSatisfier {
 			numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 			numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 		}
-		BoardGenerator gen = new RandomBoardGen(this.maxVipX);
+		BoardGenerator gen;
+		if(this.uniform) {
+			gen = new UniformBoardGenerator();
+		} else {
+			gen = new FastBoardGenerator();
+		}
 		Random rng = new Random();
 		// it's generation time!
 		while(boardsSavedSoFar < boardsToSave) {
@@ -163,16 +184,22 @@ public class ConstraintSatisfier {
 			if(!setNumCars) {
 				targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 			}
-			Board randomBoard = gen.generate(targetNumCars);
-			BoardGraph graph = randomBoard.getGraph();
-			Long hash = graph.hash();
-			int graphDepth = graph.maxDepth();
-			int randomBoardDepth = graph.getDepthOfBoard(randomBoard);
+			Board randomBoard = gen.generate(targetNumCars,this.maxVipX);
+			BoardGraph graph = null; // dummy value
+			Long hash = null; // dummy value
+			int graphDepth = 0; // dummy value
+			int randomBoardDepth = 0; // dummy value
+			if(this.needGraph) {
+				graph = randomBoard.getGraph();
+				hash = graph.hash();
+				graphDepth = graph.maxDepth();
+				randomBoardDepth = graph.getDepthOfBoard(randomBoard);
+			}
 			Board outputBoard = randomBoard;
 			int outputBoardDepth = randomBoardDepth;
 			boolean keepBoard = true; // whether or not we're going to save outputBoard
 			// compute keepBoard
-			if(prevGraphs.contains(hash)) {
+			if(!prevGraphs.isEmpty() && prevGraphs.contains(hash)) {
 				// make sure the graph isn't that of any of the boards we've been told to skip
 				keepBoard = false;
 			} if(onlyUnique && uniqueGraphs.contains(hash)) {
