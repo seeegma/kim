@@ -3,116 +3,67 @@ package rushhour.io;
 import rushhour.core.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 
 public final class AsciiGen {
-	
-	final static int len = 6;
-	final static int hei = 6;
-	//print height
-	final static int phei = 8;
-	//print length
-	final static int plen = 8;
-	final static int exitL = 3;
 
+	private static final char[] symbols = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z'};
+	
 	public static String getGridString(Board board){
-		String[] pGrid = getPrintableGrid(board.getGrid());
-		String ret = "";
+		int height = board.getHeight() + 2;
+		int width = board.getWidth()*2 + 5;
+		int offset = (height-1)/2;
+		StringBuilder[] rows = new StringBuilder[height];
+		for(int i=0; i<height; i++) {
+			rows[i] = new StringBuilder();
+		}
+		// left corners
+		rows[0].append(" .");
+		rows[height-1].append(" `");
+		// top and bottom walls
+		for(int i=0; i<width-4; i++) {
+			rows[0].append("=");
+			rows[height-1].append("=");
+		}
+		// right corners
+		rows[0].append(".");
+		rows[height-1].append("`");
+		// left wall
+		for(int i=1; i<1+board.getHeight(); i++) {
+			rows[i].append("|| ");
+		}
+		// now, the cars!
+		for(int i=1; i<1+board.getHeight(); i++){
+			rows[i].append(extractLine(board.getGrid().getRow(i-1)));
+		}
+		// right wall
+		for(int i=1; i<1+board.getHeight(); i++) {
+			rows[i].append("||");
+		}
+		// marking the exit path
+		rows[offset].delete(14, rows[offset].length());
+
+		// put it all together
+		StringBuilder ret = new StringBuilder();
 		int i;
-		for(i=0; i<pGrid.length-1; i++) {
-			ret += pGrid[i] + "\n";
+		for(i=0; i<rows.length-1; i++) {
+			ret.append(rows[i].toString());
+		    ret.append("\n");
 		}
-		return ret + pGrid[i];
+		ret.append(rows[i].toString());
+		return ret.toString();
 	}
-	
-	/**
-	 * outputs a string[] of 2D char array
-	 * @param inputG char[][] input grid 
-	 * @return String[] of grid
-	 * @todo this prints the transpose of the board. Probably due to the fact that int[][] is really more like (int[])[] so indices are switched around as you read from outside in. 
-	 */
-	private static String[] getPrintableGrid(Grid inputG){
-		String[] fin = new String[phei]; //6 rows plus ceiling and floors = 8 for now
-		//visual delimiters for top and bottom
-		fin[0] = " .=============.";
-		fin[7] = " `=============`";
-		//gets individual lines
-		for(int i = 0;i<hei;i++){
-			fin[i+1] = extractLine(inputG.getRow(i));
-		}
-		
-		//marking the exit path
-		fin[exitL] = fin[exitL].substring(0, 14);
-		
-		return fin;
-	}
-	
-	/**
-	 * extracts visual grid String from char[]
-	 * @param line char[]
-	 * @return String in visual format
-	 */
-	
-	private static String extractLine(int[] line){
-		String t = "|| ";
-		for(int i=0;i<len;i++){
-			if (line[i]==-1) {
-				t = t + "  ";
-			}
-			else { 
-				t = t + symbolList().get(line[i]) + " ";
+
+	private static StringBuilder extractLine(int[] line){
+		StringBuilder t = new StringBuilder();
+		for(int i=0; i<line.length; i++){
+			if(line[i]==-1) {
+				t.append("  ");
+			} else { 
+				t.append(symbols[line[i]]);
+				t.append(" ");
 			}
 		}
-		t = t + "||";
 		return t;
 	}
 	
-	
-	/** creates empty char[][] 6x6 currently
-	 * @return empty char[len][hei]
-	 */
-	private static int[][] emptyGrid(){
-		int[][] arr = new int[len][hei];
-		for(int i=0;i<len;i++){
-			for (int j=0;j<hei;j++){
-				arr[i][j] = '_';
-			}
-		}
-		
-		return arr;
-	}
-	
-	/** for now just adds cars manually by user
-	 * code for testing out visual
-	 * @param grid char[][] an array to put cars into
-	 * @return char[][] with cars added to it
-	 */
-	//replace arr with internal call? replace xylenhor with Car object call maybe
-	private static Grid addCar(Grid grid, int index, Car car){
-		grid.set(car.x, car.y, index);
-		if (car.horizontal){ 
-			grid.set(car.x+1, car.y, index);
-			if (car.length > 2){ grid.set(car.x+2, car.y, index); }
-		} else { 
-			grid.set(car.x, car.y+1, index); 
-			if (car.length > 2){ grid.set(car.x, car.y+2, index);  }
-		}		
-		
-		return grid;
-	}
-	
-	private static ArrayList<String> symbolList(){
-		//change this to whatever you want
-		String symbols = "ABCDEFGHIJKLMNOPQRST";
-		String[] symbs = symbols.split("");
-		ArrayList<String> symb = new ArrayList<String>();
-		
-		for(int i = 0; i < symbs.length;i++){
-			symb.add(symbs[i]);
-		}	
-		
-		return symb;
-	}
-
 }
