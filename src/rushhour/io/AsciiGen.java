@@ -11,7 +11,7 @@ public final class AsciiGen {
 	public static String getGridString(Board board){
 		int height = board.getHeight() + 2;
 		int width = board.getWidth()*2 + 5;
-		int offset = (height-1)/2;
+		int offset = board.getOffset() + 1;
 		StringBuilder[] rows = new StringBuilder[height];
 		for(int i=0; i<height; i++) {
 			rows[i] = new StringBuilder();
@@ -40,7 +40,7 @@ public final class AsciiGen {
 			rows[i].append("||");
 		}
 		// marking the exit path
-		rows[offset].delete(14, rows[offset].length());
+		rows[offset].delete(width-2, rows[offset].length());
 
 		// put it all together
 		StringBuilder ret = new StringBuilder();
