@@ -8,20 +8,26 @@ public class FastBoardGenerator implements BoardGenerator {
 
 	private Board board;
 	private Random random;
+	private int maxCarLength;
+	private int maxVipX;
+	private int minVipX;
 
-	public FastBoardGenerator(){
-		this.board = new Board(6, 6);
+	public FastBoardGenerator(int boardSize, int maxCarLength, int minVipX, int maxVipX) {
+		this.board = new Board(boardSize, boardSize);
+		this.maxCarLength = maxCarLength;
 		this.random = new Random();
+		this.minVipX = minVipX;
+		this.maxVipX = maxVipX;
 	}
 
-	private void init(int maxVipX){
+	private void init() {
 		this.board.clear();
-		this.board.addCar(new Car(random.nextInt(maxVipX), 2, 2, true));
+		this.board.addCar(new Car(random.nextInt(this.maxVipX + 1 - this.minVipX) + this.minVipX, this.board.getOffset(), 2, true));
 	}
 
-	public Board generate(int targetNumCars, int maxVipX) {
-		this.init(maxVipX);
-		while(!this.tryGenerate(targetNumCars, maxVipX));
+	public Board generate(int targetNumCars) {
+		this.init();
+		while(!this.tryGenerate(targetNumCars));
 		return this.board;
 	}
 
@@ -30,7 +36,7 @@ public class FastBoardGenerator implements BoardGenerator {
 	 * If fails to make board after 100 tries, stops
 	 * @return true is success, false if fails after 100 tries
 	 */
-	private boolean tryGenerate(int targetNumCars, int maxVipX) {
+	private boolean tryGenerate(int targetNumCars) {
 		int i = 0;
 		boolean succ;
 		while(i < 100){
@@ -38,7 +44,7 @@ public class FastBoardGenerator implements BoardGenerator {
 			if (succ == true){
 				return true;
 			} else {
-				this.init(maxVipX);
+				this.init();
 				i++;
 			}
 		}

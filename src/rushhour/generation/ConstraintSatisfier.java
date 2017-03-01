@@ -19,15 +19,17 @@ public class ConstraintSatisfier {
 	public static final String usage = 
 		"\tgenerate [GENERATION OPTIONS]\n\n" + 
 		"Generation Options: \n" +
+		"--boardSize N			Produce boards that are NxN\n\n" +
 		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
 		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n\n" +
 		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
 		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
 		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
-		"--maxnNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
+		"--maxNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
 		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
 		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
 		"--maxVipX X            Only generate boards with vip.x <= X\n\n" +
+		"--minVipX X            Only generate boards with vip.x >= X\n\n" +
 		"--useHeuristics        Use heuristics to avoid generating unsolvable boards\n\n" +
 		"--stats                Print statistics about the boards that were produced\n\n" +
 		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
@@ -36,7 +38,10 @@ public class ConstraintSatisfier {
 		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
 
 	// options
-	private int maxVipX = 4; 
+	private int boardSize = 6;
+	private int maxVipX = boardSize-2; 
+	private int minVipX = 0;
+	private int maxCarLength = 3; 
 	private boolean onlySolvable = false;
 	private boolean onlyUnique = false;
 	private boolean useHeuristics = false; 
@@ -91,7 +96,10 @@ public class ConstraintSatisfier {
 			return false;
 		}
 		for(int i=1; i<args.length; i++) {
-			if(args[i].equals("--numBoards")) {
+			if(args[i].equals("--boardSize")) {
+				this.boardSize = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--numBoards")) {
 				this.boardsToSave = Integer.parseInt(args[i+1]);
 				i++;
 			} else if(args[i].equals("--unique")) {
@@ -106,12 +114,14 @@ public class ConstraintSatisfier {
 			} else if(args[i].equals("--maxVipX")) {
 				this.maxVipX = Integer.parseInt(args[i+1]);
 				i++;
+			} else if(args[i].equals("--minVipX")) {
+				this.minVipX = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--maxCarLength")) {
+				this.maxCarLength = Integer.parseInt(args[i+1]);
+				i++;
 			} else if(args[i].equals("--numCars")) {
 				this.targetNumCars = Integer.parseInt(args[i+1]);
-				if(this.targetNumCars > 18) {
-					System.err.println("No such boards exist, sorry!");
-					System.exit(0);
-				}
 				this.setNumCars = true;
 				i++;
 			} else if(args[i].equals("--prevGraphs")) {
@@ -147,6 +157,16 @@ public class ConstraintSatisfier {
 				return false;
 			}
 		}
+		if(this.targetNumCars > this.boardSize*this.boardSize/2) {
+			System.err.println("No such boards exist, sorry!");
+			System.exit(0);
+		}
+		if(this.maxVipX > this.boardSize - 2){
+			this.maxVipX = this.boardSize - 2;
+		}
+		if(this.maxVipX < this.minVipX){
+			this.maxVipX = this.minVipX;
+		}
 		if(!quiet) {
 			this.needGraph = true;
 		}
@@ -173,9 +193,9 @@ public class ConstraintSatisfier {
 		}
 		BoardGenerator gen;
 		if(this.uniform) {
-			gen = new UniformBoardGenerator();
+			gen = new UniformBoardGenerator(this.boardSize, this.maxCarLength, this.minVipX, this.maxVipX);
 		} else {
-			gen = new FastBoardGenerator();
+			gen = new FastBoardGenerator(this.boardSize, this.maxCarLength, this.minVipX, this.maxVipX);
 		}
 		Random rng = new Random();
 		// it's generation time!
@@ -184,7 +204,7 @@ public class ConstraintSatisfier {
 			if(!setNumCars) {
 				targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 			}
-			Board randomBoard = gen.generate(targetNumCars,this.maxVipX);
+			Board randomBoard = gen.generate(targetNumCars);
 			BoardGraph graph = null; // dummy value
 			Long hash = null; // dummy value
 			int graphDepth = 0; // dummy value

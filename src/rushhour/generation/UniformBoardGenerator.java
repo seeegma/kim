@@ -19,29 +19,36 @@ public class UniformBoardGenerator implements BoardGenerator {
 	private Board board;
 	// rng
 	private Random rng;
+	// max car length
+	private int maxCarLength;
+	private int minVipX;
+	private int maxVipX;
 	
-	public UniformBoardGenerator() {
+	public UniformBoardGenerator(int boardSize, int maxCarLength, int minVipX, int maxVipX) {
 		this.rng = new Random();
 		this.vip = null;
 		this.carOptions = new ArrayList<Car>();
-		this.board = new Board(6, 6);
+		this.board = new Board(boardSize, boardSize);
 		this.cars = new ArrayList<Car>();
+		this.maxCarLength = maxCarLength;
+		this.minVipX = minVipX;
+		this.maxVipX = maxVipX;
 	}
 
-	private void init(int maxVipX) {
+	private void init() {
 		this.carOptions.clear();
-		this.vip = new Car(rng.nextInt(maxVipX + 1), 2, 2, true);
+		this.vip = new Car(rng.nextInt(this.maxVipX + 1 - this.minVipX) + this.minVipX, this.board.getOffset(), 2, true);
 		this.board.clear();
 		this.board.addCar(this.vip);
-		for(int x=0; x<6; x++) {
-			for(int y=0; y<6; y++) {
+		for(int x=0; x<this.board.getWidth(); x++) {
+			for(int y=0; y<this.board.getHeight(); y++) {
 				// horiz
-				for(int length=2; length<=3 && x+length-1<6; length++) {
+				for(int length=2; length<=this.maxCarLength && x+length-1<this.board.getWidth(); length++) {
 					Car toAdd = new Car(x, y, length, true);
 					carOptions.add(toAdd);
 				}
 				// vert
-				for(int length=2; length<=3 && y+length-1<6; length++) {
+				for(int length=2; length<=this.maxCarLength && y+length-1<this.board.getHeight(); length++) {
 					Car toAdd = new Car(x, y, length, false);
 					carOptions.add(toAdd);
 				}
@@ -54,11 +61,11 @@ public class UniformBoardGenerator implements BoardGenerator {
 		Collections.shuffle(this.cars);
 	}
 
-	public Board generate(int targetNumCars, int maxVipX) {
-		this.init(maxVipX);
+	public Board generate(int targetNumCars) {
+		this.init();
 		while(this.board.numCars() < targetNumCars) {
 			if(this.cars.isEmpty()) {
-				this.init(maxVipX); // start over
+				this.init(); // start over
 			}
 			for(int i=0; i<this.cars.size(); i++) {
 				Car c = this.cars.get(i);
