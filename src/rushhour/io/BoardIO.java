@@ -4,6 +4,7 @@ import rushhour.core.*;
 
 import java.util.Scanner;
 import java.io.*;
+import java.util.List;
 import java.util.ArrayList;
 
 /**
@@ -19,8 +20,6 @@ public final class BoardIO {
 		int width = 0;
 	    int height = 0;
 
-	    int offset = 0;
-
 		ArrayList<Car> c = new ArrayList<Car>();
 
 		// TODO: check file integrity?
@@ -33,14 +32,6 @@ public final class BoardIO {
 		    String parts[] = f.nextLine().split(" ");
 		    width = Integer.parseInt(parts[0]);
 		    height = Integer.parseInt(parts[1]);
-
-		    // Second line is exit: location offset
-		    // Location is a cardinal direction (NESW)
-		    // offset is int
-            /*
-		    parts = f.nextLine().split(" ");
-		    d = Direction.ofCardinal(parts[0]);
-		    offset = Integer.parseInt(parts[1]);*/
 
 		    // Next lines are vehicles: x y length horiz
 		    // Horiz is a boolean
@@ -59,7 +50,6 @@ public final class BoardIO {
 				}
 		    	c.add(new Car(x, y, len, horiz));
 		    }
-		    
 		    f.close();
 		} catch (FileNotFoundException e) {
 		    System.out.println("File not found!");
@@ -73,7 +63,6 @@ public final class BoardIO {
 	 * Writes the board to a text file.
 	 * @param filename filename of the text file.
 	 * @param b the board.
-	 * @todo deal with the deletion of exit direction and offset, which are redundant.
 	 */
 	public static void write(String filename, Board b) {
 		try {
@@ -85,19 +74,10 @@ public final class BoardIO {
             pw.print(b.getHeight());
             pw.println();
 
-            // Second line is exit: location offset
-            // Location is a cardinal direction (NESW)
-            // offset is int
-            /*
-            pw.print(b.getExitDirection().toCardinal()); 
-            pw.print(" ");
-            pw.print(b.getExitOffset());
-            pw.println();*/
-
             // Next lines are vehicles: x y length horiz
             // Horiz is a boolean
             // First vehicle is the VIP
-            ArrayList<Car> cars = b.getCars();
+            List<Car> cars = b.getCars();
             for (int i = 0; i < cars.size(); i++) {
                 Car c = cars.get(i);
                 pw.print(c.x);
