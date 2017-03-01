@@ -95,61 +95,6 @@ public class Main {
 						}
 					}
 				}
-			} else if(operation.equals("analyze")) {
-				String option = null;
-				boolean asCsv = false, fields = false;
-				String logFile = null;
-				if(args.length < 2 || args.length > 4) {
-					usage();
-				} else {
-					if(args.length == 2) {
-						option = args[1];
-						if(option.equals("--fields")) {
-							fields = true;
-						} else {
-							usage();
-						}	
-					} else if(args.length == 3) {
-						puzzleFile = args[1];
-						logFile = args[2];
-					} else if(args.length == 4) {
-						option = args[1];
-						if(option.equals("--csv")) {
-							asCsv = true;
-						} else {
-							usage();
-						}
-						puzzleFile = args[2];
-						logFile = args[3];
-					}
-				}
-				List<Analyzer> analyzers = new ArrayList<>();
-				analyzers.add(new MoveAnalyzer());
-				analyzers.add(new TimeAnalyzer());
-				analyzers.add(new MoveTimeAnalyzer());
-				analyzers.add(new ResetAnalyzer());
-				analyzers.add(new UndoAnalyzer());
-				analyzers.add(new BackwardMoveAnalyzer());
-				analyzers.add(new MoveRatioAnalyzer());
-				analyzers.add(new UniqueStateAnalyzer());
-				if(fields) {
-					for(Analyzer a : analyzers) {
-						System.out.print(a.description() + ",");
-					}
-				} else {
-					Board b = BoardIO.read(puzzleFile);
-					Log l = LogIO.read(logFile);
-					l.board = b;
-					if(asCsv) {
-						for(Analyzer a : analyzers) {
-							System.out.print(a.analyze(l) + ",");
-						}
-					} else {
-						for(Analyzer a : analyzers) {
-							System.out.println(a.description() + ": " + a.analyze(l));
-						}
-					}
-				}
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {

@@ -1,8 +1,8 @@
 package rushhour.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,8 +16,6 @@ import java.util.Set;
  * flush with the East/Right edge of the board.
  */
 public class Board {
-	// TODO: introduce coordinate class just to make stuff more clear? Will make
-	// coordinate conversion from Direction easier.
 	private int w, h; // dimension of the board
 	// grid representation of the board. Each slot contains an integer that
 	// represents the index of the car in carList that is occupying the spot
@@ -26,7 +24,7 @@ public class Board {
 	private final int EMPTY_SPOT = -1;
 	//The first car in carList should always be the VIP car, and
 	//many methods rely on the VIP having index 0.
-	private ArrayList<Car> carList;
+	private List<Car> carList;
 
 	private BoardGraph graph;
 
@@ -42,7 +40,7 @@ public class Board {
 	}
 
 	// Overloaded for importing from file
-	public Board(int w, int h, ArrayList<Car> c) {
+	public Board(int w, int h, List<Car> c) {
 		this.w = w;
 		this.h = h;
 		this.grid = new Grid(w,h);
@@ -54,7 +52,7 @@ public class Board {
 		}
 	}
 
-	public Board(int w, int h, Grid grid,ArrayList<Car> c) {
+	public Board(int w, int h, Grid grid, List<Car> c) {
 		this.w = w;
 		this.h = h;
 		this.grid = grid;
@@ -63,7 +61,7 @@ public class Board {
 
 
 	public boolean isSolved() {
-		return carList.get(0).x == w-carList.get(0).length;
+		return carList.get(0).x == this.w-carList.get(0).length;
 	}
 
 	/**
@@ -105,7 +103,7 @@ public class Board {
 	 * Getter for the list of cars on the board.
 	 * @return an ArrayList<Car> of the cars
 	 */
-	public ArrayList<Car> getCars() {
+	public List<Car> getCars() {
 		return this.carList;
 	}
 

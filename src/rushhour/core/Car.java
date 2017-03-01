@@ -1,10 +1,5 @@
 package rushhour.core;
 
-/**
- * Car wrapper class. Note that the coordinates correspond to the left and
- * upper most block of the car on the board (aka the smallest x and y
- * coordinates). Length always "grows" to the right and down.
- */
 public class Car {
     public boolean horizontal;
     public int length;

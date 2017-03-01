@@ -12,7 +12,6 @@ public class Grid {
 
 	private final int EMPTY_SPOT = -1;
 
-
 	public Grid(int width, int height) {
 		this.height = height;
 		this.width = width;
@@ -46,9 +45,6 @@ public class Grid {
 		return col;
 	}
 
-	/**
-	 * Clears the grid so that it's empty.
-	 */
 	public void clear() {
 		for (int i = 0; i < this.height; i++) { // assumes it's a matrix
 			for (int j = 0; j < this.width; j++) {
