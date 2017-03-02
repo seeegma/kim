@@ -72,6 +72,10 @@ public class Board {
 		return this.w;
 	}
 
+	public int getOffset() {
+		return (this.h+1)/2-1;
+	}
+
 	/**
 	 * Getter for the height of the board.
 	 * @return the height
@@ -147,14 +151,13 @@ public class Board {
 		boolean canPlace = true;
 		int dx = 0;
 		int dy = 0;
-		if (newCar.horizontal) {
+		if(newCar.horizontal) {
 			dx++;
 		} else {
 			dy++;
 		}
-
-		for (int i = 0; i < newCar.length; i++) {
-			if (grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
+		for(int i = 0; i < newCar.length; i++) {
+			if(grid.get(newCar.x + (dx*i), newCar.y + (dy*i)) != -1) {
 				canPlace = false;
 				break;
 			}
