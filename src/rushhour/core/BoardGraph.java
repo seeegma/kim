@@ -32,14 +32,14 @@ public class BoardGraph {
 		this.vertices.put(startingBoard.hash(), startingVertex);
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		queue.offer(startingVertex);
-		while (!queue.isEmpty()) {
+		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			current.neighbors = new HashMap<Move,Vertex>();
 			// fill in neighbors with vertices already in the graph
-			for (Move move : current.board.allPossibleMoves()) {
+			for(Move move : current.board.allPossibleMoves()) {
 				Board neighborBoard = current.board.getNeighborBoard(move);
 				// If the vertex exists in the graph, replace current's instance with the graph's
-				if (this.vertices.containsKey(neighborBoard.hash())) {
+				if(this.vertices.containsKey(neighborBoard.hash())) {
 					current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
 				}
 				// otherwise add current's instance to the graph
@@ -59,7 +59,7 @@ public class BoardGraph {
 		queue = new LinkedList<Vertex>();
 		HashSet<Vertex> visited = new HashSet<Vertex>();
 		for(Vertex vert : vertices.values()) {
-			if (vert.board.isSolved()) {
+			if(vert.board.isSolved()) {
 				vert.depth = 0;
 				maxDepth = 0;
 				queue.offer(vert);
@@ -67,14 +67,12 @@ public class BoardGraph {
 				this.solutions.add(vert);
 			}
 		}
-		while (!queue.isEmpty()) {
+		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
-			Set<Move> moves = current.neighbors.keySet();
-			for (Move move : moves) {
-				Vertex neighbor = current.neighbors.get(move);
-				if (!visited.contains(neighbor)) {
+			for(Vertex neighbor : current.neighbors.values()) {
+				if(!visited.contains(neighbor)) {
 					neighbor.depth = current.depth + 1;
-					if (maxDepth<neighbor.depth) {
+					if(maxDepth < neighbor.depth) {
 						maxDepth = neighbor.depth;
 					}
 					visited.add(neighbor);
@@ -121,11 +119,10 @@ public class BoardGraph {
 		Vertex v = this.getVertex(b);
 		List<Move> moves = new ArrayList<Move>();
 		Vertex current = v;
-		while (current.depth != 0) {
-			Set<Move> neighborMoves = current.neighbors.keySet();
-			for (Move move : neighborMoves) {
+		while(current.depth != 0) {
+			for(Move move : current.neighbors.keySet()) {
 				Vertex neighbor = current.neighbors.get(move);
-				if (neighbor.depth == current.depth - 1) {
+				if(neighbor.depth == current.depth - 1) {
 					moves.add(move);
 					current = neighbor;
 					break;
@@ -191,6 +188,34 @@ public class BoardGraph {
 			}
 		}
 		return null;
+	}
+
+	public static boolean hasMinDepth(Board board, int minDepth) {
+		if(!board.isSolved()) {
+			return false;
+		}
+		Vertex source = new Vertex(board);
+		source.depth = 0;
+		Map<Long,Integer> visitedDepths = new HashMap<Long,Integer>();
+		LinkedList<Vertex> queue = new LinkedList<>();
+		visitedDepths.put(board.hash(),0);
+		queue.offer(source);
+		// run DFS graph search
+		while(!queue.isEmpty()) {
+			Vertex cur = queue.poll();
+			if(cur.depth == minDepth) {
+				return true;
+			}
+			for(Vertex neighbor : cur.neighbors.values()) {
+				if(visitedDepths.containsKey(neighbor.board.hash())) {
+					continue;
+				}
+				neighbor.depth = cur.depth + 1;
+				queue.offer(neighbor);
+			}
+		}
+		return false;
+
 	}
 
 }
