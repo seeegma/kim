@@ -9,25 +9,8 @@ import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Comparator;
 
 public class BoardGraph {
-
-	public class Vertex implements Comparable<Vertex> {
-		public Board board;
-		public HashMap<Move,Vertex> neighbors;
-		public int depth;
-		public Vertex parent;
-		public Vertex(Board board) {
-			this.board = board;
-			this.parent = null;
-			this.depth = -1;
-			this.neighbors = null;
-		}
-    	public int compareTo(Vertex other) {
-			return other.depth - this.depth;
-    	}
-	}
 
 	HashMap<Long,Vertex> vertices;
 	int maxDepth;

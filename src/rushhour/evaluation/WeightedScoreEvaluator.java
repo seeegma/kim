@@ -49,15 +49,15 @@ public class WeightedScoreEvaluator implements Evaluator {
     private double weightedWalk(Board b) {
         Random rng = new Random();
 		BoardGraph g = b.getGraph();
-        BoardGraph.Vertex current = g.getVertex(b);
+        Vertex current = g.getVertex(b);
         double count = 0;
         while (current.depth != 0) {
-            Map<BoardGraph.Vertex,Double> probs = this.probsPJRP(current);
+            Map<Vertex,Double> probs = this.probsPJRP(current);
             double total = 0;
             double threshold = rng.nextDouble();
             boolean madeProgress = true;
             // Checks each state the current vertex can get to
-            for (BoardGraph.Vertex v : probs.keySet()) {
+            for (Vertex v : probs.keySet()) {
                 total += probs.get(v);
                 if (total > threshold) {
                     if (v.depth > current.depth) {
@@ -97,12 +97,12 @@ public class WeightedScoreEvaluator implements Evaluator {
      * The relatively simplistic scoring system based off of the paper.
      * Credits to Petr Jarusek and Radek Pelánek.
      */
-    private Map<BoardGraph.Vertex,Double> probsPJRP(BoardGraph.Vertex v) {
-        Map<BoardGraph.Vertex,Double> probs =
-            new HashMap<BoardGraph.Vertex,Double>();
+    private Map<Vertex,Double> probsPJRP(Vertex v) {
+        Map<Vertex,Double> probs =
+            new HashMap<Vertex,Double>();
         double score;
         double total = 0;
-        for (BoardGraph.Vertex u : v.neighbors.values()) {
+        for (Vertex u : v.neighbors.values()) {
             score = u.depth;
             // moving closer to a solution
             if (v.depth > u.depth) {
@@ -124,12 +124,12 @@ public class WeightedScoreEvaluator implements Evaluator {
 	 * 
 	 * Instead of adding a constant, adds the constant multiplied by the reciprocal of the vertex depth.
      */
-    private Map<BoardGraph.Vertex,Double> probsPJRPWithMem(BoardGraph.Vertex v) {
-        Map<BoardGraph.Vertex,Double> probs =
-            new HashMap<BoardGraph.Vertex,Double>();
+    private Map<Vertex,Double> probsPJRPWithMem(Vertex v) {
+        Map<Vertex,Double> probs =
+            new HashMap<Vertex,Double>();
         double score;
         double total = 0;
-        for (BoardGraph.Vertex u : v.neighbors.values()) {
+        for (Vertex u : v.neighbors.values()) {
             score = u.depth;
             // moving closer to a solution
             if (v.depth > u.depth) {

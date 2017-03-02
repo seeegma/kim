@@ -28,18 +28,18 @@ public class DFSEvaluator implements Evaluator {
 		int numTrials = 500;
 		double count = 0;
 		for(int trial = 0;trial<numTrials;trial++) {
-			LinkedList<BoardGraph.Vertex> stack = new LinkedList<BoardGraph.Vertex>();
-			HashSet<BoardGraph.Vertex> visited = new HashSet<BoardGraph.Vertex>();
+			LinkedList<Vertex> stack = new LinkedList<Vertex>();
+			HashSet<Vertex> visited = new HashSet<Vertex>();
 			stack.push(graph.getVertex(b));
 			while(!stack.isEmpty()) {
-				BoardGraph.Vertex current = stack.pop();
+				Vertex current = stack.pop();
 				if (current.depth == 0) {
 					break;
 				}
 				count++;
-				List<BoardGraph.Vertex> neighbors = new ArrayList<BoardGraph.Vertex>(current.neighbors.values());
+				List<Vertex> neighbors = new ArrayList<Vertex>(current.neighbors.values());
 				Collections.shuffle(neighbors);
-				for (BoardGraph.Vertex neighbor : neighbors) {
+				for (Vertex neighbor : neighbors) {
 					if (!visited.contains(neighbor)) {
 						stack.push(neighbor);
 					}
