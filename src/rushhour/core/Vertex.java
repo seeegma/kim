@@ -7,11 +7,9 @@ public class Vertex implements Comparable<Vertex> {
 	public Board board;
 	public Map<Move,Vertex> neighbors;
 	public int depth;
-	public Vertex parent;
 	public Vertex(Board board) {
 		this.board = board;
-		this.parent = null;
-		this.depth = -1;
+		this.depth = -2;
 		this.neighbors = null;
 	}
 	public Map<Move,Vertex> getNeighbors() {

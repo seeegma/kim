@@ -105,12 +105,6 @@ public class ConstraintSatisfier {
 			} else if(args[i].equals("--unique")) {
 				this.onlyUnique = true;
 				this.needGraph = true;
-			} else if(args[i].equals("--maxPerDepth")) {
-				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
-				this.needGraph = true;
-				i++;
-			} else if(args[i].equals("--useHeuristics")) {
-				this.useHeuristics = true;
 			} else if(args[i].equals("--maxVipX")) {
 				this.maxVipX = Integer.parseInt(args[i+1]);
 				i++;
@@ -205,7 +199,7 @@ public class ConstraintSatisfier {
 				targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 			}
 			Board randomBoard = gen.generate(targetNumCars);
-			BoardGraph graph = null; // dummy value
+			EquivalenceClass graph = null; // dummy value
 			Long hash = null; // dummy value
 			int graphDepth = 0; // dummy value
 			int randomBoardDepth = 0; // dummy value

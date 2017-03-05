@@ -26,7 +26,7 @@ public class Board {
 	//many methods rely on the VIP having index 0.
 	private List<Car> carList;
 
-	private BoardGraph graph;
+	private EquivalenceClass graph;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -92,9 +92,9 @@ public class Board {
 		return this.grid.hash();
 	}
 
-	public BoardGraph getGraph() {
+	public EquivalenceClass getGraph() {
 		if(this.graph == null) {
-			this.graph = new BoardGraph(this);
+			this.graph = new EquivalenceClass(this);
 		}
 		return this.graph;
 	}
@@ -284,21 +284,17 @@ public class Board {
 		return moves;
 	}
 
-	/**
-	 * Checks if there is a place to put a car in the grid
-	 * @return true if a car can be placed
-	 */
 	public boolean hasEmpty(){
-		for(int y = 0;y<this.h-1;y++){
-			for (int x = 0; x< this.w-1;x++){
-				Car car1 = new Car(x,y,2,true);
-				Car car2 = new Car(x,y,2,false);
-				if(canAddCar(car1) || canAddCar(car2)){
-					return true;
+		for(int y=0; y<this.h-1; y++) {
+			for(int x=0; x<this.w-1; x++) {
+				if(this.grid.get(x,y) == -1) {
+					// check surrounding spots: to the right and below
+					if(this.grid.get(x+1,y) == -1 || this.grid.get(x,y+1) == -1) {
+						return true;
+					}
 				}
 			}
 		}
-
 		return false;
 	}
 
