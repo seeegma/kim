@@ -49,7 +49,6 @@ public class BoardGraph {
 					current.neighbors.put(move, neighborVertex);
 					queue.offer(neighborVertex);
 				}
-
 			}
 		}
 		// propogate depth values and graph pointers
