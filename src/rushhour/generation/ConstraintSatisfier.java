@@ -42,7 +42,6 @@ public class ConstraintSatisfier {
 	private int maxVipX = boardSize-2; 
 	private int minVipX = 0;
 	private int maxCarLength = 3; 
-	private boolean onlySolvable = false;
 	private boolean onlyUnique = false;
 	private boolean useHeuristics = false; 
 	private boolean setNumCars = false;
@@ -59,6 +58,8 @@ public class ConstraintSatisfier {
 	private boolean uniform = false;
 	private Set<Long> prevGraphs = new HashSet<>();
 	private String prevGraphsDir = null;
+	private boolean alwaysWalkback = false; // whether or not we should traverse the boardgraph to find harder puzzles
+	private boolean startSolved = false; // whether or not we should only generate solved boards
 
 	private boolean needGraph = false;
 
@@ -104,7 +105,16 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--unique")) {
 				this.onlyUnique = true;
-				this.needGraph = true;
+			} else if(args[i].equals("--minDepth")) {
+				this.minDepth = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--maxPerDepth")) {
+				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--alwaysWalkback")) {
+				this.alwaysWalkback = true;
+			} else if(args[i].equals("--startSolved")) {
+				this.startSolved = true;
 			} else if(args[i].equals("--maxVipX")) {
 				this.maxVipX = Integer.parseInt(args[i+1]);
 				i++;
@@ -120,7 +130,6 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--prevGraphs")) {
 				this.prevGraphsDir = args[i+1];
-				this.needGraph = true;
 				i++;
 			} else if(args[i].equals("--minNumCars")) {
 				this.minNumCars = Integer.parseInt(args[i+1]);
@@ -128,22 +137,15 @@ public class ConstraintSatisfier {
 			} else if(args[i].equals("--maxNumCars")) {
 				this.maxNumCars = Integer.parseInt(args[i+1]);
 				i++;
-			} else if(args[i].equals("--minDepth")) {
-				this.minDepth = Integer.parseInt(args[i+1]);
-				this.needGraph = true;
-				i++;
 			} else if(args[i].equals("--uniform")) {
 				this.uniform = true;
 			} else if(args[i].equals("--stats")) {
 				this.stats = true;
-				this.needGraph = true;
 			} else if(args[i].equals("--fullStats")) {
 				this.fullStats = true;
 				this.stats = true;
-				this.needGraph = true;
 			} else if(args[i].equals("--puzzleFile")) {
 				this.puzzleOutToFile = true;
-				this.needGraph = true;
 			} else if(args[i].equals("--quiet")) {
 				this.quiet = true;
 			} else {
@@ -155,14 +157,32 @@ public class ConstraintSatisfier {
 			System.err.println("No such boards exist, sorry!");
 			System.exit(0);
 		}
-		if(this.maxVipX > this.boardSize - 2){
+		if(this.startSolved) {
 			this.maxVipX = this.boardSize - 2;
+			this.minVipX = this.boardSize - 2;
+		} else {
+			if(this.minVipX == this.maxVipX && this.minVipX == this.boardSize - 2) {
+				this.startSolved = true;
+			} else {
+				if(this.maxVipX > this.boardSize - 2){
+					this.maxVipX = this.boardSize - 2;
+				}
+				if(this.maxVipX < this.minVipX){
+					this.maxVipX = this.minVipX;
+				}
+			}
 		}
-		if(this.maxVipX < this.minVipX){
-			this.maxVipX = this.minVipX;
-		}
-		if(!quiet) {
+		// compute needGraph
+		if(this.onlyUnique || this.prevGraphsDir != null) {
 			this.needGraph = true;
+		} else if(this.stats) {
+			this.needGraph = true;
+		} else if(this.alwaysWalkback) {
+			this.needGraph = true;
+		} else if(this.minDepth != -1 || this.maxBoardsPerDepth != -1) {
+			if(!this.startSolved) {
+				this.needGraph = true;
+			}
 		}
 		return true;
 	}
@@ -180,10 +200,12 @@ public class ConstraintSatisfier {
 				System.err.println("done.");
 			}
 		}
-		// initialize some values
-		for(int i=0; i<=18; i++) {
-			numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
-			numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
+		if(fullStats) {
+			// initialize some values
+			for(int i=0; i<=18; i++) {
+				numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
+				numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
+			}
 		}
 		BoardGenerator gen;
 		if(this.uniform) {
@@ -201,9 +223,12 @@ public class ConstraintSatisfier {
 			Board randomBoard = gen.generate(targetNumCars);
 			EquivalenceClass graph = null; // dummy value
 			Long hash = null; // dummy value
-			int graphDepth = 0; // dummy value
-			int randomBoardDepth = 0; // dummy value
+			int graphDepth = -2; // dummy value
+			int randomBoardDepth = -2; // dummy value
 			if(this.needGraph) {
+				if(!quiet) {
+					// System.err.println("generating graph...");
+				}
 				graph = randomBoard.getGraph();
 				hash = graph.hash();
 				graphDepth = graph.maxDepth();
@@ -220,31 +245,39 @@ public class ConstraintSatisfier {
 				// make sure the graph is in a unique equivalence class, if necessary
 				keepBoard = false;
 			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
-				// see if we need to increase the depth of outputBoard
-				// (either because randomBoard's depth is too small
-				// or because we already have enough boards of that depth)
-				if(outputBoardDepth < minDepth || (boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth)) {
-					if(graphDepth < minDepth) {
-						// if using the highest depth board in the graph won't be enough
-						keepBoard = false;
-					} else {
-						outputBoard = graph.getFarthest();
-						outputBoardDepth = graph.maxDepth();
-						// see if we need to backtrack
-						while(boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth) {
-							outputBoard = graph.getOneBoardCloser(outputBoard);
-							outputBoardDepth--;
-							if(outputBoardDepth < minDepth) {
-								keepBoard = false;
-								break;
-							} else if(outputBoardDepth == 0) {
-								break;
-							}
+				// final check: if depth is too low
+				if(outputBoardDepth < minDepth) {
+					// if we have the graph
+					if(needGraph) {
+						if(graphDepth < minDepth) {
+							// if using the highest depth board in the graph won't be enough
+							keepBoard = false;
+						} else {
+							// walk back
+							outputBoard = graph.getFarthest();
+							outputBoardDepth = graph.maxDepth();
 						}
+					} else if(startSolved) {
+						SolvedBoardGraph sbg = SolvedBoardGraph.create(randomBoard);
+						if(!quiet) {
+							System.err.println(sbg.size());
+							System.err.println(sbg.solutions().iterator().next().toString());
+							System.err.println("checking hasMinDepth...");
+						}
+						sbg.propogateDepths(minDepth);
+						if(sbg.maxDepth() < minDepth) {
+							keepBoard = false;
+							System.err.println(sbg.maxDepth());
+						} else {
+							outputBoard = sbg.getFarthest();
+							outputBoardDepth = sbg.maxDepth();
+						}
+					} else {
+						keepBoard = false;
 					}
 				}
 			}
-			int numCars = randomBoard.numCars();
+			int numCars = outputBoard.numCars();
 			// save it
 			if(keepBoard) {
 				// update stats that are always needed for this stuff (for indexing output boards)
@@ -254,18 +287,22 @@ public class ConstraintSatisfier {
 				if(!quiet) {
 					System.err.println();
 					System.err.println("board " + boardsSavedSoFar);
-					System.err.println(AsciiGen.getGridString(outputBoard));
+					System.err.println(outputBoard.toString());
 					System.err.println("numCars: " + numCars);
-					System.err.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
+					if(needGraph) {
+						System.err.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
+					} else {
+						System.err.println("board depth: " + outputBoardDepth + ", graph depth: >=" + minDepth);
+					}
 				}
 				// dump board to file
 				if(puzzleOutToFile) {
 					// write the board to a file
-					int index = boardsSavedSoFarByBoardDepth.get(outputBoardDepth);
-					String pathName = "generated_puzzles/" + outputBoardDepth + "/";
-					File outDir = new File(pathName);
+					// int index = boardsSavedSoFarByBoardDepth.get(outputBoardDepth);
+					String pathname = "generated_puzzles/";
+					File outDir = new File(pathname);
 					outDir.mkdirs();
-					String filename = pathName + index + ".txt";
+					String filename = pathname + boardsSavedSoFar + ".txt";
 					if(!quiet) {
 						System.err.println("writing to '" + filename + "'...");
 					}
