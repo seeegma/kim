@@ -3,8 +3,7 @@ package rushhour;
 import rushhour.Util;
 import rushhour.core.*;
 import rushhour.io.*;
-import rushhour.evaluation.*;
-import rushhour.analysis.*;
+import rushhour.solving.*;
 import rushhour.generation.*;
 
 import java.util.List;
@@ -36,65 +35,30 @@ public class Main {
 				Board b = BoardIO.read(puzzleFile);
 				System.out.println(AsciiGen.getGridString(b));
 			} else if(operation.equals("solve")) {
-				puzzleFile = args[1];
-				Board b = BoardIO.read(puzzleFile);
-				BoardGraph g = new BoardGraph(b);
-				// TODO: eventually make a package rushhour.solving with
-				// dedicated solving algorithms (perhaps iterative deepening)
-				// that don't require building the entire graph
-				List<Move> moves = g.movesToNearestSolution(b);
-				for(Move m : moves) {
-					System.out.println(m);
-				}
-			} else if(operation.equals("evaluate")) {
-				String option = null;
-				boolean asCsv = false, fields = false;
-				if(args.length < 2 || args.length > 3) {
-					usage();
-				} else {
-					if(args.length == 2) {
-						option = args[1];
-						if(option.equals("--fields")) {
-							fields = true;
-						} else {
-							puzzleFile = args[1];
-						}
-					} else if(args.length == 3) {
-						option = args[1];
-						if(option.equals("--csv")) {
-							asCsv = true;
-						} else {
-							usage();
-						}
-						puzzleFile = args[2];
-					}
-				}
-				List<Evaluator> evaluators = new ArrayList<>();
-				// evaluators.add(new NumberOfCarsEvaluator());
-				// evaluators.add(new NumberOfLongCarsEvaluator());
-				evaluators.add(new MinMovesToSolutionEvaluator());
-				// evaluators.add(new MinSlidesToSolutionEvaluator());
-				// evaluators.add(new AverageBranchingFactorEvaluator());
-				// evaluators.add(new AverageBranchingFactorOnPathToSolutionEvaluator());
-				// evaluators.add(new IrrelevancyEvaluator());
-				// evaluators.add(new DFSEvaluator());
-				evaluators.add(new WeightedScoreEvaluator());
-				if(fields) {
-					for(Evaluator e : evaluators) {
-						System.out.print(e.description() + ",");
-					}
-				} else {
-					Board b = BoardIO.read(puzzleFile);
-					if(asCsv) {
-						for(Evaluator e : evaluators) {
-							System.out.print(e.eval(b) + ",");
-						}
+				Solver solver = null;
+				if(args.length == 2) {
+					puzzleFile = args[1];
+					solver = new EquivalenceClassSolver();
+				} else if(args.length == 3) {
+					if(args[1].equals("--equiv")) {
+						solver = new EquivalenceClassSolver();
+					} else if(args[1].equals("--bfs")) {
+						solver = new BreadthFirstSearchSolver();
+					} else if(args[1].equals("--ids")) {
+						solver = new IterativeDeepeningSolver();
 					} else {
-						for(Evaluator e : evaluators) {
-							System.out.println(e.description() + ": " + e.eval(b));
-						}
+						System.err.println("unrecognized solver name");
+						usage();
 					}
+					puzzleFile = args[2];
 				}
+				Board board = BoardIO.read(puzzleFile);
+				List<Move> solution = solver.solve(board);
+				for(Move move : solution) {
+					System.out.println(move);
+					board.move(move);
+				}
+				System.err.println(board.isSolved());
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {
@@ -124,6 +88,16 @@ public class Main {
 				} else {
 					usage();
 				}
+			} else if(operation.equals("test")) {
+				// random walk from solved board
+				Board startingBoard = new FastBoardGenerator(6, 3, 4, 4).generate(11);
+				EquivalenceClass graph = startingBoard.getGraph();
+				startingBoard = graph.solutions().iterator().next();
+				System.out.println("graph depth: " + graph.maxDepth());
+				System.out.println("graph size: " + graph.size());
+				System.out.println("number of solutions: " + graph.solutions().size());
+				Board endingBoard = graph.executeRandomWalkFrom(startingBoard, Integer.parseInt(args[1]));
+				System.out.println("depth = " + graph.getDepthOfBoard(endingBoard));
 			} else {
 				usage();
 			}
