@@ -24,12 +24,13 @@ public class SolvedBoardGraph extends BoardGraph {
 		}
 		Vertex source = new Vertex(solvedBoard);
 		this.vertices.put(solvedBoard.hash(), source);
-		this.solutions.add(source);
+		this.solutions.add(source.board);
 		// find rest of solutions
 		LinkedList<Vertex> queue = new LinkedList<>();
 		queue.offer(source);
 		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
+			current.neighbors = new HashMap<>();
 			for(Move move : current.board.allPossibleMoves()) {
 				Board neighborBoard = current.board.getNeighborBoard(move);
 				if(this.vertices.containsKey(neighborBoard.hash())) {
@@ -41,7 +42,7 @@ public class SolvedBoardGraph extends BoardGraph {
 					this.vertices.put(neighborBoard.hash(), neighborVertex);
 					current.neighbors.put(move, neighborVertex);
 					if(neighborVertex.board.isSolved()) {
-						this.solutions.add(neighborVertex);
+						this.solutions.add(neighborVertex.board);
 						// ignore unsolved neighbors
 						queue.offer(neighborVertex);
 					}
@@ -65,7 +66,8 @@ public class SolvedBoardGraph extends BoardGraph {
 		}
 		this.maxDepth = 0;
 		queue = new LinkedList<>();
-		for(Vertex solvedVertex : this.solutions) {
+		for(Board solvedBoard : this.solutions) {
+			Vertex solvedVertex = this.getVertex(solvedBoard);
 			solvedVertex.depth = 0;
 			queue.offer(solvedVertex);
 		}

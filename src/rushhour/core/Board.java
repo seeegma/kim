@@ -202,6 +202,10 @@ public class Board {
 		return true;
 	}
 
+	public boolean move(Move move) {
+		return this.move(move.index, move.amount);
+	}
+
 	public boolean move(int carNum, int vector) {
 		if(!this.canMove(carNum, vector)){
 			return false;
@@ -309,6 +313,10 @@ public class Board {
 
 	public boolean equals(Board other) {
 		return this.grid.equals(other.getGrid());
+	}
+
+	public String toString() {
+		return this.grid.toString();
 	}
 
 }

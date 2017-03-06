@@ -9,11 +9,12 @@ import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 public class BoardGraph {
 
 	HashMap<Long,Vertex> vertices;
-	Set<Vertex> solutions;
+	Set<Board> solutions;
 
 	public BoardGraph() {
 		this.vertices = new HashMap<Long,Vertex>();
@@ -24,12 +25,21 @@ public class BoardGraph {
 		return this.vertices.get(b.hash());
 	}
 
-	public int numSolutions() {
-		return this.solutions.size();
+	public Set<Board> solutions() {
+		return this.solutions;
 	}
 
 	public int size() {
 		return vertices.size();
+	}
+
+	public Board executeRandomWalkFrom(Board board, int length) {
+		Random rng = new Random();
+		for(int i=0; i<length; i++) {
+			List<Move> moves = new ArrayList<>(board.allPossibleMoves());
+			board = board.getNeighborBoard(moves.get(rng.nextInt(moves.size())));
+		}
+		return board;
 	}
 
 }
