@@ -10,6 +10,9 @@ public class SearchNode {
 	public Board parent;
 	public Move move;
 	public List<Board> neighbors;
+	public SearchNode(Board board) {
+		this(board, null, null);
+	}
 	public SearchNode(Board board, Board parent, Move move) {
 		this.board = board;
 		this.parent = parent;

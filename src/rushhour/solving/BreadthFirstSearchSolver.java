@@ -10,7 +10,7 @@ public class BreadthFirstSearchSolver implements Solver {
 	public List<Move> solve(Board board) {
 		LinkedList<SearchNode> queue = new LinkedList<>();
 		HashSet<Long> visited = new HashSet<>();
-		queue.offer(new SearchNode(board, null, null));
+		queue.offer(new SearchNode(board));
 		while(!queue.isEmpty()) {
 			SearchNode current = queue.poll();
 			visited.add(current.board.hash());
