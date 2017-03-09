@@ -11,28 +11,23 @@ public class BreadthFirstSearchSolver implements Solver {
 		LinkedList<SearchNode> queue = new LinkedList<>();
 		HashSet<Long> visited = new HashSet<>();
 		queue.offer(new SearchNode(board));
+		SearchNode solvedBoard = null;
 		while(!queue.isEmpty()) {
 			SearchNode current = queue.poll();
 			visited.add(current.board.hash());
 			if(current.board.isSolved()) {
+				solvedBoard = current;
 				break;
 			}
 			for(Move move : current.board.allPossibleMoves()) {
 				Board neighborBoard = current.board.getNeighborBoard(move);
 				if(!visited.contains(neighborBoard.hash())) {
-					queue.offer(new SearchNode(neighborBoard, current.board, move));
+					queue.offer(new SearchNode(neighborBoard, current, move));
 				}
 			}
 		}
+		System.err.println(visited.size());
 		// construct list from node tree
-		LinkedList<Move> ret = new LinkedList<>();
-		do {
-			SearchNode node = queue.poll();
-			if(node == null) {
-				break;
-			}
-			ret.add(0, node.move);
-		} while(!queue.isEmpty());
-		return ret;
+		return solvedBoard.getPath();
 	}
 }
