@@ -5,6 +5,7 @@ import rushhour.core.*;
 import rushhour.io.*;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
@@ -21,19 +22,19 @@ public class ConstraintSatisfier {
 		"Generation Options: \n" +
 		"--boardSize N			Produce boards that are NxN\n\n" +
 		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
+		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
 		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n\n" +
 		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
-		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
-		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
-		"--maxNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
 		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
 		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
+		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
+		"--maxNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
+		"--uniform              Slower, but guarantees uniformly random generation\n\n" +
 		"--maxVipX X            Only generate boards with vip.x <= X\n\n" +
 		"--minVipX X            Only generate boards with vip.x >= X\n\n" +
-		"--useHeuristics        Use heuristics to avoid generating unsolvable boards\n\n" +
+		"--startSolved          Shorthand for forcing vip to start in solved position\n\n" +
 		"--stats                Print statistics about the boards that were produced\n\n" +
 		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
-		"--uniform              Slower, but guarantees uniformly random generation\n\n" +
 		"--quiet                Don't print anything while generation is running\n\n" +
 		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
 
@@ -43,7 +44,6 @@ public class ConstraintSatisfier {
 	private int minVipX = 0;
 	private int maxCarLength = 3; 
 	private boolean onlyUnique = false;
-	private boolean useHeuristics = false; 
 	private boolean setNumCars = false;
 	private int targetNumCars = 11; // reasonable default
 	private int minNumCars = 9; // reasonable default
@@ -58,8 +58,8 @@ public class ConstraintSatisfier {
 	private boolean uniform = false;
 	private Set<Long> prevGraphs = new HashSet<>();
 	private String prevGraphsDir = null;
-	private boolean alwaysWalkback = false; // whether or not we should traverse the boardgraph to find harder puzzles
 	private boolean startSolved = false; // whether or not we should only generate solved boards
+	private int randomWalkLength = 0; // how long of a random walk to do after generating the board
 
 	private boolean needGraph = false;
 
@@ -111,8 +111,6 @@ public class ConstraintSatisfier {
 			} else if(args[i].equals("--maxPerDepth")) {
 				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
 				i++;
-			} else if(args[i].equals("--alwaysWalkback")) {
-				this.alwaysWalkback = true;
 			} else if(args[i].equals("--startSolved")) {
 				this.startSolved = true;
 			} else if(args[i].equals("--maxVipX")) {
@@ -139,6 +137,11 @@ public class ConstraintSatisfier {
 				i++;
 			} else if(args[i].equals("--uniform")) {
 				this.uniform = true;
+			} else if(args[i].equals("--randomWalkLength")) {
+				this.randomWalkLength = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--getGraph")) {
+				this.needGraph = true;
 			} else if(args[i].equals("--stats")) {
 				this.stats = true;
 			} else if(args[i].equals("--fullStats")) {
@@ -177,8 +180,6 @@ public class ConstraintSatisfier {
 			this.needGraph = true;
 		} else if(this.stats) {
 			this.needGraph = true;
-		} else if(this.alwaysWalkback) {
-			this.needGraph = true;
 		} else if(this.minDepth != -1 || this.maxBoardsPerDepth != -1) {
 			if(!this.startSolved) {
 				this.needGraph = true;
@@ -188,13 +189,17 @@ public class ConstraintSatisfier {
 	}
 
 	public void satisfy() {
+		/*
+		 * STEP 0: set things up
+		 */
+		// load graph hashes from user-given directory
 		if(prevGraphsDir != null) {
 			if(!quiet) {
 				System.err.println("importing prevGraphs...");
 			}
 			List<Path> paths = Util.getFilePaths(prevGraphsDir);
 			for(Path path : paths) {
-				this.prevGraphs.add(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash());
+				this.prevGraphs.add(BoardIO.read(path.toAbsolutePath().toString()).getEquivalenceClass().hash());
 			}
 			if(!quiet) {
 				System.err.println("done.");
@@ -202,34 +207,44 @@ public class ConstraintSatisfier {
 		}
 		if(fullStats) {
 			// initialize some values
-			for(int i=0; i<=18; i++) {
+			for(int i=0; i<=(this.boardSize*this.boardSize)/2; i++) {
 				numBoardsByBoardDepthByNumCars.put(i, new HashMap<Integer,Integer>());
 				numBoardsByGraphDepthByNumCars.put(i, new HashMap<>());
 			}
 		}
+		// create the appropriate board generator
 		BoardGenerator gen;
 		if(this.uniform) {
 			gen = new UniformBoardGenerator(this.boardSize, this.maxCarLength, this.minVipX, this.maxVipX);
 		} else {
 			gen = new FastBoardGenerator(this.boardSize, this.maxCarLength, this.minVipX, this.maxVipX);
 		}
+		// make a random number generator
 		Random rng = new Random();
-		// it's generation time!
+		/*
+		 * STEP 1: generate boards
+		 */
 		while(boardsSavedSoFar < boardsToSave) {
-			// generate a random board
+			/*
+			 * STEP 1.1: generate a random board
+			 */
 			if(!setNumCars) {
 				targetNumCars = rng.nextInt(maxNumCars - minNumCars + 1) + minNumCars;
 			}
 			Board randomBoard = gen.generate(targetNumCars);
+			int numCars = randomBoard.numCars();
 			EquivalenceClass graph = null; // dummy value
 			Long hash = null; // dummy value
 			int graphDepth = -2; // dummy value
 			int randomBoardDepth = -2; // dummy value
+			/*
+			 * STEP 1.2: if the constraints require it, fill out its equivalence class
+			 */
 			if(this.needGraph) {
 				if(!quiet) {
-					// System.err.println("generating graph...");
+					System.err.print("generating equivalence class...");
 				}
-				graph = randomBoard.getGraph();
+				graph = randomBoard.getEquivalenceClass();
 				hash = graph.hash();
 				graphDepth = graph.maxDepth();
 				randomBoardDepth = graph.getDepthOfBoard(randomBoard);
@@ -237,7 +252,9 @@ public class ConstraintSatisfier {
 			Board outputBoard = randomBoard;
 			int outputBoardDepth = randomBoardDepth;
 			boolean keepBoard = true; // whether or not we're going to save outputBoard
-			// compute keepBoard
+			/*
+			 * STEP 1.3: figure out if it meets the constraints
+			 */
 			if(!prevGraphs.isEmpty() && prevGraphs.contains(hash)) {
 				// make sure the graph isn't that of any of the boards we've been told to skip
 				keepBoard = false;
@@ -247,38 +264,59 @@ public class ConstraintSatisfier {
 			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
 				// final check: if depth is too low
 				if(outputBoardDepth < minDepth) {
-					// if we have the graph
 					if(needGraph) {
+						// if we have the graph, just use that
 						if(graphDepth < minDepth) {
 							// if using the highest depth board in the graph won't be enough
 							keepBoard = false;
+							System.err.println("too small.");
 						} else {
 							// walk back
 							outputBoard = graph.getFarthest();
 							outputBoardDepth = graph.maxDepth();
+							System.err.println("good.");
 						}
-					} else if(startSolved) {
+					} else if(randomBoard.isSolved()) {
+						// otherwise, if it's already solved, propogate outwards
 						SolvedBoardGraph sbg = SolvedBoardGraph.create(randomBoard);
 						if(!quiet) {
-							System.err.println(sbg.size());
-							System.err.println(sbg.solutions().iterator().next().toString());
-							System.err.println("checking hasMinDepth...");
+							System.err.print("creating solvedBoardGraph...");
 						}
 						sbg.propogateDepths(minDepth);
 						if(sbg.maxDepth() < minDepth) {
+							// if we finish, the board is no good
 							keepBoard = false;
-							System.err.println(sbg.maxDepth());
+							System.err.println("too small.");
 						} else {
+							// otherwise keep it
 							outputBoard = sbg.getFarthest();
 							outputBoardDepth = sbg.maxDepth();
+							System.err.println("good.");
 						}
 					} else {
 						keepBoard = false;
 					}
 				}
 			}
-			int numCars = outputBoard.numCars();
-			// save it
+			/*
+			 * STEP 1.4: if requested, do a nearly-uniform random walk on the board avoid entering a solved state
+			 */
+			if(keepBoard && randomWalkLength > 0) {
+				if(!quiet) {
+					System.err.println("performing random walk...");
+				}
+				for(int i=0; i<randomWalkLength; i++) {
+					List<Move> moves = new ArrayList<>(randomBoard.allPossibleMoves());
+					Move move;
+					do {
+						move = moves.get(rng.nextInt(moves.size()));
+					} while(move.index == 0 && move.amount > 0);
+					randomBoard.move(move);
+				}
+			}
+			/*
+			 * STEP 1.5: save the board, if we should
+			 */
 			if(keepBoard) {
 				// update stats that are always needed for this stuff (for indexing output boards)
 				boardsSavedSoFar++;
@@ -291,7 +329,7 @@ public class ConstraintSatisfier {
 					System.err.println("numCars: " + numCars);
 					if(needGraph) {
 						System.err.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
-					} else {
+					} else if(!startSolved && (minDepth > -1 || maxBoardsPerDepth > -1)) {
 						System.err.println("board depth: " + outputBoardDepth + ", graph depth: >=" + minDepth);
 					}
 				}
@@ -309,7 +347,9 @@ public class ConstraintSatisfier {
 					BoardIO.write(filename, outputBoard);
 				}
 			}
-			// update stats
+			/*
+			 * STEP 1.6: update statistics, if we need to
+			 */
 			if(stats) {
 				// counts for total boards and for each numCars
 				if(fullStats) {

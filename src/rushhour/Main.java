@@ -72,11 +72,11 @@ public class Main {
 					List<Path> newPaths = Util.getFilePaths(args[2]);
 					Map<Long,Path> oldHashes = new HashMap<>();
 					for(Path path : oldPaths) {
-						oldHashes.put(BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash(), path);
+						oldHashes.put(BoardIO.read(path.toAbsolutePath().toString()).getEquivalenceClass().hash(), path);
 					}
 					boolean allUnique = true;
 					for(Path path : newPaths) {
-						Long newHash = BoardIO.read(path.toAbsolutePath().toString()).getGraph().hash();
+						Long newHash = BoardIO.read(path.toAbsolutePath().toString()).getEquivalenceClass().hash();
 						if(oldHashes.containsKey(newHash)) {
 							allUnique = false;
 							System.out.println(path.toString() + " is in the same equivalence class as " + oldHashes.get(newHash).toString());
@@ -90,9 +90,14 @@ public class Main {
 				}
 			} else if(operation.equals("test")) {
 				// random walk from solved board
-				Board startingBoard = new FastBoardGenerator(6, 3, 4, 4).generate(11);
-				EquivalenceClass graph = startingBoard.getGraph();
-				startingBoard = graph.solutions().iterator().next();
+				Board startingBoard;
+				EquivalenceClass graph;
+				// do {
+				// 	startingBoard = new FastBoardGenerator(6, 3, 4, 4).generate(11);
+				// 	graph =  startingBoard.getGraph();
+				// } while(graph.maxDepth() < 10);
+				startingBoard = BoardIO.read("49.txt");
+				graph = startingBoard.getEquivalenceClass();
 				System.out.println("graph depth: " + graph.maxDepth());
 				System.out.println("graph size: " + graph.size());
 				System.out.println("number of solutions: " + graph.solutions().size());

@@ -26,7 +26,7 @@ public class Board {
 	//many methods rely on the VIP having index 0.
 	private List<Car> carList;
 
-	private EquivalenceClass graph;
+	private EquivalenceClass equivalenceClass;
 
 	// temp to match context free grammar used by txt file
 	// Need to incorporate this into the code somehow...
@@ -92,11 +92,11 @@ public class Board {
 		return this.grid.hash();
 	}
 
-	public EquivalenceClass getGraph() {
-		if(this.graph == null) {
-			this.graph = new EquivalenceClass(this);
+	public EquivalenceClass getEquivalenceClass() {
+		if(this.equivalenceClass == null) {
+			this.equivalenceClass = new EquivalenceClass(this);
 		}
-		return this.graph;
+		return this.equivalenceClass;
 	}
 
 	public int numCars() {
@@ -143,7 +143,7 @@ public class Board {
 		for (int i = 0; i < newCar.length; i++) {
 			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
 		}
-		this.graph = null;
+		this.equivalenceClass = null;
 		return true;
 	}
 
@@ -307,7 +307,7 @@ public class Board {
 	 */
 	public void clear(){
 		this.grid.clear();
-		this.graph = null;
+		this.equivalenceClass = null;
 		this.carList.clear();
 	}
 
