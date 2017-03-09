@@ -14,23 +14,47 @@ import java.util.Random;
 public class BoardGraph {
 
 	HashMap<Long,Vertex> vertices;
-	Set<Board> solutions;
+	Set<Long> solutions;
+
+	class Vertex implements Comparable<Vertex> {
+		public Board board;
+		public Map<Move,Vertex> neighbors;
+		public int depth;
+		public Vertex(Board board) {
+			this.board = board;
+			this.depth = -2;
+			this.neighbors = null;
+		}
+		public int compareTo(Vertex other) {
+			return other.depth - this.depth;
+		}
+	}
 
 	public BoardGraph() {
 		this.vertices = new HashMap<Long,Vertex>();
 		this.solutions = new HashSet<>();
 	}
 
-	public Vertex getVertex(Board b) {
-		return this.vertices.get(b.hash());
+	Vertex getVertex(Board board) {
+		return this.vertices.get(board.hash());
 	}
 
 	public Set<Board> solutions() {
-		return this.solutions;
+		Set<Board> ret = new HashSet<>();
+		for(Long hash : this.solutions) {
+			ret.add(this.vertices.get(hash).board);
+		}
+		return ret;
 	}
 
 	public int size() {
 		return vertices.size();
+	}
+
+	public void addVertex(Board board) {
+		if(this.getVertex(board) == null) {
+			this.vertices.put(board.hash(), new Vertex(board));
+		}
 	}
 
 	public Board executeRandomWalkFrom(Board board, int length) {

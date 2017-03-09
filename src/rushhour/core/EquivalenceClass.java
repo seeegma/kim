@@ -49,7 +49,7 @@ public class EquivalenceClass extends BoardGraph {
 				this.maxDepth = 0;
 				queue.offer(vert);
 				visited.add(vert);
-				this.solutions.add(vert.board);
+				this.solutions.add(vert.board.hash());
 			}
 		}
 		// propogate depths outward from any solved states
@@ -78,7 +78,7 @@ public class EquivalenceClass extends BoardGraph {
 	}
 
 	public int getDepthOfBoard(Board b) {
-		return getVertex(b).depth;
+		return this.getVertex(b).depth;
 	}
 
 	public List<Move> movesToNearestSolution(Board b) {
