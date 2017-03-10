@@ -249,12 +249,12 @@ public class ConstraintSatisfier {
 				graphDepth = graph.maxDepth();
 				randomBoardDepth = graph.getDepthOfBoard(randomBoard);
 			}
-			Board outputBoard = randomBoard;
-			int outputBoardDepth = randomBoardDepth;
-			boolean keepBoard = true; // whether or not we're going to save outputBoard
 			/*
 			 * STEP 1.3: figure out if it meets the constraints
 			 */
+			Board outputBoard = randomBoard; // board that we'll save, if we save a board
+			int outputBoardDepth = randomBoardDepth;
+			boolean keepBoard = true; // whether or not we're going to save outputBoard
 			if(!prevGraphs.isEmpty() && prevGraphs.contains(hash)) {
 				// make sure the graph isn't that of any of the boards we've been told to skip
 				keepBoard = false;
@@ -305,13 +305,17 @@ public class ConstraintSatisfier {
 				if(!quiet) {
 					System.err.println("performing random walk...");
 				}
+				outputBoard = randomBoard.copy();
 				for(int i=0; i<randomWalkLength; i++) {
-					List<Move> moves = new ArrayList<>(randomBoard.allPossibleMoves());
+					List<Move> moves = new ArrayList<>(outputBoard.allPossibleMoves());
 					Move move;
 					do {
 						move = moves.get(rng.nextInt(moves.size()));
-					} while(move.index == 0 && move.amount > 0);
-					randomBoard.move(move);
+					} while(outputBoard.getNeighborBoard(move).isSolved());
+					outputBoard.move(move);
+				}
+				if(needGraph) {
+					outputBoardDepth = graph.getDepthOfBoard(outputBoard);
 				}
 			}
 			/*
