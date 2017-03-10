@@ -88,21 +88,14 @@ public class Main {
 				} else {
 					usage();
 				}
-			} else if(operation.equals("test")) {
-				// random walk from solved board
-				Board startingBoard;
-				EquivalenceClass graph;
-				// do {
-				// 	startingBoard = new FastBoardGenerator(6, 3, 4, 4).generate(11);
-				// 	graph =  startingBoard.getGraph();
-				// } while(graph.maxDepth() < 10);
-				startingBoard = BoardIO.read("49.txt");
-				graph = startingBoard.getEquivalenceClass();
-				System.out.println("graph depth: " + graph.maxDepth());
-				System.out.println("graph size: " + graph.size());
-				System.out.println("number of solutions: " + graph.solutions().size());
-				Board endingBoard = graph.executeRandomWalkFrom(startingBoard, Integer.parseInt(args[1]));
-				System.out.println("depth = " + graph.getDepthOfBoard(endingBoard));
+			} else if(operation.equals("info")) {
+				puzzleFile = args[1];
+				Board b = BoardIO.read(puzzleFile);
+				EquivalenceClass graph = b.getEquivalenceClass();
+				System.err.println("graph size: " + graph.size());
+				System.err.println("graph depth: " + graph.maxDepth());
+				System.err.println("board depth: " + graph.getDepthOfBoard(b));
+				System.err.println("graph solutions: " + graph.solutions().size());
 			} else {
 				usage();
 			}
