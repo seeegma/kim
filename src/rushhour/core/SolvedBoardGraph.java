@@ -15,40 +15,8 @@ public class SolvedBoardGraph extends BoardGraph {
 	private int maxDepth;
 	private Board farthest;
 
-	protected SolvedBoardGraph(Board solvedBoard) {
-		// start with a solved board
-		if(!solvedBoard.isSolved()) {
-			this.farthest = null;
-			this.maxDepth = -2;
-			return;
-		}
-		Vertex source = new Vertex(solvedBoard);
-		this.vertices.put(solvedBoard.hash(), source);
-		this.solutions.add(source.board.hash());
-		// find rest of solutions
-		LinkedList<Vertex> queue = new LinkedList<>();
-		queue.offer(source);
-		while(!queue.isEmpty()) {
-			Vertex current = queue.poll();
-			current.neighbors = new HashMap<>();
-			for(Move move : current.board.allPossibleMoves()) {
-				Board neighborBoard = current.board.getNeighborBoard(move);
-				if(this.vertices.containsKey(neighborBoard.hash())) {
-					// if the vertex exists in the graph, replace current's instance with the graph's
-					current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
-				} else {
-					// otherwise add current's instance to the graph
-					Vertex neighborVertex = new Vertex(neighborBoard);
-					this.vertices.put(neighborBoard.hash(), neighborVertex);
-					current.neighbors.put(move, neighborVertex);
-					if(neighborVertex.board.isSolved()) {
-						this.solutions.add(neighborVertex.board.hash());
-						// ignore unsolved neighbors
-						queue.offer(neighborVertex);
-					}
-				}
-			}
-		}
+	private SolvedBoardGraph(Board solvedBoard) {
+		this.addSolutions(solvedBoard);
 	}
 
 	public static SolvedBoardGraph create(Board solvedBoard) {
@@ -58,38 +26,80 @@ public class SolvedBoardGraph extends BoardGraph {
 		return new SolvedBoardGraph(solvedBoard);
 	}
 
-	public void propogateDepths(int toDepth) {
-		LinkedList<Vertex> queue;
-		if(this.solutions.isEmpty()) {
-			this.maxDepth = -1;
-			return;
-		}
-		this.maxDepth = 0;
-		queue = new LinkedList<>();
-		for(long hash : this.solutions) {
-			Vertex solvedVertex = this.vertices.get(hash);
-			solvedVertex.depth = 0;
-			queue.offer(solvedVertex);
-		}
+	private void addSolutions(Board solvedBoard) {
+		Vertex source = new Vertex(solvedBoard);
+		this.vertices.put(solvedBoard.hash(), source);
+		this.solutions.add(source.board.hash());
+		// find rest of solutions within this connected component
+		LinkedList<Vertex> queue = new LinkedList<>();
+		queue.offer(source);
 		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
-			if(toDepth != -1 && current.depth < toDepth) {
-				for(Move move : current.board.allPossibleMoves()) {
-					Board neighborBoard = current.board.getNeighborBoard(move);
-					Vertex neighborVertex = new Vertex(neighborBoard);
-					if(neighborVertex.depth == -2) {
-						// propogate depth
-						neighborVertex.depth = current.depth + 1;
-						// update maxDepth and farthest
-						if(this.maxDepth < neighborVertex.depth) {
-							this.maxDepth = neighborVertex.depth;
-							this.farthest = neighborVertex.board;
-						}
+			current.depth = 0;
+			current.neighbors = new HashMap<>();
+			for(Move move : current.board.allPossibleMoves()) {
+				Board neighborBoard = current.board.getNeighborBoard(move);
+				if(neighborBoard.isSolved()) {
+					this.solutions.add(neighborBoard.hash());
+					if(this.vertices.containsKey(neighborBoard.hash())) {
+						// if the vertex exists in the graph, replace current's instance with the graph's
+						current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
+					} else {
+						// otherwise create a new vertex
+						Vertex neighborVertex = new Vertex(neighborBoard);
+						this.vertices.put(neighborBoard.hash(), neighborVertex);
+						current.neighbors.put(move, neighborVertex);
 						queue.offer(neighborVertex);
 					}
 				}
 			}
 		}
+	}
+
+	private void resetDepths() {
+		for(Vertex vertex : this.vertices.values()) {
+			vertex.depth = -2;
+		}
+	}
+
+	public void propogateDepths(int toDepth) {
+		LinkedList<Vertex> queue = new LinkedList<>();
+		boolean again;
+		do {
+			again = false;
+			this.maxDepth = 0;
+			queue.clear();
+			for(long hash : this.solutions) {
+				queue.offer(this.vertices.get(hash));
+			}
+mainloop:	while(!queue.isEmpty()) {
+				Vertex current = queue.poll();
+				if(toDepth != -1 && current.depth < toDepth) {
+					for(Move move : current.board.allPossibleMoves()) {
+						Board neighborBoard = current.board.getNeighborBoard(move);
+						Vertex neighborVertex = new Vertex(neighborBoard);
+						if(!this.vertices.containsKey(neighborBoard.hash())) {
+							// check if it's in a new connected component of solutions
+							if(neighborBoard.isSolved()) {
+								again = true;
+								this.resetDepths();
+								this.addSolutions(neighborBoard);
+								break mainloop;
+							}
+							this.vertices.put(neighborBoard.hash(), neighborVertex);
+							// propogate depth
+							neighborVertex.depth = current.depth + 1;
+							// update maxDepth and farthest
+							if(this.maxDepth < neighborVertex.depth) {
+								this.maxDepth = neighborVertex.depth;
+								this.farthest = neighborVertex.board;
+							}
+							queue.offer(neighborVertex);
+						}
+					}
+				}
+			}
+		} while(again);
 	}
 
 	public int maxDepth() {
