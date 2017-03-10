@@ -59,15 +59,10 @@ public class Board {
 		this.carList = c;
 	}
 
-
 	public boolean isSolved() {
 		return carList.get(0).x == this.w-carList.get(0).length;
 	}
 
-	/**
-	 * Getter for the width of the board.
-	 * @return the width
-	 */
 	public int getWidth() {
 		return this.w;
 	}
@@ -76,10 +71,6 @@ public class Board {
 		return (this.h+1)/2-1;
 	}
 
-	/**
-	 * Getter for the height of the board.
-	 * @return the height
-	 */
 	public int getHeight() {
 		return this.h;
 	}
@@ -103,19 +94,10 @@ public class Board {
 		return this.carList.size();
 	}
 
-	/**
-	 * Getter for the list of cars on the board.
-	 * @return an ArrayList<Car> of the cars
-	 */
 	public List<Car> getCars() {
 		return this.carList;
 	}
 
-	/**
-	 * Copies a board and returns the new board.
-	 * @param the board to be copied.
-	 * @return the new board
-	 */
 	public Board copy() {
 		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
 		for (Car car : this.carList) {
@@ -124,10 +106,6 @@ public class Board {
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
 	}
 
-	/**
-	 * Adds a new car.
-	 * @param newCar a new car to be inserted
-	 */
 	public boolean addCar(Car newCar) {
 		if(!canAddCar(newCar)) {
 			return false;
