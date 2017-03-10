@@ -33,7 +33,7 @@ public class Main {
 			if(operation.equals("print")) {
 				puzzleFile = args[1];
 				Board b = BoardIO.read(puzzleFile);
-				System.out.println(AsciiGen.getGridString(b));
+				System.out.println(b.toString());
 			} else if(operation.equals("solve")) {
 				Solver solver = null;
 				if(args.length == 2) {
