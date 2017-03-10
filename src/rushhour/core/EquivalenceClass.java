@@ -17,12 +17,19 @@ public class EquivalenceClass extends BoardGraph {
 
 	public EquivalenceClass(Board startingBoard) {
 		super();
+		this.maxDepth = -1;
 		Vertex startingVertex = new Vertex(startingBoard);
 		this.vertices.put(startingBoard.hash(), startingVertex);
 		LinkedList<Vertex> queue = new LinkedList<Vertex>();
 		queue.offer(startingVertex);
 		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
+			// check if it's a solution
+			if(current.board.isSolved()) {
+				current.depth = 0;
+				this.maxDepth = 0;
+				this.solutions.add(current.board.hash());
+			}
 			current.neighbors = new HashMap<Move,Vertex>();
 			// fill in neighbors with vertices already in the graph
 			for(Move move : current.board.allPossibleMoves()) {
@@ -39,30 +46,24 @@ public class EquivalenceClass extends BoardGraph {
 				}
 			}
 		}
-		// find solutions TODO: move up there
-		this.maxDepth = -1;
-		queue = new LinkedList<Vertex>();
-		HashSet<Vertex> visited = new HashSet<Vertex>();
-		for(Vertex vert : vertices.values()) {
-			if(vert.board.isSolved()) {
-				vert.depth = 0;
-				this.maxDepth = 0;
-				queue.offer(vert);
-				visited.add(vert);
-				this.solutions.add(vert.board.hash());
-			}
-		}
 		// propogate depths outward from any solved states
+		// (first add all solutions to the queue and visited set)
+		queue.clear();
+		HashSet<Long> visited = new HashSet<>();
+		for(long hash : this.solutions) {
+			queue.offer(this.vertices.get(hash));
+			visited.add(hash);
+		}
 		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			for(Vertex neighbor : current.neighbors.values()) {
-				if(!visited.contains(neighbor)) {
+				if(!visited.contains(neighbor.board.hash())) {
 					neighbor.depth = current.depth + 1;
 					if(this.maxDepth < neighbor.depth) {
 						this.maxDepth = neighbor.depth;
 						this.farthest = neighbor.board;
 					}
-					visited.add(neighbor);
+					visited.add(neighbor.board.hash());
 					queue.offer(neighbor);
 				}
 			}
