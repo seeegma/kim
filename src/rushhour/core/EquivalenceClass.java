@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class EquivalenceClass extends BoardGraph {
-
-	private Board farthest;
-	private int maxDepth;
+public class EquivalenceClass extends DepthGraph {
 
 	public EquivalenceClass(Board startingBoard) {
 		super();
@@ -70,16 +67,8 @@ public class EquivalenceClass extends BoardGraph {
 		}
 	}
 
-	public int maxDepth() {
-		return this.maxDepth;
-	}
-
 	public long hash() {
 		return Collections.min(this.vertices.keySet());
-	}
-
-	public int getDepthOfBoard(Board b) {
-		return this.getVertex(b).depth;
 	}
 
 	public List<Move> movesToNearestSolution(Board b) {
@@ -125,10 +114,6 @@ public class EquivalenceClass extends BoardGraph {
 			}
 		}
 		return null;
-	}
-
-	public Board getFarthest() {
-		return this.farthest;
 	}
 
 }

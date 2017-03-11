@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class SolvedBoardGraph extends BoardGraph {
-
-	private int maxDepth;
-	private Board farthest;
+public class SolvedBoardGraph extends DepthGraph {
 
 	private SolvedBoardGraph(Board solvedBoard) {
 		this.addSolutions(solvedBoard);
@@ -97,18 +94,6 @@ mainloop:	while(!queue.isEmpty()) {
 				}
 			}
 		} while(again);
-	}
-
-	public int maxDepth() {
-		return this.maxDepth;
-	}
-
-	public int getDepthOfBoard(Board b) {
-		return this.getVertex(b).depth;
-	}
-
-	public Board getFarthest() {
-		return this.farthest;
 	}
 
 }
