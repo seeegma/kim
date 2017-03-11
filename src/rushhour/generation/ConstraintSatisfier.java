@@ -269,7 +269,7 @@ public class ConstraintSatisfier {
 						if(graphDepth < minDepth) {
 							// if using the highest depth board in the graph won't be enough
 							keepBoard = false;
-							System.err.println("too small.");
+							System.err.println("too small. graphDepth==" + graphDepth);
 						} else {
 							// walk back
 							outputBoard = graph.getFarthest();
@@ -286,7 +286,7 @@ public class ConstraintSatisfier {
 						if(sbg.maxDepth() < minDepth) {
 							// if we finish, the board is no good
 							keepBoard = false;
-							System.err.println("too small.");
+							System.err.println("too small. graphDepth==" + sbg.maxDepth());
 						} else {
 							// otherwise keep it
 							outputBoard = sbg.getFarthest();
