@@ -56,12 +56,6 @@ public class SolvedBoardGraph extends BoardGraph {
 		}
 	}
 
-	private void resetDepths() {
-		for(Vertex vertex : this.vertices.values()) {
-			vertex.depth = -2;
-		}
-	}
-
 	public void propogateDepths(int toDepth) {
 		LinkedList<Vertex> queue = new LinkedList<>();
 		boolean again;
@@ -70,19 +64,21 @@ public class SolvedBoardGraph extends BoardGraph {
 			this.maxDepth = 0;
 			queue.clear();
 			for(long hash : this.solutions) {
-				queue.offer(this.vertices.get(hash));
+				Vertex vertex = this.vertices.get(hash);
+				queue.offer(vertex);
+				vertex.depth = 0;
 			}
 mainloop:	while(!queue.isEmpty()) {
 				Vertex current = queue.poll();
-				if(toDepth != -1 && current.depth < toDepth) {
+				if(current.depth < toDepth || toDepth == -1) {
 					for(Move move : current.board.allPossibleMoves()) {
 						Board neighborBoard = current.board.getNeighborBoard(move);
 						Vertex neighborVertex = new Vertex(neighborBoard);
 						if(!this.vertices.containsKey(neighborBoard.hash())) {
 							// check if it's in a new connected component of solutions
 							if(neighborBoard.isSolved()) {
+								// if it's not, then we need to add this component and start over
 								again = true;
-								this.resetDepths();
 								this.addSolutions(neighborBoard);
 								break mainloop;
 							}
@@ -92,6 +88,7 @@ mainloop:	while(!queue.isEmpty()) {
 							// update maxDepth and farthest
 							if(this.maxDepth < neighborVertex.depth) {
 								this.maxDepth = neighborVertex.depth;
+								System.err.print(maxDepth);
 								this.farthest = neighborVertex.board;
 							}
 							queue.offer(neighborVertex);
@@ -104,6 +101,10 @@ mainloop:	while(!queue.isEmpty()) {
 
 	public int maxDepth() {
 		return this.maxDepth;
+	}
+
+	public int getDepthOfBoard(Board b) {
+		return this.getVertex(b).depth;
 	}
 
 	public Board getFarthest() {
