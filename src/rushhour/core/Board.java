@@ -10,69 +10,62 @@ import java.util.Set;
 
 /**
  * Represents a position in a game of Rush Hour. Includes moving functionality.
- * Note that the board is represented as a w by h board with the top left
+ * Note that the board is represented as a width by height board with the top left
  * corner known to be 0, 0. Increasing x and y moves to the right and down
  * respectively. The VIP is at index 0, and the board is solved if it is
  * flush with the East/Right edge of the board.
  */
 public class Board {
-	private int w, h; // dimension of the board
-	// grid representation of the board. Each slot contains an integer that
-	// represents the index of the car in carList that is occupying the spot
-	// on the board. We will use -1 to represent empty spaces.
+	private int width, height;
 	private Grid grid;
 	private final int EMPTY_SPOT = -1;
-	//The first car in carList should always be the VIP car, and
-	//many methods rely on the VIP having index 0.
-	private List<Car> carList;
+	// 0th car is vip
+	private List<Car> cars;
 
 	private EquivalenceClass equivalenceClass;
 
-	// temp to match context free grammar used by txt file
-	// Need to incorporate this into the code somehow...
-
 	// Basic constructor
-	public Board(int w, int h) {
-		this.w = w;
-		this.h = h;
-		this.grid = new Grid(w,h);
-		this.carList = new ArrayList<Car>();
+	public Board(int width, int height) {
+		this.width = width;
+		this.height = height;
+		this.grid = new Grid(width,height);
+		this.cars = new ArrayList<Car>();
 	}
 
 	// Overloaded for importing from file
-	public Board(int w, int h, List<Car> c) {
-		this.w = w;
-		this.h = h;
-		this.grid = new Grid(w,h);
-		this.carList = new ArrayList<Car>();
-
-		// Could just carList = c, but then would need to update grid...
-		for (int i = 0; i < c.size(); i++) {
-			this.addCar(c.get(i));
+	public Board(int width, int height, List<Car> cars) {
+		this.width = width;
+		this.height = height;
+		this.grid = new Grid(width,height);
+		this.cars = new ArrayList<Car>();
+		// can't just do this.cars = cars b/c we need to update grid
+		for (int i = 0; i < cars.size(); i++) {
+			this.addCar(cars.get(i));
 		}
 	}
 
-	public Board(int w, int h, Grid grid, List<Car> c) {
-		this.w = w;
-		this.h = h;
+	// for deep copying
+	private Board(int width, int height, Grid grid, List<Car> cars) {
+		this.width = width;
+		this.height = height;
 		this.grid = grid;
-		this.carList = c;
+		this.cars = cars;
 	}
 
 	public boolean isSolved() {
-		return carList.get(0).x == this.w-carList.get(0).length;
+		return cars.get(0).x == this.width-cars.get(0).length;
 	}
 
 	public int getWidth() {
-		return this.w;
+		return this.width;
 	}
 
 	public int getOffset() {
-		return (this.h+1)/2-1;
+		return (this.height+1)/2-1;
 	}
 
 	public int getHeight() {
-		return this.h;
+		return this.height;
 	}
 
 	public Grid getGrid() {
@@ -91,19 +84,19 @@ public class Board {
 	}
 
 	public int numCars() {
-		return this.carList.size();
+		return this.cars.size();
 	}
 
 	public List<Car> getCars() {
-		return this.carList;
+		return this.cars;
 	}
 
 	public Board copy() {
-		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
-		for (Car car : this.carList) {
-			newCarList.add(car.copy());
+		ArrayList<Car> newCars = new ArrayList<Car>(this.cars.size());
+		for (Car car : this.cars) {
+			newCars.add(car.copy());
 		}
-		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
+		return (new Board(this.width, this.height, this.grid.copy(), newCars));
 	}
 
 	public boolean addCar(Car newCar) {
@@ -117,9 +110,9 @@ public class Board {
 		} else {
 			dy++;
 		}
-		carList.add(newCar);
+		cars.add(newCar);
 		for (int i = 0; i < newCar.length; i++) {
-			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),carList.size()-1);
+			grid.set(newCar.x + (dx*i),newCar.y + (dy*i),cars.size()-1);
 		}
 		this.equivalenceClass = null;
 		return true;
@@ -144,7 +137,7 @@ public class Board {
 	}
 
 	public boolean canMove(int vehicleIndex, int vector) {
-		Car c = this.carList.get(vehicleIndex);
+		Car c = this.cars.get(vehicleIndex);
 		if(vector == 0) {
 			return true;
 		}
@@ -181,14 +174,14 @@ public class Board {
 	}
 
 	public boolean move(Move move) {
-		return this.move(move.index, move.amount);
+		return this.move(move.index, move.vector);
 	}
 
-	public boolean move(int carNum, int vector) {
-		if(!this.canMove(carNum, vector)){
+	public boolean move(int index, int vector) {
+		if(!this.canMove(index, vector)){
 			return false;
 		}
-		Car c = this.carList.get(carNum);
+		Car c = this.cars.get(index);
 		if(c.horizontal) {
 			if(vector > 0) {
 				// un-place car
@@ -198,7 +191,7 @@ public class Board {
 				c.x += vector;
 				// place car
 				for(int i=0; i<c.length; i++) {
-					this.grid.set(c.x + i, c.y, carNum);
+					this.grid.set(c.x + i, c.y, index);
 				}
 			} else {
 				// un-place car
@@ -208,7 +201,7 @@ public class Board {
 				c.x += vector;
 				// place car
 				for(int i=0; i<c.length; i++) {
-					this.grid.set(c.x + i, c.y, carNum);
+					this.grid.set(c.x + i, c.y, index);
 				}
 			}
 		} else {
@@ -220,7 +213,7 @@ public class Board {
 				c.y += vector;
 				// place car
 				for(int i=0; i<c.length; i++) {
-					this.grid.set(c.x, c.y + i, carNum);
+					this.grid.set(c.x, c.y + i, index);
 				}
 			} else {
 				// un-place car
@@ -230,7 +223,7 @@ public class Board {
 				c.y += vector;
 				// place car
 				for(int i=0; i<c.length; i++) {
-					this.grid.set(c.x, c.y + i, carNum);
+					this.grid.set(c.x, c.y + i, index);
 				}
 			}
 		}
@@ -239,7 +232,7 @@ public class Board {
 
 	public Board getNeighborBoard(Move move) {
 		Board ret = this.copy();
-		ret.move(move.index, move.amount);
+		ret.move(move.index, move.vector);
 		return ret;
 	}
 
@@ -267,8 +260,8 @@ public class Board {
 	}
 
 	public boolean hasEmpty(){
-		for(int y=0; y<this.h-1; y++) {
-			for(int x=0; x<this.w-1; x++) {
+		for(int y=0; y<this.height-1; y++) {
+			for(int x=0; x<this.width-1; x++) {
 				if(this.grid.get(x,y) == -1) {
 					// check surrounding spots: to the right and below
 					if(this.grid.get(x+1,y) == -1 || this.grid.get(x,y+1) == -1) {
@@ -280,13 +273,10 @@ public class Board {
 		return false;
 	}
 
-	/**
-	 * Clears board
-	 */
 	public void clear(){
-		this.grid.clear();
 		this.equivalenceClass = null;
-		this.carList.clear();
+		this.grid.clear();
+		this.cars.clear();
 	}
 
 	public boolean equals(Board other) {
