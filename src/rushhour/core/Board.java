@@ -101,7 +101,7 @@ public class Board {
 	public Board copy() {
 		ArrayList<Car> newCarList = new ArrayList<Car>(this.carList.size());
 		for (Car car : this.carList) {
-			newCarList.add(car.copy());
+			newCarList.add(car);
 		}
 		return (new Board(this.w, this.h, this.grid.copy(), newCarList));
 	}
