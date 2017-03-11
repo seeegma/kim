@@ -59,6 +59,7 @@ public class Main {
 					board.move(move);
 				}
 				System.err.println(board.isSolved());
+				BoardIO.write("out.txt", board);
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {
@@ -90,11 +91,18 @@ public class Main {
 				}
 			} else if(operation.equals("info")) {
 				puzzleFile = args[1];
-				Board b = BoardIO.read(puzzleFile);
-				EquivalenceClass graph = b.getEquivalenceClass();
+				Board board = BoardIO.read(puzzleFile);
+				EquivalenceClass graph = board.getEquivalenceClass();
 				System.err.println("graph size: " + graph.size());
 				System.err.println("graph depth: " + graph.maxDepth());
-				System.err.println("board depth: " + graph.getDepthOfBoard(b));
+				System.err.println("board depth: " + graph.getDepthOfBoard(board));
+				System.err.println("graph solutions: " + graph.solutions().size());
+			} else if(operation.equals("test")) {
+				puzzleFile = args[1];
+				Board board = BoardIO.read(puzzleFile);
+				SolvedBoardGraph graph = SolvedBoardGraph.create(board.getEquivalenceClass().solutions().iterator().next());
+				graph.propogateDepths(5);
+				System.err.println("graph size: " + graph.size());
 				System.err.println("graph solutions: " + graph.solutions().size());
 			} else {
 				usage();

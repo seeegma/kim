@@ -278,10 +278,10 @@ public class ConstraintSatisfier {
 						}
 					} else if(randomBoard.isSolved()) {
 						// otherwise, if it's already solved, propogate outwards
-						SolvedBoardGraph sbg = SolvedBoardGraph.create(randomBoard);
 						if(!quiet) {
 							System.err.print("creating solvedBoardGraph...");
 						}
+						SolvedBoardGraph sbg = SolvedBoardGraph.create(randomBoard);
 						sbg.propogateDepths(minDepth);
 						if(sbg.maxDepth() < minDepth) {
 							// if we finish, the board is no good
@@ -333,7 +333,7 @@ public class ConstraintSatisfier {
 					System.err.println("numCars: " + numCars);
 					if(needGraph) {
 						System.err.println("board depth: " + outputBoardDepth + ", graph depth: " + graphDepth);
-					} else if(!startSolved && (minDepth > -1 || maxBoardsPerDepth > -1)) {
+					} else if(startSolved && minDepth > -1) {
 						System.err.println("board depth: " + outputBoardDepth + ", graph depth: >=" + minDepth);
 					}
 				}
