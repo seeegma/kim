@@ -5,11 +5,11 @@ import rushhour.core.*;
 import java.util.List;
 import java.util.LinkedList;
 
-public class IterativeDeepeningSolver implements Solver {
+public class IterativeDeepeningSolver extends Solver {
 
 	private int iterations;
 
-	public List<Move> solve(Board board) {
+	public List<Move> getSolution(Board board) {
 		// run a depth-limited BFS tree search
 		SearchNode solvedBoard = null;
 		int depthLimit = 1;

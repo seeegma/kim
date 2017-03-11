@@ -53,7 +53,7 @@ public class Main {
 					puzzleFile = args[2];
 				}
 				Board board = BoardIO.read(puzzleFile);
-				List<Move> solution = solver.solve(board);
+				List<Move> solution = solver.getSolution(board);
 				for(Move move : solution) {
 					System.out.println(move);
 					board.move(move);
