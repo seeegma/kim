@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 
-public class BoardGraph {
+public abstract class BoardGraph {
 
-	HashMap<Long,Vertex> vertices;
-	Set<Long> solutions;
+	protected HashMap<Long,Vertex> vertices;
+	protected Set<Long> solutions;
 
-	class Vertex implements Comparable<Vertex> {
+	protected class Vertex implements Comparable<Vertex> {
 		public Board board;
 		public Map<Move,Vertex> neighbors;
 		public int depth;
@@ -30,12 +30,16 @@ public class BoardGraph {
 		}
 	}
 
-	public BoardGraph() {
+	protected BoardGraph() {
 		this.vertices = new HashMap<Long,Vertex>();
 		this.solutions = new HashSet<>();
 	}
 
-	Vertex getVertex(Board board) {
+	public int size() {
+		return vertices.size();
+	}
+
+	protected Vertex getVertex(Board board) {
 		return this.vertices.get(board.hash());
 	}
 
@@ -47,23 +51,14 @@ public class BoardGraph {
 		return ret;
 	}
 
-	public int size() {
-		return vertices.size();
+	protected void expandVertex(Vertex vertex) {
+		// TODO
 	}
 
-	public void addVertex(Board board) {
+	protected void addVertex(Board board) {
 		if(this.getVertex(board) == null) {
 			this.vertices.put(board.hash(), new Vertex(board));
 		}
-	}
-
-	public Board executeRandomWalkFrom(Board board, int length) {
-		Random rng = new Random();
-		for(int i=0; i<length; i++) {
-			List<Move> moves = new ArrayList<>(board.allPossibleMoves());
-			board = board.getNeighborBoard(moves.get(rng.nextInt(moves.size())));
-		}
-		return board;
 	}
 
 }
