@@ -7,6 +7,8 @@ import java.util.LinkedList;
 
 public class IterativeDeepeningSolver implements Solver {
 
+	private int iterations;
+
 	public List<Move> solve(Board board) {
 		// run a depth-limited BFS tree search
 		SearchNode solvedBoard = null;
@@ -17,6 +19,7 @@ public class IterativeDeepeningSolver implements Solver {
 			stack.clear();
 			solvedBoard = this.depthLimitedDFS(board, stack, depthLimit++);
 		} while(solvedBoard == null);
+		System.err.println("iterations: " + this.iterations);
 		// extract path
 		return solvedBoard.getPath();
 	}
@@ -25,13 +28,14 @@ public class IterativeDeepeningSolver implements Solver {
 		stack.offer(new SearchNode(board));
 		while(!stack.isEmpty()) {
 			SearchNode cur = stack.pop();
-			if(cur.depth == depthLimit) {
-				continue;
-			}
+			this.iterations++;
 			if(cur.board.isSolved()) {
 				return cur;
 			}
-			for(Move move : board.allPossibleMoves()) {
+			if(cur.depth == depthLimit) {
+				continue;
+			}
+			for(Move move : cur.board.allPossibleMoves()) {
 				stack.push(new SearchNode(cur.board.getNeighborBoard(move), cur, move));
 			}
 		}

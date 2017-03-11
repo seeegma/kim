@@ -12,7 +12,9 @@ public class BreadthFirstSearchSolver implements Solver {
 		HashSet<Long> visited = new HashSet<>();
 		queue.offer(new SearchNode(board));
 		SearchNode solvedBoard = null;
+		int iterations = 0;
 		while(!queue.isEmpty()) {
+			iterations++;
 			SearchNode current = queue.poll();
 			visited.add(current.board.hash());
 			if(current.board.isSolved()) {
@@ -26,7 +28,7 @@ public class BreadthFirstSearchSolver implements Solver {
 				}
 			}
 		}
-		System.err.println(visited.size());
+		System.err.println("iterations: " + iterations);
 		// construct list from node tree
 		return solvedBoard.getPath();
 	}
