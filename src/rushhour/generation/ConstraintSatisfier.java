@@ -313,13 +313,13 @@ public class ConstraintSatisfier {
 				if(!quiet) {
 					System.err.println("performing random walk...");
 				}
-				outputBoard = randomBoard.copy();
-				for(int i=0; i<randomWalkLength; i++) {
+				// first need to get it un-solved
+				for(int i=1; i<randomWalkLength; i++) {
 					List<Move> moves = new ArrayList<>(outputBoard.allPossibleMoves());
 					Move move;
-					do {
+					// do {
 						move = moves.get(rng.nextInt(moves.size()));
-					} while(outputBoard.getNeighborBoard(move).isSolved());
+					// } while(outputBoard.getNeighborBoard(move).isSolved());
 					outputBoard.move(move);
 				}
 				if(needGraph) {
