@@ -2,16 +2,22 @@ package rushhour.solving;
 
 import rushhour.core.Board;
 import rushhour.core.Move;
+import rushhour.core.BoardGraph;
 
 import java.util.List;
 import java.util.LinkedList;
 
 public class SearchNode {
 
-	public Board board;
+	public BoardGraph.Vertex vertex;
+	public Board board; // use one or the other
 	public SearchNode parent;
 	public Move move;
 	public int depth;
+
+	public SearchNode(BoardGraph.Vertex vertex) {
+		this(vertex, null, null);
+	}
 
 	public SearchNode(Board board) {
 		this(board, null, null);
@@ -19,6 +25,15 @@ public class SearchNode {
 
 	public SearchNode(Board board, SearchNode parent, Move move) {
 		this.board = board;
+		this.setDepthAndMove(parent, move);
+	}
+
+	public SearchNode(BoardGraph.Vertex vertex, SearchNode parent, Move move) {
+		this.vertex = vertex;
+		this.setDepthAndMove(parent, move);
+	}
+
+	private void setDepthAndMove(SearchNode parent, Move move) {
 		if(parent == null) {
 			this.parent = null;
 			this.move = null;

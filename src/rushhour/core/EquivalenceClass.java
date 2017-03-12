@@ -28,10 +28,10 @@ public class EquivalenceClass extends DepthGraph {
 				this.solutions.add(current.board.hash());
 			}
 			// knit its neighbors into the graph
-			LinkedList<Vertex> newVertices = current.expand();
+			LinkedList<Edge> newVertices = current.expand();
 			// and add the unseen neighbors to the queue
-			for(Vertex newVertex : newVertices) {
-				queue.offer(newVertex);
+			for(Edge edge : newVertices) {
+				queue.offer(edge.vertex);
 			}
 		}
 		this.propogateDepths(-1);

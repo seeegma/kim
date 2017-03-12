@@ -7,6 +7,13 @@ public abstract class DepthGraph extends BoardGraph {
 	protected int maxDepth;
 	protected Board farthest;
 
+	@Override
+	public void clear() {
+		super.clear();
+		this.maxDepth = -2;
+		this.farthest = null;
+	}
+
 	public int maxDepth() {
 		return this.maxDepth;
 	}
@@ -30,15 +37,15 @@ public abstract class DepthGraph extends BoardGraph {
 		while(!queue.isEmpty()) {
 			Vertex current = queue.poll();
 			current.depth = 0;
-			LinkedList<Vertex> newVertices = current.expand();
+			LinkedList<Edge> newVertices = current.expand();
 			if(newVertices == null) {
 				continue;
 			}
-			for(Vertex newVertex : newVertices) {
-				Board neighborBoard = newVertex.board;
+			for(Edge edge : newVertices) {
+				Board neighborBoard = edge.vertex.board;
 				if(neighborBoard.isSolved()) {
 					this.solutions.add(neighborBoard.hash());
-					queue.offer(newVertex);
+					queue.offer(edge.vertex);
 				}
 			}
 		}

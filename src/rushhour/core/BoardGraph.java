@@ -16,20 +16,29 @@ public abstract class BoardGraph {
 	protected HashMap<Long,Vertex> vertices;
 	protected Set<Long> solutions;
 
-	protected class Vertex implements Comparable<Vertex> {
-		Board board;
-		Map<Move,Vertex> neighbors;
-		int depth;
-		Vertex(Board board) {
+	public class Edge {
+		public Move move;
+		public Vertex vertex;
+		public Edge(Move move, Vertex vertex) {
+			this.move = move;
+			this.vertex = vertex;
+		}
+	}
+
+	public class Vertex implements Comparable<Vertex> {
+		public Board board;
+		public Map<Move,Vertex> neighbors;
+		public int depth;
+		public Vertex(Board board) {
 			this.board = board;
 			this.depth = -2;
 			this.neighbors = null;
 		}
 		// knits all neighbors into the graph, and returns any previously-unseen neighbors
-		LinkedList<Vertex> expand() {
+		public LinkedList<Edge> expand() {
 			if(this.neighbors == null) {
 				this.neighbors = new HashMap<Move,Vertex>();
-				LinkedList<Vertex> unseen = new LinkedList<>();
+				LinkedList<Edge> unseen = new LinkedList<>();
 				// fill in neighbors with vertices already in the graph
 				for(Move move : this.board.allPossibleMoves()) {
 					Board neighborBoard = this.board.getNeighborBoard(move);
@@ -41,7 +50,7 @@ public abstract class BoardGraph {
 						Vertex neighborVertex = new Vertex(neighborBoard);
 						vertices.put(neighborBoard.hash(), neighborVertex);
 						this.neighbors.put(move, neighborVertex);
-						unseen.offer(neighborVertex);
+						unseen.offer(new Edge(move, neighborVertex));
 					}
 				}
 				return unseen;
@@ -72,6 +81,11 @@ public abstract class BoardGraph {
 			ret.add(this.vertices.get(hash).board);
 		}
 		return ret;
+	}
+
+	public void clear() {
+		this.vertices.clear();
+		this.solutions.clear();
 	}
 
 	protected void addVertex(Board board) {
