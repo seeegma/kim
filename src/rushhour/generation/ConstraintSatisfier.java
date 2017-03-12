@@ -269,12 +269,16 @@ public class ConstraintSatisfier {
 						if(graphDepth < minDepth) {
 							// if using the highest depth board in the graph won't be enough
 							keepBoard = false;
-							System.err.println("too small. graphDepth==" + graphDepth);
+							if(!quiet) {
+								System.err.println("too small; graphDepth=" + graphDepth);
+							}
 						} else {
 							// walk back
 							outputBoard = graph.getFarthest();
 							outputBoardDepth = graph.maxDepth();
-							System.err.println("good.");
+							if(!quiet) {
+								System.err.println("good; got farthest (depth=" + outputBoardDepth + ")");
+							}
 						}
 					} else if(randomBoard.isSolved()) {
 						// otherwise, if it's already solved, propogate outwards
@@ -286,12 +290,16 @@ public class ConstraintSatisfier {
 						if(sbg.maxDepth() < minDepth) {
 							// if we finish, the board is no good
 							keepBoard = false;
-							System.err.println("too small. graphDepth==" + sbg.maxDepth());
+							if(!quiet) {
+								System.err.println("too small; graphDepth=" + sbg.maxDepth());
+							}
 						} else {
 							// otherwise keep it
 							outputBoard = sbg.getFarthest();
 							outputBoardDepth = sbg.maxDepth();
-							System.err.println("good.");
+							if(!quiet) {
+								System.err.println("good; got farthest (depth=" + outputBoardDepth + ")");
+							}
 						}
 					} else {
 						keepBoard = false;

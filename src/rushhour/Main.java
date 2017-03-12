@@ -100,10 +100,18 @@ public class Main {
 			} else if(operation.equals("test")) {
 				puzzleFile = args[1];
 				Board board = BoardIO.read(puzzleFile);
-				SolvedBoardGraph graph = SolvedBoardGraph.create(board.getEquivalenceClass().solutions().iterator().next());
-				graph.propogateDepths(5);
+				SolvedBoardGraph graph = SolvedBoardGraph.create(board);
+				if(graph == null) {
+					graph = SolvedBoardGraph.create(board.getEquivalenceClass().solutions().iterator().next());
+				}
+				int toDepth = Integer.parseInt(args[2]);
+				graph.propogateDepths(toDepth);
+				System.err.println();
+				System.err.println("board depth: " + graph.getDepthOfBoard(board));
+				System.err.println("graph depth: " + graph.maxDepth());
 				System.err.println("graph size: " + graph.size());
 				System.err.println("graph solutions: " + graph.solutions().size());
+				System.err.println("farthest depth: " + graph.getDepthOfBoard(graph.getFarthest()));
 			} else {
 				usage();
 			}

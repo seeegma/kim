@@ -27,42 +27,11 @@ public class EquivalenceClass extends DepthGraph {
 				this.maxDepth = 0;
 				this.solutions.add(current.board.hash());
 			}
-			current.neighbors = new HashMap<Move,Vertex>();
-			// fill in neighbors with vertices already in the graph
-			for(Move move : current.board.allPossibleMoves()) {
-				Board neighborBoard = current.board.getNeighborBoard(move);
-				if(this.vertices.containsKey(neighborBoard.hash())) {
-					// if the vertex exists in the graph, replace current's instance with the graph's
-					current.neighbors.put(move, this.vertices.get(neighborBoard.hash()));
-				} else {
-					// otherwise add current's instance to the graph
-					Vertex neighborVertex = new Vertex(neighborBoard);
-					this.vertices.put(neighborBoard.hash(), neighborVertex);
-					current.neighbors.put(move, neighborVertex);
-					queue.offer(neighborVertex);
-				}
-			}
-		}
-		// propogate depths outward from any solved states
-		// (first add all solutions to the queue and visited set)
-		queue.clear();
-		HashSet<Long> visited = new HashSet<>();
-		for(long hash : this.solutions) {
-			queue.offer(this.vertices.get(hash));
-			visited.add(hash);
-		}
-		while(!queue.isEmpty()) {
-			Vertex current = queue.poll();
-			for(Vertex neighbor : current.neighbors.values()) {
-				if(!visited.contains(neighbor.board.hash())) {
-					neighbor.depth = current.depth + 1;
-					if(this.maxDepth < neighbor.depth) {
-						this.maxDepth = neighbor.depth;
-						this.farthest = neighbor.board;
-					}
-					visited.add(neighbor.board.hash());
-					queue.offer(neighbor);
-				}
+			// knit its neighbors into the graph
+			LinkedList<Vertex> newVertices = current.expand();
+			// and add the unseen neighbors to the queue
+			for(Vertex newVertex : newVertices) {
+				queue.offer(newVertex);
 			}
 		}
 	}

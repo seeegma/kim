@@ -17,13 +17,36 @@ public abstract class BoardGraph {
 	protected Set<Long> solutions;
 
 	protected class Vertex implements Comparable<Vertex> {
-		public Board board;
-		public Map<Move,Vertex> neighbors;
-		public int depth;
-		public Vertex(Board board) {
+		Board board;
+		Map<Move,Vertex> neighbors;
+		int depth;
+		Vertex(Board board) {
 			this.board = board;
 			this.depth = -2;
 			this.neighbors = null;
+		}
+		// knits all neighbors into the graph, and returns any previously-unseen neighbors
+		LinkedList<Vertex> expand() {
+			if(this.neighbors == null) {
+				this.neighbors = new HashMap<Move,Vertex>();
+				LinkedList<Vertex> unseen = new LinkedList<>();
+				// fill in neighbors with vertices already in the graph
+				for(Move move : this.board.allPossibleMoves()) {
+					Board neighborBoard = this.board.getNeighborBoard(move);
+					if(vertices.containsKey(neighborBoard.hash())) {
+						// if the vertex exists in the graph, replace current's instance with the graph's
+						this.neighbors.put(move, vertices.get(neighborBoard.hash()));
+					} else {
+						// otherwise add current's instance to the graph
+						Vertex neighborVertex = new Vertex(neighborBoard);
+						vertices.put(neighborBoard.hash(), neighborVertex);
+						this.neighbors.put(move, neighborVertex);
+						unseen.offer(neighborVertex);
+					}
+				}
+				return unseen;
+			}
+			return null;
 		}
 		public int compareTo(Vertex other) {
 			return other.depth - this.depth;
@@ -49,10 +72,6 @@ public abstract class BoardGraph {
 			ret.add(this.vertices.get(hash).board);
 		}
 		return ret;
-	}
-
-	protected void expandVertex(Vertex vertex) {
-		// TODO
 	}
 
 	protected void addVertex(Board board) {
