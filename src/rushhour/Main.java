@@ -38,7 +38,7 @@ public class Main {
 				Solver solver = null;
 				if(args.length == 2) {
 					puzzleFile = args[1];
-					solver = new EquivalenceClassSolver();
+					solver = new BreadthFirstSearchSolver();
 				} else if(args.length == 3) {
 					if(args[1].equals("--equiv")) {
 						solver = new EquivalenceClassSolver();
