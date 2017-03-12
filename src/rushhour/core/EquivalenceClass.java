@@ -34,6 +34,7 @@ public class EquivalenceClass extends DepthGraph {
 				queue.offer(newVertex);
 			}
 		}
+		this.propogateDepths(-1);
 	}
 
 	public long hash() {
