@@ -1,5 +1,7 @@
 package rushhour.core;
 
+import rushhour.solving.Solver;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -228,6 +230,12 @@ public class Board {
 			}
 		}
 		return true;
+	}
+
+	public void solve(Solver solver) {
+		for(Move move : solver.getSolution(this)) {
+			this.move(move);
+		}
 	}
 
 	public Board getNeighborBoard(Move move) {

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.HashSet;
 
-public class BreadthFirstSearchSolver extends Solver {
+public class BreadthFirstSearchSolver implements Solver {
 	public List<Move> getSolution(Board board) {
 		LinkedList<SearchNode> queue = new LinkedList<>();
 		HashSet<Long> visited = new HashSet<>();

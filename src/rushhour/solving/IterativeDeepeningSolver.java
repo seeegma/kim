@@ -5,7 +5,7 @@ import rushhour.core.*;
 import java.util.List;
 import java.util.LinkedList;
 
-public class IterativeDeepeningSolver extends Solver {
+public class IterativeDeepeningSolver implements Solver {
 
 	private int iterations;
 
