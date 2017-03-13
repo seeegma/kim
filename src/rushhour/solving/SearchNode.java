@@ -30,6 +30,7 @@ public class SearchNode {
 
 	public SearchNode(BoardGraph.Vertex vertex, SearchNode parent, Move move) {
 		this.vertex = vertex;
+		this.board = vertex.board;
 		this.setDepthAndMove(parent, move);
 	}
 
