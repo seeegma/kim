@@ -42,10 +42,15 @@ public class Main {
 				} else if(args.length == 3) {
 					if(args[1].equals("--equiv")) {
 						solver = new EquivalenceClassSolver();
-					} else if(args[1].equals("--bfs")) {
-						solver = new BreadthFirstSearchSolver();
 					} else if(args[1].equals("--ids")) {
 						solver = new IterativeDeepeningSolver();
+					} else if(args[1].equals("--bfs")) {
+						solver = new BreadthFirstSearchSolver();
+					} else if(args[1].equals("--greedy")) {
+						Feature[] features = {new BlockingFeature()};
+						int[] weights = {1};
+						Heuristic heuristic = new Heuristic(features, weights);
+						solver = new GreedySearchSolver(heuristic);
 					} else {
 						System.err.println("unrecognized solver name");
 						usage();
