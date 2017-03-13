@@ -18,11 +18,13 @@ public class GreedySearchSolver extends BoardGraph implements Solver {
 		this.addVertex(board);
 		PriorityQueue<SearchNode> queue = new PriorityQueue<SearchNode>(100, this.heuristic);
 		queue.offer(new SearchNode(this.getVertex(board)));
+		int statesVisited = 0;
 		while(!queue.isEmpty()) {
 			SearchNode current = queue.poll();
+			statesVisited++;
 			if(current.vertex.board.isSolved()) {
 				// construct list from node tree
-				return new SolveResult(current.getPath(), current.vertex.board, this.size());
+				return new SolveResult(current.getPath(), current.vertex.board, statesVisited);
 			}
 			for(Edge edge : current.vertex.expand()) {
 				queue.offer(new SearchNode(edge.vertex, current, edge.move));

@@ -1,15 +1,36 @@
 package rushhour.solving;
 
-import rushhour.core.*;
+import rushhour.core.Board;
 
 import java.util.Comparator;
 
-public abstract class Heuristic implements Comparator<SearchNode> {
+/**
+ * Represents a linear combination of features and weights
+ */
+public class Heuristic implements Comparator<SearchNode> {
 
-	public abstract double heuristicValue(Board board);
+	private Feature[] features;
+	private int[] weights;
+
+	public Heuristic(Feature[] features, int[] weights) {
+		if(features.length != weights.length) {
+			System.err.println("lengths of feature vector and weight vector do not match!");
+			System.exit(1);
+		}
+		this.features = features;
+		this.weights = weights;
+	}
+
+	public double value(Board board) {
+		double result = 0.0;
+		for(int i=0; i<this.features.length; i++) {
+			result += this.features[i].value(board) * this.weights[i];
+		}
+		return result;
+	}
 
 	public int compare(SearchNode node1, SearchNode node2) {
-		return (int)this.heuristicValue(node1.board) - (int)this.heuristicValue(node2.board);
+		return (int)this.value(node1.board) - (int)this.value(node2.board);
 	}
 
 }
