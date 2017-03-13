@@ -63,6 +63,13 @@ public class Main {
 				System.out.println("visited states: " + solution.visitedStates);
 				System.out.println("solved board: ");
 				System.out.println(solution.solvedBoard);
+				// sanity check
+				for(Move move : solution.path) {
+					board.move(move);
+				}
+				if(!board.isSolved()) {
+					System.err.println("ERROR: not actually a solution!");
+				}
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {

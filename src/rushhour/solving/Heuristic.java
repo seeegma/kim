@@ -7,7 +7,7 @@ import java.util.Comparator;
 /**
  * Represents a linear combination of features and weights
  */
-public class Heuristic implements Comparator<SearchNode> {
+public class Heuristic {
 
 	private Feature[] features;
 	private int[] weights;
@@ -27,10 +27,6 @@ public class Heuristic implements Comparator<SearchNode> {
 			result += this.features[i].value(board) * this.weights[i];
 		}
 		return result;
-	}
-
-	public int compare(SearchNode node1, SearchNode node2) {
-		return (int)this.value(node1.board) - (int)this.value(node2.board);
 	}
 
 }
