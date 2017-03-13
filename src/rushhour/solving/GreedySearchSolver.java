@@ -7,13 +7,13 @@ import java.util.Comparator;
 
 public class GreedySearchSolver extends BoardGraph implements Solver {
 
-	private EdgeComparator comparator;
+	private NeighborComparator comparator;
 
-	protected class EdgeComparator implements Comparator<SearchNode> {
+	protected class NeighborComparator implements Comparator<SearchNode> {
 
 		private Heuristic heuristic;
 
-		protected EdgeComparator(Heuristic heuristic) {
+		protected NeighborComparator(Heuristic heuristic) {
 			this.heuristic = heuristic;
 		}
 
@@ -36,7 +36,7 @@ public class GreedySearchSolver extends BoardGraph implements Solver {
 
 	public GreedySearchSolver(Heuristic heuristic) {
 		super();
-		this.comparator = new EdgeComparator(heuristic);
+		this.comparator = new NeighborComparator(heuristic);
 	}
 
 	public SolveResult getSolution(Board board) {
