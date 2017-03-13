@@ -53,13 +53,11 @@ public class Main {
 					puzzleFile = args[2];
 				}
 				Board board = BoardIO.read(puzzleFile);
-				List<Move> solution = solver.getSolution(board);
-				for(Move move : solution) {
-					System.out.println(move);
-					board.move(move);
-				}
-				System.err.println(board.isSolved());
-				BoardIO.write("out.txt", board);
+				SolveResult solution = solver.getSolution(board);
+				System.out.println("path: " + solution.path.size() + " moves");
+				System.out.println("visited states: " + solution.visitedStates);
+				System.out.println("solved board: ");
+				System.out.println(solution.solvedBoard);
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {

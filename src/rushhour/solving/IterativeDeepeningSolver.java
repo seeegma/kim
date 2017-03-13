@@ -9,19 +9,19 @@ public class IterativeDeepeningSolver implements Solver {
 
 	private int iterations;
 
-	public List<Move> getSolution(Board board) {
+	public SolveResult getSolution(Board board) {
 		// run a depth-limited BFS tree search
-		SearchNode solvedBoard = null;
+		SearchNode solvedNode = null;
 		int depthLimit = 1;
 		LinkedList<SearchNode> stack = new LinkedList<>();
 		do {
 			System.err.println("depthLimit = " + depthLimit);
 			stack.clear();
-			solvedBoard = this.depthLimitedDFS(board, stack, depthLimit++);
-		} while(solvedBoard == null);
+			solvedNode = this.depthLimitedDFS(board, stack, depthLimit++);
+		} while(solvedNode == null);
 		System.err.println("iterations: " + this.iterations);
 		// extract path
-		return solvedBoard.getPath();
+		return new SolveResult(solvedNode.getPath(), solvedNode.board, this.iterations);
 	}
 
 	private SearchNode depthLimitedDFS(Board board, LinkedList<SearchNode> stack, int depthLimit) {

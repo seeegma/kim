@@ -5,5 +5,5 @@ import rushhour.core.*;
 import java.util.List;
 
 public interface Solver {
-	public List<Move> getSolution(Board board);
+	public SolveResult getSolution(Board board);
 }
