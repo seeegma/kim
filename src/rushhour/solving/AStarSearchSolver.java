@@ -58,6 +58,9 @@ public class AStarSearchSolver extends BoardGraph implements Solver {
 			visited.add(current.board.hash());
 			current.vertex.expand();
 			for(Edge edge : current.vertex.neighbors) {
+				if(visited.contains(edge.vertex.board.hash())) {
+					continue;
+				}
 				queue.offer(new SearchNode(edge.vertex, current, edge.move));
 			}
 		}
