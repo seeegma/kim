@@ -19,6 +19,7 @@ public class Heuristic {
 		}
 		this.features = features;
 		this.weights = weights;
+		this.normalizeWeights();
 	}
 
 	public double value(Board board) {
@@ -29,23 +30,16 @@ public class Heuristic {
 		return result;
 	}
 
-	public void setWeights(double[] newWeights) {
-		if(newWeights.length != this.weights.length) {
-			System.err.println("ERROR: weight vector lengths do not match!");
-			System.exit(1);
-		}
-		for(int i=0; i<this.weights.length; i++) {
-			this.weights[i] = newWeights[i];
-		}
+	public int numFeatures() {
+		return this.features.length;
 	}
 
 	public double getWeight(int i) {
 		return this.weights[i];
 	}
 
-	public void setWeight(int i, double newWeight) {
-		this.weights[i] = newWeight;
-		this.normalizeWeights();
+	public double[] getWeights() {
+		return this.weights;
 	}
 
 	private void normalizeWeights() {
