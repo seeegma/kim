@@ -46,11 +46,10 @@ public class EquivalenceClass extends DepthGraph {
 		List<Move> moves = new ArrayList<Move>();
 		Vertex current = v;
 		while(current.depth != 0) {
-			for(Move move : current.neighbors.keySet()) {
-				Vertex neighbor = current.neighbors.get(move);
-				if(neighbor.depth == current.depth - 1) {
-					moves.add(move);
-					current = neighbor;
+			for(Edge edge : current.neighbors) {
+				if(edge.vertex.depth == current.depth - 1) {
+					moves.add(edge.move);
+					current = edge.vertex;
 					break;
 				}
 			}
@@ -63,9 +62,8 @@ public class EquivalenceClass extends DepthGraph {
 		List<Board> path = new ArrayList<Board>();
 		Vertex current = v;
 		while(current.depth != 0) {
-			Set<Move> neighborMoves = current.neighbors.keySet();
-			for(Move move : neighborMoves) {
-				Vertex neighbor = current.neighbors.get(move);
+			for(Edge edge : current.neighbors) {
+				Vertex neighbor = edge.vertex;
 				if(neighbor.depth == current.depth - 1) {
 					path.add(neighbor.board);
 					current = neighbor;
@@ -78,9 +76,9 @@ public class EquivalenceClass extends DepthGraph {
 
 	public Board getOneBoardCloser(Board board) {
 		Vertex v = this.getVertex(board);
-		for(Vertex neighbor : v.neighbors.values()) {
-			if(neighbor.depth < v.depth) {
-				return neighbor.board;
+		for(Edge edge : v.neighbors) {
+			if(edge.vertex.depth < v.depth) {
+				return edge.vertex.board;
 			}
 		}
 		return null;

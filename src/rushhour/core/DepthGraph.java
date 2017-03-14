@@ -70,7 +70,8 @@ mainloop:	while(!queue.isEmpty()) {
 					// knit its neighbors into the graph
 					current.expand();
 					// then propogate the depths outward from current
-					for(Vertex neighborVertex : current.neighbors.values()) {
+					for(Edge edge : current.neighbors) {
+						Vertex neighborVertex = edge.vertex;
 						Board neighborBoard = neighborVertex.board;
 						if(neighborVertex.depth == -2) {
 							// check if it's in a new connected component of solutions
