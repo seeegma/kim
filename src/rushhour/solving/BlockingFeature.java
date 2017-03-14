@@ -17,6 +17,7 @@ public class BlockingFeature implements Feature {
 				numBlocking++;
 			}
 		}
-		return numBlocking;
+		// plus one because we still need to move the vip
+		return 1+numBlocking;
 	}
 }

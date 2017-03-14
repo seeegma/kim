@@ -48,7 +48,7 @@ public class Main {
 						solver = new BreadthFirstSearchSolver();
 					} else if(args[1].equals("--astar")) {
 						Feature[] features = {new BlockingFeature()};
-						int[] weights = {1};
+						double[] weights = {1};
 						Heuristic heuristic = new Heuristic(features, weights);
 						solver = new AStarSearchSolver(heuristic);
 					} else {
@@ -59,17 +59,23 @@ public class Main {
 				}
 				Board board = BoardIO.read(puzzleFile);
 				SolveResult solution = solver.getSolution(board);
-				System.out.println("path: " + solution.path.size() + " moves");
+				System.out.println("path length: " + solution.path.size() + " moves");
 				System.out.println("visited states: " + solution.visitedStates);
 				System.out.println("solved board: ");
 				System.out.println(solution.solvedBoard);
 				// sanity check
 				for(Move move : solution.path) {
 					board.move(move);
+					System.err.println(move);
 				}
 				if(!board.isSolved()) {
 					System.err.println("ERROR: not actually a solution!");
 				}
+			} else if(operation.equals("feature")) {
+				Feature blockingFeature = new BlockingFeature();
+				Board board = BoardIO.read(args[1]);
+				System.out.println(board);
+				System.out.println("feature value: " + blockingFeature.value(board));
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {

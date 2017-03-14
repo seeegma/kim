@@ -10,9 +10,9 @@ import java.util.Comparator;
 public class Heuristic {
 
 	private Feature[] features;
-	private int[] weights;
+	private double[] weights;
 
-	public Heuristic(Feature[] features, int[] weights) {
+	public Heuristic(Feature[] features, double[] weights) {
 		if(features.length != weights.length) {
 			System.err.println("lengths of feature vector and weight vector do not match!");
 			System.exit(1);
