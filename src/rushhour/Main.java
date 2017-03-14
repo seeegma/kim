@@ -7,6 +7,7 @@ import rushhour.solving.*;
 import rushhour.learning.*;
 import rushhour.generation.*;
 
+import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,9 +24,13 @@ public class Main {
 		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
 		"\tprint <puzzle_file>\n" +
-		"\tsolve <puzzle_file>\n" +
-		"\tevaluate [ --csv | --fields ] <puzzle_file>\n" +
-		"\tanalyze [ --csv | --fields ] <puzzle_file> <log_file>\n" +
+		"\tinfo <puzzle_file>\n" +
+		"\tsolve <puzzle_file> [ --equiv | --ids | --bfs ] <puzzle_file> \n" +
+		"\tsolve <puzzle_file> --astar <puzzle_file> --features <features> --weights <weights>\n" +
+		"\tsolve <puzzle_file> --astar <puzzle_file> --features <features> --weightsFile <weights_file>\n" +
+		"\tlearn <dataset> --features <features> --weights_file <weights_file>\n" +
+		"\tlearn <dataset> --features <features> --weights <weights>\n" +
+		"\ttest <dataset> <features> <weights_file>\n" +
 		ConstraintSatisfier.usage;
 
 	public static void main(String[] args) {
@@ -49,15 +54,38 @@ public class Main {
 					} else if(args[1].equals("--bfs")) {
 						solver = new BreadthFirstSearchSolver();
 					} else if(args[1].equals("--astar")) {
-						Feature[] features = {new BlockingFeature()};
-						double[] weights = {1};
+						if(args.length < 4) {
+							System.err.println("need feature list");
+							System.exit(1);
+						}
+						Feature[] features = null;
+						double[] weights = null;
+						for(int i=3; i<args.length; i++) {
+							if(args[i].equals("--features")) {
+								features = Feature.vectorFromString(args[i+1]);
+								i++;
+							} else if(args[i].equals("--weights")) {
+								weights = Util.vectorFromString(args[i+1]);
+								if(weights.length != features.length) {
+									System.err.println("different number of weights than features");
+									System.exit(1);
+								}
+								i++;
+							} else if(args[i].equals("--weightsFile")) {
+								weights = Util.vectorFromFile(args[i+1]);
+								i++;
+							} else {
+								System.err.println("unrecognized solve option " + args[i]);
+								System.exit(1);
+							}
+						}
 						Heuristic heuristic = new Heuristic(features, weights);
 						solver = new AStarSearchSolver(heuristic);
 					} else {
 						System.err.println("unrecognized solver name");
 						usage();
 					}
-					puzzleFile = args[args.length-1];
+					puzzleFile = args[2];
 				}
 				Board board = BoardIO.read(puzzleFile);
 				SolveResult solution = solver.getSolution(board);
@@ -82,18 +110,54 @@ public class Main {
 				}
 				Board board = BoardIO.read(args[args.length-1]);
 				System.out.println(board);
-				String[] split = args[1].split(",");
-				for(int i=0; i<split.length; i++) {
-					Feature feature = Feature.fromString(split[i]);
-					System.out.println(feature.toString() + ": " + feature.value(board));
+				Feature[] features = Feature.vectorFromString(args[1]);
+				for(int i=0; i<features.length; i++) {
+					System.out.println(features[i].toString() + ": " + features[i].value(board));
 				}
 			} else if(operation.equals("learn")) {
-				Feature[] features = {new BlockingFeature(), new SolvedFeature()};
+				if(args.length < 4) {
+					System.err.println("need feature list");
+					System.exit(1);
+				}
+				Feature[] features = null;
+				String outFileName = null;
+				for(int i=3; i<args.length; i++) {
+					if(args[i].equals("--features")) {
+						features = Feature.vectorFromString(args[i+1]);
+						i++;
+					} else if(args[i].equals("--outFile")) {
+						outFileName = args[i+1];
+						i++;
+					} else {
+						System.err.println("unrecognized learn option " + args[i]);
+						System.exit(1);
+					}
+				}
 				Learner learner = new MultivariateRegressionLearner(features);
 				Dataset dataset = new Dataset(args[1]);
 				Heuristic heuristic = learner.learn(dataset);
 				System.out.println("learned weights: " + Arrays.toString(heuristic.getWeights()));
-				// test it
+				// write to file
+				if(outFileName != null) {
+					try {
+						PrintWriter pw = new PrintWriter(outFileName, "utf-8");
+						pw.print(Util.vectorToString(heuristic.getWeights()));
+						pw.close();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (UnsupportedEncodingException e) {
+						System.out.println("Bad encoding for writing!");
+						e.printStackTrace();
+					}
+				}
+			} else if(operation.equals("test")) {
+				if(args.length != 4) {
+					usage();
+				}
+				Dataset dataset = new Dataset(args[1]);
+				Feature[] features = Feature.vectorFromString(args[2]);
+				double[] weights = Util.vectorFromString(args[3]);
+				Heuristic heuristic = new Heuristic(features, weights);
 				double L1error = dataset.getMeanError(heuristic, 1);
 				double L2error = dataset.getMeanError(heuristic, 2);
 				System.out.println("L1 error: " + L1error);

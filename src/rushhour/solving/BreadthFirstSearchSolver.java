@@ -23,7 +23,11 @@ public class BreadthFirstSearchSolver extends BoardGraph implements Solver {
 				return new SolveResult(current.getPath(), current.vertex.board, visited.size());
 			}
 			visited.add(current.board.hash());
-			for(Edge edge : current.vertex.expand()) {
+			current.vertex.expand();
+			for(Edge edge : current.vertex.neighbors) {
+				if(visited.contains(edge.vertex.board.hash())) {
+					continue;
+				}
 				queue.offer(new SearchNode(edge.vertex, current, edge.move));
 			}
 		}

@@ -20,5 +20,14 @@ public interface Feature {
 			return null;
 		}
 	}
+
+	public static Feature[] vectorFromString(String names) {
+		String[] split = names.split(",");
+		Feature[] vector = new Feature[split.length];
+		for(int i=0; i<split.length; i++) {
+			vector[i] = fromString(split[i]);
+		}
+		return vector;
+	}
 }
 
