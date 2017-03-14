@@ -31,7 +31,7 @@ public class ForwardBlockingFeature implements Feature {
 		addExitStrategiesToMap();
 
 		if (exitMap.isEmpty()) {
-			System.out.println("No viable strategies, or it is already solved.");
+			// System.out.println("No viable strategies, or it is already solved.");
 			return 0;
 		}
 
@@ -139,7 +139,7 @@ public class ForwardBlockingFeature implements Feature {
 					strategiesWithCar.add(strategy);
 				}
 				for (HashSet<Car> strategy : strategiesWithCar) {
-					if (strategy != bestStrategy) {
+					if (!strategy.equals(bestStrategy)) {
 						this.exitMap.get(strategy).remove(votingCar);
 					}
 				}
@@ -157,9 +157,7 @@ public class ForwardBlockingFeature implements Feature {
 					emptyStrategies.add(strategy);
 				}
 			}
-			for (HashSet<Car> emptyStrategy : emptyStrategies) {
-				this.exitMap.remove(emptyStrategy);
-			}
+			this.exitMap.keySet().removeAll(emptyStrategies);
 		}
 
 		return carsToMove.size();
