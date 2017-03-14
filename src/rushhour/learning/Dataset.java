@@ -17,16 +17,16 @@ public class Dataset extends LinkedList<Datum> {
 		}
 	}
 
-	public double getMeanError(Heuristic heuristic) {
+	public double getMeanError(Heuristic heuristic, int L) {
 		double totalError = 0.0;
 		for(Datum datum : this) {
-			totalError += this.getSingleError(heuristic, datum);
+			totalError += this.getSingleError(heuristic, datum, L);
 		}
 		return totalError/this.size();
 	}
 
-	private double getSingleError(Heuristic heuristic, Datum datum) {
-		return Math.pow(datum.depth - heuristic.value(datum.board), 2.0);
+	private double getSingleError(Heuristic heuristic, Datum datum, int L) {
+		return Math.pow(Math.abs(datum.depth - heuristic.value(datum.board)), L);
 	}
 
 }
