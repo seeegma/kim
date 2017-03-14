@@ -11,6 +11,6 @@ public abstract class Learner {
 		this.features = features;
 	}
 
-	public abstract Heuristic learn(Dataset trainingData);
+	public abstract Heuristic learn(Dataset dataset);
 
 }

@@ -30,6 +30,10 @@ public class Heuristic {
 		return result;
 	}
 
+	public Feature getFeature(int i) {
+		return this.features[i];
+	}
+
 	public int numFeatures() {
 		return this.features.length;
 	}
@@ -40,6 +44,11 @@ public class Heuristic {
 
 	public double[] getWeights() {
 		return this.weights;
+	}
+
+	public void setWeights(double[] newWeights) {
+		this.weights = newWeights;
+		this.normalizeWeights();
 	}
 
 	private void normalizeWeights() {
