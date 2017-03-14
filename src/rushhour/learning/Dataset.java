@@ -15,6 +15,10 @@ public class Dataset implements Iterable<Datum> {
 		return this.data.iterator();
 	}
 
+	public int size() {
+		return this.data.size();
+	}
+
 	public Dataset(String directory) {
 		this.data = new LinkedList<>();
 		for(Path path : Util.getFilePaths(directory)) {

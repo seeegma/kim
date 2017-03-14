@@ -66,7 +66,7 @@ public class Main {
 				// sanity check
 				for(Move move : solution.path) {
 					board.move(move);
-					// System.err.println(move);
+					System.err.println(move);
 				}
 				if(!board.isSolved()) {
 					System.err.println("ERROR: not actually a solution!");
