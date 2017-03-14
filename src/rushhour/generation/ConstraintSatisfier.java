@@ -17,18 +17,19 @@ import java.nio.file.Path;
 
 public class ConstraintSatisfier {
 
-	public static final String usage = 
-		"\tgenerate [GENERATION OPTIONS]\n\n" + 
+	public static final String usage =
+		"\tgenerate [GENERATION OPTIONS]\n\n" +
 		"Generation Options: \n" +
-		"--boardSize N			Produce boards that are NxN\n\n" +
+		"--boardSize N          Produce boards that are NxN\n\n" +
 		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
 		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
 		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n\n" +
+		"--maxDepth DEPTH       Only produce boards with depth of at most DEPTH\n\n" +
 		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
 		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
 		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
 		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
-		"--maxNumCars NUM      Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
+		"--maxNumCars NUM       Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
 		"--uniform              Slower, but guarantees uniformly random generation\n\n" +
 		"--maxVipX X            Only generate boards with vip.x <= X\n\n" +
 		"--minVipX X            Only generate boards with vip.x >= X\n\n" +
@@ -40,9 +41,9 @@ public class ConstraintSatisfier {
 
 	// options
 	private int boardSize = 6;
-	private int maxVipX = boardSize-2; 
+	private int maxVipX = boardSize-2;
 	private int minVipX = 0;
-	private int maxCarLength = 3; 
+	private int maxCarLength = 3;
 	private boolean onlyUnique = false;
 	private boolean setNumCars = false;
 	private int targetNumCars = 11; // reasonable default
@@ -50,6 +51,7 @@ public class ConstraintSatisfier {
 	private int maxNumCars = 15; // reasonable default
 	private int boardsToSave = 1; // reasonable default
 	private int minDepth = -1; // reasonable default
+	private int maxDepth = 100; // reasonable default
 	private boolean stats = false;
 	private boolean fullStats = false;
 	private int maxBoardsPerDepth = -1;
@@ -107,6 +109,9 @@ public class ConstraintSatisfier {
 				this.onlyUnique = true;
 			} else if(args[i].equals("--minDepth")) {
 				this.minDepth = Integer.parseInt(args[i+1]);
+				i++;
+			} else if(args[i].equals("--maxDepth")) {
+				this.maxDepth = Integer.parseInt(args[i+1]);
 				i++;
 			} else if(args[i].equals("--maxPerDepth")) {
 				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
@@ -261,6 +266,8 @@ public class ConstraintSatisfier {
 			} if(onlyUnique && uniqueGraphs.contains(hash)) {
 				// make sure the graph is in a unique equivalence class, if necessary
 				keepBoard = false;
+			} else if(outputBoard == null || outputBoardDepth > this.maxDepth) {
+				keepBoard = false;
 			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
 				// final check: if depth is too low
 				if(outputBoardDepth < minDepth) {
@@ -309,7 +316,7 @@ public class ConstraintSatisfier {
 			/*
 			 * STEP 1.4: if requested, do a nearly-uniform random walk on the board avoid entering a solved state
 			 */
-			if(keepBoard && randomWalkLength > 0) {
+			if(keepBoard && randomWalkLength > 0 && outputBoardDepth <= this.maxDepth) {
 				if(!quiet) {
 					System.err.println("performing random walk...");
 				}
@@ -329,7 +336,7 @@ public class ConstraintSatisfier {
 			/*
 			 * STEP 1.5: save the board, if we should
 			 */
-			if(keepBoard) {
+			if(keepBoard && outputBoard != null) {
 				// update stats that are always needed for this stuff (for indexing output boards)
 				boardsSavedSoFar++;
 				incrementMapValue(boardsSavedSoFarByBoardDepth, outputBoardDepth);
@@ -348,8 +355,8 @@ public class ConstraintSatisfier {
 				// dump board to file
 				if(puzzleOutToFile) {
 					// write the board to a file
-					// int index = boardsSavedSoFarByBoardDepth.get(outputBoardDepth);
-					String pathname = "generated_puzzles/";
+					int index = boardsSavedSoFarByBoardDepth.get(outputBoardDepth);
+					String pathname = String.format("generated_puzzles/%s/", outputBoardDepth);
 					File outDir = new File(pathname);
 					outDir.mkdirs();
 					String filename = pathname + boardsSavedSoFar + ".txt";
