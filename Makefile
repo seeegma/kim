@@ -1,13 +1,16 @@
-all: core solving io util generation main
+all: core io solving util learning generation main
 
 core:
 	javac -d . src/rushhour/core/*.java
 
+io:
+	javac -d . src/rushhour/io/*.java
+
 solving:
 	javac -d . src/rushhour/solving/*.java
 
-io:
-	javac -d . src/rushhour/io/*.java
+learning:
+	javac -d . src/rushhour/learning/*.java
 
 util:
 	javac -d . src/rushhour/Util.java
