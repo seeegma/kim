@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+	<head>
+	</head>
+	<body>
+		<link rel="stylesheet" type="text/css" href="style.css"/>
+        <input type="file" id="puzzle_file">
+        <input type="file" id="log_file" disabled="true">
+        <div id="buttonsDiv">
+			<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+			<button type="button" class="button">
+				<i class="material-icons" id="backButton">skip_previous</i>
+			</button>
+			<button type="button" class="button">
+				<i class="material-icons" id="playPause">pause</i>
+			</button>
+			<button type="button" class="button">
+				<i class="material-icons" id="forwardButton">skip_next</i>
+			</button>
+        </div>
+		<p><canvas id="gameCanvas" width="662" height="800"> </canvas></p>
+
+		<div id="finish" class="overlay">
+			<div class="overlay-content">
+				<p id="title"></p>
+				<p id="body"></p>
+			</div>
+		</div>
+
+		<script src="replay.js"></script>
+	</body>
+</html>
