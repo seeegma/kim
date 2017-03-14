@@ -68,7 +68,6 @@ public class Main {
 				// sanity check
 				for(Move move : solution.path) {
 					board.move(move);
-					System.err.println(move);
 				}
 				if(!board.isSolved()) {
 					System.err.println("ERROR: not actually a solution!");
@@ -76,11 +75,18 @@ public class Main {
 				if(!board.equals(solution.solvedBoard)) {
 					System.err.println("ERROR: solved board not the result of following solution path");
 				}
-			} else if(operation.equals("feature")) {
-				Feature blockingFeature = new BlockingFeature();
-				Board board = BoardIO.read(args[1]);
+			} else if(operation.equals("features")) {
+				if(args.length < 2) {
+					System.err.println("need feature list");
+					System.exit(1);
+				}
+				Board board = BoardIO.read(args[args.length-1]);
 				System.out.println(board);
-				System.out.println("feature value: " + blockingFeature.value(board));
+				String[] split = args[1].split(",");
+				for(int i=0; i<split.length; i++) {
+					Feature feature = Feature.fromString(split[i]);
+					System.out.println(feature.toString() + ": " + feature.value(board));
+				}
 			} else if(operation.equals("learn")) {
 				Feature[] features = {new BlockingFeature(), new SolvedFeature()};
 				Learner learner = new MultivariateRegressionLearner(features);

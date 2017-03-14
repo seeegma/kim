@@ -20,6 +20,10 @@ public class ForwardBlockingFeature implements Feature {
 
 	private Car vip;
 
+	public String toString() {
+		return "forward";
+	}
+
 	public double value(Board board) {
 		this.board = board;
 		if (this.board.isSolved()) { return 0; }

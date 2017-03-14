@@ -7,6 +7,11 @@ import rushhour.core.*;
  * of cars blocking the VIP's path to the exit.
  */
 public class BlockingFeature implements Feature {
+
+	public String toString() {
+		return "blocking";
+	}
+
 	public double value(Board board) {
 		if (board.isSolved()) { return 0; }
 		Car vip = board.getCars().get(0);
@@ -20,4 +25,5 @@ public class BlockingFeature implements Feature {
 		// plus one because we still need to move the vip
 		return 1+numBlocking;
 	}
+
 }
