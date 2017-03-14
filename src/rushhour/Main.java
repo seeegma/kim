@@ -4,6 +4,7 @@ import rushhour.Util;
 import rushhour.core.*;
 import rushhour.io.*;
 import rushhour.solving.*;
+import rushhour.learning.*;
 import rushhour.generation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Arrays;
 
 public class Main {
 	private static final String usage =
@@ -39,7 +41,7 @@ public class Main {
 				if(args.length == 2) {
 					puzzleFile = args[1];
 					solver = new BreadthFirstSearchSolver();
-				} else if(args.length == 3) {
+				} else if(args.length >= 3) {
 					if(args[1].equals("--equiv")) {
 						solver = new EquivalenceClassSolver();
 					} else if(args[1].equals("--ids")) {
@@ -55,7 +57,7 @@ public class Main {
 						System.err.println("unrecognized solver name");
 						usage();
 					}
-					puzzleFile = args[2];
+					puzzleFile = args[args.length-1];
 				}
 				Board board = BoardIO.read(puzzleFile);
 				SolveResult solution = solver.getSolution(board);
@@ -79,6 +81,17 @@ public class Main {
 				Board board = BoardIO.read(args[1]);
 				System.out.println(board);
 				System.out.println("feature value: " + blockingFeature.value(board));
+			} else if(operation.equals("learn")) {
+				Feature[] features = {new BlockingFeature(), new SolvedFeature()};
+				Learner learner = new MultivariateRegressionLearner(features);
+				Dataset dataset = new Dataset(args[1]);
+				Heuristic heuristic = learner.learn(dataset);
+				System.out.println("learned weights: " + Arrays.toString(heuristic.getWeights()));
+				// test it
+				double L1error = dataset.getMeanError(heuristic, 1);
+				double L2error = dataset.getMeanError(heuristic, 2);
+				System.out.println("L1 error: " + L1error);
+				System.out.println("L2 error: " + L2error);
 			} else if(operation.equals("generate")) {
 				ConstraintSatisfier csf = new ConstraintSatisfier();
 				if(csf.readArgs(args)) {
@@ -116,7 +129,7 @@ public class Main {
 				System.err.println("graph depth: " + graph.maxDepth());
 				System.err.println("board depth: " + graph.getDepthOfBoard(board));
 				System.err.println("graph solutions: " + graph.solutions().size());
-			} else if(operation.equals("test")) {
+			} else if(operation.equals("test_old")) {
 				puzzleFile = args[1];
 				Board board = BoardIO.read(puzzleFile);
 				System.err.println("finding solutions...");
