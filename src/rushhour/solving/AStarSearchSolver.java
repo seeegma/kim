@@ -5,7 +5,7 @@ import rushhour.core.*;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
-public class GreedySearchSolver extends BoardGraph implements Solver {
+public class AStarSearchSolver extends BoardGraph implements Solver {
 
 	private NeighborComparator comparator;
 
@@ -34,7 +34,7 @@ public class GreedySearchSolver extends BoardGraph implements Solver {
 
 	}
 
-	public GreedySearchSolver(Heuristic heuristic) {
+	public AStarSearchSolver(Heuristic heuristic) {
 		super();
 		this.comparator = new NeighborComparator(heuristic);
 	}
