@@ -23,21 +23,19 @@ public class Main {
 	private static final String usage =
 		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
-		"\tprint <puzzle_file>\n" +
-		"\tinfo <puzzle_file>\n" +
-		"\tsolve <puzzle_file> [ --equiv | --ids | --bfs ] <puzzle_file> \n" +
-		"\tsolve <puzzle_file> --astar --features <features> --weights <weights>\n" +
-		"\tsolve <puzzle_file> --astar --features <features> --weightsFile <weights_file>\n" +
-		"\tlearn <dataset> --features <features> [ --outFile <weights_file> ]\n" +
-		"\ttest <dataset>  --features <features> --weights <weights> [LEARNING_OPTIONS]\n" +
-		"\ttest <dataset>  --features <features> --weightsFile <weights_file> [LEARNING_OPTIONS]\n" +
+		"    print <puzzle_file>                                                                      print an ASCII representation of a board\n" +
+		"    info <puzzle_file>                                                                       print information about a board (depth, graph size, # solutions)\n" +
+		"    solve <puzzle_file> [ --equiv | --ids | --bfs ] <puzzle_file>                            solve a board using an uninformed search, and give info about the solve\n" +
+		"    solve <puzzle_file> --astar --features <features> --weights <weights>                    solve a board using an informed search, comma-separated weight vector\n" +
+		"    solve <puzzle_file> --astar --features <features> --weightsFile <weights_file>           solve a board using an informed search, weights from a file\n" +
+		"    test <dataset>  <features> <weightsFile>                                                 test a heuristic on a given dataset, weights from cli\n" +
+		"    learn <dataset> --features <features> [ --outFile <weights_file> ] [LEARNING_OPTIONS]    learn a weight vector using the given features, and possibly write to a file\n" +
 		"Learning Options: \n" +
-		"--regularize\n" +
-		"--learningRate ALPHA\n" +
-		"--complexityPenalty LAMBDA\n" +
-		"--lossQ N\n" +
-		"--regularizationQ N\n" +
-		ConstraintSatisfier.usage;
+		"    --regularize                                                                             use regularization\n" +
+		"    --learningRate ALPHA                                                                     use the given learning rate 0<a<1. default is 0.1.\n" +
+		"    --complexityPenalty LAMBDA                                                               use the given complexity penalty L>0. default is 5.\n" +
+		"    --lossQ q                                                                                minimize L_q loss. usually 1 or 2. default is 2.\n" +
+		"    --regularizationQ q                                                                      use L_q regularization. usually 1 or 2. default is 2.";
 
 	public static void main(String[] args) {
 		if(args.length > 1) {
@@ -127,7 +125,7 @@ public class Main {
 				Learner learner = null;
 				// defaults
 				double learningRate = 0.1;
-				double complexityPentalty = 1.0;
+				double complexityPentalty = 5.0;
 				int regularizationQ = 2;
 				int lossQ = 2;
 				Dataset trainingSet = new Dataset(args[1]);
@@ -172,9 +170,9 @@ public class Main {
 				// display error
 				for(int q=1; q<=2; q++) {
 					System.out.println("L" + q + " error: ");
-					System.out.println("\ttraining data: " + trainingSet.getMeanError(heuristic, q));
+					System.out.println("    training data: " + trainingSet.getMeanError(heuristic, q));
 					if(devSet != null) {
-						System.out.println("\tdevelopment data: " + devSet.getMeanError(heuristic, q));
+						System.out.println("    development data: " + devSet.getMeanError(heuristic, q));
 					}
 				}
 			} else if(operation.equals("test")) {

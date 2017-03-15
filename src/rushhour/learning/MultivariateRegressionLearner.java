@@ -13,6 +13,9 @@ public class MultivariateRegressionLearner extends Learner {
 		super(features);
 	}
 
+	/**
+	 * learn a heuristic
+	 */
 	public Heuristic learn(Dataset dataset) {
 		int numFeatures = this.features.length;
 		int numData = dataset.size();
