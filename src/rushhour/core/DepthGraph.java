@@ -27,7 +27,7 @@ public abstract class DepthGraph extends BoardGraph {
 	}
 
 	protected void addSolutions(Board solvedBoard) {
-		System.err.print("-,");
+		// System.err.print("-,");
 		Vertex source = new Vertex(solvedBoard);
 		this.vertices.put(solvedBoard.hash(), source);
 		this.solutions.add(source.board.hash());
@@ -52,7 +52,7 @@ public abstract class DepthGraph extends BoardGraph {
 	}
 
 	public void propogateDepths(int toDepth) {
-		System.err.print("0,");
+		// System.err.print("0,");
 		LinkedList<Vertex> queue = new LinkedList<>();
 		boolean again;
 		do {
@@ -87,7 +87,7 @@ mainloop:	while(!queue.isEmpty()) {
 							if(this.maxDepth < neighborVertex.depth) {
 								this.maxDepth = neighborVertex.depth;
 								this.farthest = neighborVertex.board;
-								System.err.print(this.maxDepth + ",");
+								// System.err.print(this.maxDepth + ",");
 							}
 							queue.offer(neighborVertex);
 						}
@@ -95,6 +95,16 @@ mainloop:	while(!queue.isEmpty()) {
 				}
 			}
 		} while(again);
+	}
+
+	public Board getOneBoardCloser(Board board) {
+		Vertex v = this.getVertex(board);
+		for(Edge edge : v.neighbors) {
+			if(edge.vertex.depth < v.depth) {
+				return edge.vertex.board;
+			}
+		}
+		return null;
 	}
 
 	// from equivalenceclass constructor

@@ -74,15 +74,5 @@ public class EquivalenceClass extends DepthGraph {
 		return path;
 	}
 
-	public Board getOneBoardCloser(Board board) {
-		Vertex v = this.getVertex(board);
-		for(Edge edge : v.neighbors) {
-			if(edge.vertex.depth < v.depth) {
-				return edge.vertex.board;
-			}
-		}
-		return null;
-	}
-
 }
 
