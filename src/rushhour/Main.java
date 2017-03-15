@@ -130,10 +130,11 @@ public class Main {
 				double complexityPentalty = 1.0;
 				int regularizationQ = 2;
 				int lossQ = 2;
+				Dataset trainingSet = new Dataset(args[1]);
+				Dataset devSet = null;
 				for(int i=2; i<args.length; i++) {
 					if(args[i].equals("--features")) {
-						features = Feature.vectorFromString(args[i+1]);
-						i++;
+						features = Feature.vectorFromString(args[++i]);
 					} else if(args[i].equals("--outFile")) {
 						outFileName = args[++i];
 					} else if(args[i].equals("--regularize")) {
@@ -146,6 +147,8 @@ public class Main {
 						regularizationQ = Integer.parseInt(args[++i]);
 					} else if(args[i].equals("--lossQ")) {
 						lossQ = Integer.parseInt(args[++i]);
+					} else if(args[i].equals("--devSet")) {
+						devSet = new Dataset(args[++i]);
 					} else {
 						System.err.println("unrecognized learn option " + args[i]);
 						System.exit(1);
@@ -160,15 +163,18 @@ public class Main {
 				} else {
 					learner = new MultivariateRegressionLearner(features);
 				}
-				Dataset dataset = new Dataset(args[1]);
-				Heuristic heuristic = learner.learn(dataset);
+				Heuristic heuristic = learner.learn(trainingSet);
 				System.out.println("learned weights: " + Arrays.toString(heuristic.getWeights()));
 				// write to file
 				if(outFileName != null) {
 					Util.writeToFile(Util.vectorToString(heuristic.getWeights()), outFileName);
 				}
 				// display error
-				System.out.println("L" + lossQ + " error: " + dataset.getMeanError(heuristic, lossQ));
+				System.out.println("L" + lossQ + " error: ");
+				System.out.println("training data: " + trainingSet.getMeanError(heuristic, lossQ));
+				if(devSet != null) {
+					System.out.println("development data: " + devSet.getMeanError(heuristic, lossQ));
+				}
 			} else if(operation.equals("test")) {
 				if(args.length != 4) {
 					usage();
