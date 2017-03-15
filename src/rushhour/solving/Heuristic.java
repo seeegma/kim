@@ -51,7 +51,7 @@ public class Heuristic {
 		this.normalizeWeights();
 	}
 
-	private void normalizeWeights() {
+	public void normalizeWeights() {
 		double total = 0.0;
 		for(int i=0; i<this.weights.length; i++) {
 			total += this.weights[i];

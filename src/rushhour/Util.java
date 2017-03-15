@@ -2,15 +2,9 @@ package rushhour;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.io.File;
-import java.nio.file.DirectoryStream;
-import java.nio.file.DirectoryStream;
 import java.util.Scanner;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.nio.file.*;
+import java.io.*;
 
 public class Util {
 
@@ -39,6 +33,19 @@ public class Util {
 		}
 		return ret;
 	} 
+
+	public static void writeToFile(String string, String outFileName) {
+		try {
+			PrintWriter pw = new PrintWriter(outFileName, "utf-8");
+			pw.print(string);
+			pw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("Bad encoding for writing!");
+			e.printStackTrace();
+		}
+	}
 
 	public static String vectorToString(double[] vector) {
 		String ret = "" + vector[0];

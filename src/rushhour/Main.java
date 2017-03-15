@@ -26,11 +26,17 @@ public class Main {
 		"\tprint <puzzle_file>\n" +
 		"\tinfo <puzzle_file>\n" +
 		"\tsolve <puzzle_file> [ --equiv | --ids | --bfs ] <puzzle_file> \n" +
-		"\tsolve <puzzle_file> --astar <puzzle_file> --features <features> --weights <weights>\n" +
-		"\tsolve <puzzle_file> --astar <puzzle_file> --features <features> --weightsFile <weights_file>\n" +
-		"\tlearn <dataset> --features <features> --weights_file <weights_file>\n" +
-		"\tlearn <dataset> --features <features> --weights <weights>\n" +
-		"\ttest <dataset> <features> <weights_file>\n" +
+		"\tsolve <puzzle_file> --astar --features <features> --weights <weights>\n" +
+		"\tsolve <puzzle_file> --astar --features <features> --weightsFile <weights_file>\n" +
+		"\tlearn <dataset> --features <features> [ --outFile <weights_file> ]\n" +
+		"\ttest <dataset>  --features <features> --weights <weights> [LEARNING_OPTIONS]\n" +
+		"\ttest <dataset>  --features <features> --weightsFile <weights_file> [LEARNING_OPTIONS]\n" +
+		"Learning Options: \n" +
+		"--regularize\n" +
+		"--learningRate ALPHA\n" +
+		"--complexityPenalty LAMBDA\n" +
+		"--lossQ N\n" +
+		"--regularizationQ N\n" +
 		ConstraintSatisfier.usage;
 
 	public static void main(String[] args) {
@@ -115,48 +121,61 @@ public class Main {
 					System.out.println(features[i].toString() + ": " + features[i].value(board));
 				}
 			} else if(operation.equals("learn")) {
-				if(args.length < 4) {
-					System.err.println("need feature list");
-					System.exit(1);
-				}
 				Feature[] features = null;
 				String outFileName = null;
-				for(int i=3; i<args.length; i++) {
+				boolean regularize = false;
+				Learner learner = null;
+				// defaults
+				double learningRate = 0.1;
+				double complexityPentalty = 1.0;
+				int regularizationQ = 2;
+				int lossQ = 2;
+				for(int i=2; i<args.length; i++) {
 					if(args[i].equals("--features")) {
 						features = Feature.vectorFromString(args[i+1]);
 						i++;
 					} else if(args[i].equals("--outFile")) {
-						outFileName = args[i+1];
-						i++;
+						outFileName = args[++i];
+					} else if(args[i].equals("--regularize")) {
+						regularize = true;
+					} else if(args[i].equals("--learningRate")) {
+						learningRate = Double.parseDouble(args[++i]);
+					} else if(args[i].equals("--complexityPenalty")) {
+						complexityPentalty = Double.parseDouble(args[++i]);
+					} else if(args[i].equals("--regularizationQ")) {
+						regularizationQ = Integer.parseInt(args[++i]);
+					} else if(args[i].equals("--lossQ")) {
+						lossQ = Integer.parseInt(args[++i]);
 					} else {
 						System.err.println("unrecognized learn option " + args[i]);
 						System.exit(1);
 					}
 				}
-				Learner learner = new MultivariateRegressionLearner(features);
+				if(features == null) {
+					System.err.println("need feature list");
+					System.exit(1);
+				}
+				if(regularize) {
+					learner = new RegularizedMultivariateRegressionLearner(features, learningRate, complexityPentalty, regularizationQ, lossQ);
+				} else {
+					learner = new MultivariateRegressionLearner(features);
+				}
 				Dataset dataset = new Dataset(args[1]);
 				Heuristic heuristic = learner.learn(dataset);
 				System.out.println("learned weights: " + Arrays.toString(heuristic.getWeights()));
 				// write to file
 				if(outFileName != null) {
-					try {
-						PrintWriter pw = new PrintWriter(outFileName, "utf-8");
-						pw.print(Util.vectorToString(heuristic.getWeights()));
-						pw.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (UnsupportedEncodingException e) {
-						System.out.println("Bad encoding for writing!");
-						e.printStackTrace();
-					}
+					Util.writeToFile(Util.vectorToString(heuristic.getWeights()), outFileName);
 				}
+				// display error
+				System.out.println("L" + lossQ + " error: " + dataset.getMeanError(heuristic, lossQ));
 			} else if(operation.equals("test")) {
 				if(args.length != 4) {
 					usage();
 				}
 				Dataset dataset = new Dataset(args[1]);
 				Feature[] features = Feature.vectorFromString(args[2]);
-				double[] weights = Util.vectorFromString(args[3]);
+				double[] weights = Util.vectorFromFile(args[3]);
 				Heuristic heuristic = new Heuristic(features, weights);
 				double L1error = dataset.getMeanError(heuristic, 1);
 				double L2error = dataset.getMeanError(heuristic, 2);
