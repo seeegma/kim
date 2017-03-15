@@ -23,8 +23,7 @@ public class Main {
 	private static final String usage =
 		"Usage: java rushhour.Main [OPERATION] [ARGUMENTS]\n" + 
 		"Supported operations:\n" +
-		"    print <puzzle_file>                                                                      print an ASCII representation of a board\n" +
-		"    info <puzzle_file>                                                                       print information about a board (depth, graph size, # solutions)\n" +
+		"    info <puzzle_file>                                                                       print information about a board (ascii repr, depth, graph size, # solutions)\n" +
 		"    solve <puzzle_file> [ --equiv | --ids | --bfs ] <puzzle_file>                            solve a board using an uninformed search, and give info about the solve\n" +
 		"    solve <puzzle_file> --astar --features <features> --weights <weights>                    solve a board using an informed search, comma-separated weight vector\n" +
 		"    solve <puzzle_file> --astar --features <features> --weightsFile <weights_file>           solve a board using an informed search, weights from a file\n" +
@@ -41,10 +40,15 @@ public class Main {
 		if(args.length > 1) {
 			String operation = args[0];
 			String puzzleFile = null;
-			if(operation.equals("print")) {
+			if(operation.equals("info")) {
 				puzzleFile = args[1];
-				Board b = BoardIO.read(puzzleFile);
-				System.out.println(b.toString());
+				Board board = BoardIO.read(puzzleFile);
+				System.out.println("board:\n" + board.toString());
+				EquivalenceClass graph = board.getEquivalenceClass();
+				System.err.println("graph size: " + graph.size());
+				System.err.println("graph depth: " + graph.maxDepth());
+				System.err.println("board depth: " + graph.getDepthOfBoard(board));
+				System.err.println("graph solutions: " + graph.solutions().size());
 			} else if(operation.equals("solve")) {
 				Solver solver = null;
 				if(args.length == 2) {
@@ -216,30 +220,6 @@ public class Main {
 				} else {
 					usage();
 				}
-			} else if(operation.equals("info")) {
-				puzzleFile = args[1];
-				Board board = BoardIO.read(puzzleFile);
-				EquivalenceClass graph = board.getEquivalenceClass();
-				System.err.println("graph size: " + graph.size());
-				System.err.println("graph depth: " + graph.maxDepth());
-				System.err.println("board depth: " + graph.getDepthOfBoard(board));
-				System.err.println("graph solutions: " + graph.solutions().size());
-			} else if(operation.equals("test_old")) {
-				puzzleFile = args[1];
-				Board board = BoardIO.read(puzzleFile);
-				System.err.println("finding solutions...");
-				SolvedBoardGraph graph = SolvedBoardGraph.create(board);
-				if(graph == null) {
-					graph = SolvedBoardGraph.create(board.getEquivalenceClass().solutions().iterator().next());
-				}
-				int toDepth = Integer.parseInt(args[2]);
-				System.err.println("propogating to depth " + toDepth + "...");
-				graph.propogateDepths(toDepth);
-				System.err.println("board depth: " + graph.getDepthOfBoard(board));
-				System.err.println("graph depth: " + graph.maxDepth());
-				System.err.println("graph size: " + graph.size());
-				System.err.println("graph solutions: " + graph.solutions().size());
-				System.err.println("farthest depth: " + graph.getDepthOfBoard(graph.getFarthest()));
 			} else {
 				usage();
 			}
