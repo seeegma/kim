@@ -18,25 +18,25 @@ import java.nio.file.Path;
 public class ConstraintSatisfier {
 
 	public static final String usage =
-		"\tgenerate [GENERATION OPTIONS]\n\n" +
+		"\tgenerate [GENERATION OPTIONS]\n" +
 		"Generation Options: \n" +
-		"--boardSize N          Produce boards that are NxN\n\n" +
-		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n\n" +
-		"--numCars NUM          Produce boards with exactly NUM cars\n\n" +
-		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n\n" +
-		"--maxDepth DEPTH       Only produce boards with depth of at most DEPTH\n\n" +
-		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n\n" +
-		"--unique               Only produce boards that exist within unique equivalence classes\n\n" +
-		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n\n" +
-		"--minNumCars NUM       Produce boards with at least NUM cars (minimum=0, maximum=18)\n\n" +
-		"--maxNumCars NUM       Produce boards with at most NUM cars (minimum=0, maximum=18)\n\n" +
-		"--uniform              Slower, but guarantees uniformly random generation\n\n" +
-		"--maxVipX X            Only generate boards with vip.x <= X\n\n" +
-		"--minVipX X            Only generate boards with vip.x >= X\n\n" +
-		"--startSolved          Shorthand for forcing vip to start in solved position\n\n" +
-		"--stats                Print statistics about the boards that were produced\n\n" +
-		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n\n" +
-		"--quiet                Don't print anything while generation is running\n\n" +
+		"--boardSize N          Produce boards that are NxN\n" +
+		"--numBoards NUM        Produce exactly NUM boards (will differ from total number of boards generated if constraints are given.)\n" +
+		"--numCars NUM          Produce boards with exactly NUM cars\n" +
+		"--minDepth DEPTH       Only produce boards with depth of at least DEPTH\n" +
+		"--maxDepth DEPTH       Only produce boards with depth of at most DEPTH\n" +
+		"--maxPerDepth NUM      Produce at most NUM boards of each depth\n" +
+		"--unique               Only produce boards that exist within unique equivalence classes\n" +
+		"--prevGraphs DIR       Only produce boards that exist within different equivalence classes than the board(s) in DIR\n" +
+		"--minNumCars NUM       Produce boards with at least NUM cars\n" +
+		"--maxNumCars NUM       Produce boards with at most NUM cars\n" +
+		"--uniform              Slower, but guarantees uniformly random generation\n" +
+		"--maxVipX X            Only generate boards with vip.x <= X\n" +
+		"--minVipX X            Only generate boards with vip.x >= X\n" +
+		"--startSolved          Shorthand for forcing vip to start in solved position\n" +
+		"--stats                Print statistics about the boards that were produced\n" +
+		"--fullStats            Same as --stats but also print statistics about boards that were generated but not produced\n" +
+		"--quiet                Don't print anything while generation is running\n" +
 		"--puzzleFile           Dump each produced board to a puzzle file at ./generated_puzzles/<depth>/<index>.txt";
 
 	// options
@@ -51,7 +51,7 @@ public class ConstraintSatisfier {
 	private int maxNumCars = 15; // reasonable default
 	private int boardsToSave = 1; // reasonable default
 	private int minDepth = -1; // reasonable default
-	private int maxDepth = 100; // reasonable default
+	private int maxDepth = -1; // reasonable default
 	private boolean stats = false;
 	private boolean fullStats = false;
 	private int maxBoardsPerDepth = -1;
@@ -100,51 +100,38 @@ public class ConstraintSatisfier {
 		}
 		for(int i=1; i<args.length; i++) {
 			if(args[i].equals("--boardSize")) {
-				this.boardSize = Integer.parseInt(args[i+1]);
-				i++;
+				this.boardSize = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--numBoards")) {
-				this.boardsToSave = Integer.parseInt(args[i+1]);
-				i++;
+				this.boardsToSave = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--unique")) {
 				this.onlyUnique = true;
 			} else if(args[i].equals("--minDepth")) {
-				this.minDepth = Integer.parseInt(args[i+1]);
-				i++;
+				this.minDepth = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--maxDepth")) {
-				this.maxDepth = Integer.parseInt(args[i+1]);
-				i++;
+				this.maxDepth = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--maxPerDepth")) {
-				this.maxBoardsPerDepth = Integer.parseInt(args[i+1]);
-				i++;
+				this.maxBoardsPerDepth = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--startSolved")) {
 				this.startSolved = true;
 			} else if(args[i].equals("--maxVipX")) {
-				this.maxVipX = Integer.parseInt(args[i+1]);
-				i++;
+				this.maxVipX = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--minVipX")) {
-				this.minVipX = Integer.parseInt(args[i+1]);
-				i++;
+				this.minVipX = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--maxCarLength")) {
-				this.maxCarLength = Integer.parseInt(args[i+1]);
-				i++;
+				this.maxCarLength = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--numCars")) {
-				this.targetNumCars = Integer.parseInt(args[i+1]);
+				this.targetNumCars = Integer.parseInt(args[++i]);
 				this.setNumCars = true;
-				i++;
 			} else if(args[i].equals("--prevGraphs")) {
-				this.prevGraphsDir = args[i+1];
-				i++;
+				this.prevGraphsDir = args[++i];
 			} else if(args[i].equals("--minNumCars")) {
-				this.minNumCars = Integer.parseInt(args[i+1]);
-				i++;
+				this.minNumCars = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--maxNumCars")) {
-				this.maxNumCars = Integer.parseInt(args[i+1]);
-				i++;
+				this.maxNumCars = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--uniform")) {
 				this.uniform = true;
 			} else if(args[i].equals("--randomWalkLength")) {
-				this.randomWalkLength = Integer.parseInt(args[i+1]);
-				i++;
+				this.randomWalkLength = Integer.parseInt(args[++i]);
 			} else if(args[i].equals("--getGraph")) {
 				this.needGraph = true;
 			} else if(args[i].equals("--stats")) {
@@ -185,7 +172,7 @@ public class ConstraintSatisfier {
 			this.needGraph = true;
 		} else if(this.stats) {
 			this.needGraph = true;
-		} else if(this.minDepth != -1 || this.maxBoardsPerDepth != -1) {
+		} else if(this.minDepth != -1 || this.maxDepth != -1 || this.maxBoardsPerDepth != -1) {
 			if(!this.startSolved) {
 				this.needGraph = true;
 			}
@@ -238,7 +225,7 @@ public class ConstraintSatisfier {
 			}
 			Board randomBoard = gen.generate(targetNumCars);
 			int numCars = randomBoard.numCars();
-			EquivalenceClass graph = null; // dummy value
+			DepthGraph graph = null; // dummy value
 			Long hash = null; // dummy value
 			int graphDepth = -2; // dummy value
 			int randomBoardDepth = -2; // dummy value
@@ -249,10 +236,12 @@ public class ConstraintSatisfier {
 				if(!quiet) {
 					System.err.print("generating equivalence class...");
 				}
-				graph = randomBoard.getEquivalenceClass();
-				hash = graph.hash();
-				graphDepth = graph.maxDepth();
-				randomBoardDepth = graph.getDepthOfBoard(randomBoard);
+				// we'll temporarily store the graph as an EquivalenceClass type, then keep only a DepthGraph later
+				EquivalenceClass equivalenceClass = randomBoard.getEquivalenceClass();
+				hash = equivalenceClass.hash();
+				graphDepth = equivalenceClass.maxDepth();
+				randomBoardDepth = equivalenceClass.getDepthOfBoard(randomBoard);
+				graph = (DepthGraph)equivalenceClass;
 			}
 			/*
 			 * STEP 1.3: figure out if it meets the constraints
@@ -266,12 +255,11 @@ public class ConstraintSatisfier {
 			} if(onlyUnique && uniqueGraphs.contains(hash)) {
 				// make sure the graph is in a unique equivalence class, if necessary
 				keepBoard = false;
-			} else if(outputBoard == null || outputBoardDepth > this.maxDepth) {
-				keepBoard = false;
-			} else if(minDepth > -1 || maxBoardsPerDepth > -1) {
-				// final check: if depth is too low
+			} else if(minDepth > -1 || maxDepth >= -1 || maxBoardsPerDepth > -1) {
+				// final check: if depth is too low, too high, or too frequent
+				// first: check if too high
 				if(outputBoardDepth < minDepth) {
-					if(needGraph) {
+					if(graph != null) {
 						// if we have the graph, just use that
 						if(graphDepth < minDepth) {
 							// if using the highest depth board in the graph won't be enough
@@ -282,7 +270,7 @@ public class ConstraintSatisfier {
 						} else {
 							// walk back
 							outputBoard = graph.getFarthest();
-							outputBoardDepth = graph.maxDepth();
+							outputBoardDepth = graph.getDepthOfBoard(outputBoard);
 							if(!quiet) {
 								System.err.println("good; got farthest (depth=" + outputBoardDepth + ")");
 							}
@@ -292,18 +280,18 @@ public class ConstraintSatisfier {
 						if(!quiet) {
 							System.err.print("creating solvedBoardGraph...");
 						}
-						SolvedBoardGraph sbg = SolvedBoardGraph.create(randomBoard);
-						sbg.propogateDepths(minDepth);
-						if(sbg.maxDepth() < minDepth) {
+						graph = SolvedBoardGraph.create(randomBoard);
+						graph.propogateDepths(minDepth);
+						if(graph.maxDepth() < minDepth) {
 							// if we finish, the board is no good
 							keepBoard = false;
 							if(!quiet) {
-								System.err.println("too small; graphDepth=" + sbg.maxDepth());
+								System.err.println("too small; graphDepth=" + graph.maxDepth());
 							}
 						} else {
 							// otherwise keep it
-							outputBoard = sbg.getFarthest();
-							outputBoardDepth = sbg.maxDepth();
+							outputBoard = graph.getFarthest();
+							outputBoardDepth = graph.maxDepth();
 							if(!quiet) {
 								System.err.println("good; got farthest (depth=" + outputBoardDepth + ")");
 							}
@@ -311,6 +299,21 @@ public class ConstraintSatisfier {
 					} else {
 						keepBoard = false;
 					}
+				}
+				// now check if it's too high or too frequent
+				while(outputBoardDepth > maxDepth || (this.boardsSavedSoFarByBoardDepth.containsKey(outputBoardDepth) && this.boardsSavedSoFarByBoardDepth.get(outputBoardDepth) == maxBoardsPerDepth)) {
+					if(!quiet) {
+						System.err.println("too deep; backtracking...");
+					}
+					outputBoard = graph.getOneBoardCloser(outputBoard);
+					outputBoardDepth--;
+				}
+				// now check if what we're left with is still above minDepth, if necessary
+				if(outputBoardDepth < minDepth) {
+					if(!quiet) {
+						System.err.println("too shallow; discarding board");
+					}
+					keepBoard = false;
 				}
 			}
 			/*
