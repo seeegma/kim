@@ -170,10 +170,12 @@ public class Main {
 					Util.writeToFile(Util.vectorToString(heuristic.getWeights()), outFileName);
 				}
 				// display error
-				System.out.println("L" + lossQ + " error: ");
-				System.out.println("training data: " + trainingSet.getMeanError(heuristic, lossQ));
-				if(devSet != null) {
-					System.out.println("development data: " + devSet.getMeanError(heuristic, lossQ));
+				for(int q=1; q<=2; q++) {
+					System.out.println("L" + q + " error: ");
+					System.out.println("\ttraining data: " + trainingSet.getMeanError(heuristic, q));
+					if(devSet != null) {
+						System.out.println("\tdevelopment data: " + devSet.getMeanError(heuristic, q));
+					}
 				}
 			} else if(operation.equals("test")) {
 				if(args.length != 4) {
